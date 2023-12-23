@@ -1,4 +1,22 @@
 /* Global styles */
+:root {
+  --primary-color: #212121;
+  --secondary-color: #ded7d7;
+  /* Add more colors as needed */
+}
+
+/* Cursor blinking animation */
+.typing-animation::after {
+  content: '|';
+  animation: blink-caret 0.75s infinite;
+}
+
+@keyframes blink-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
 body {
   font-family: 'Arial', sans-serif;
   margin: 0;
@@ -18,7 +36,7 @@ body {
 }
 
 .light {
-  background-color: #f8f8f8;
+  background-color: #e5e5e9;
   color: #333;
 }
 
@@ -46,12 +64,19 @@ body {
 header {
   text-align: center;
   padding: 20px 0;
+  background-color: var(--bg-color-header);
 }
 
 header h1 {
   margin-bottom: 5px;
 }
 
+header p {
+  font-size: 1.2em;
+  margin-bottom: 15px;
+}
+
+/* Contact info styles */
 .contact-info {
   list-style: none;
   padding: 0;
@@ -59,7 +84,36 @@ header h1 {
 }
 
 .contact-info li {
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  display: inline-block;
+  margin-right: 20px;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.contact-info li:nth-child(odd) {
+  animation: fade-in 0.8s ease forwards;
+  animation-delay: 0.2s;
+}
+
+.contact-info li:nth-child(even) {
+  animation: fade-in 0.8s ease forwards;
+  animation-delay: 0.4s;
+}
+
+/* Hover effect for icons */
+.contact-info li i {
+  margin-right: 5px;
+  transition: all 0.3s ease;
+}
+
+.contact-info li:hover i {
+  color: #fff;
+  background-color: var(--border-color-light);
+  padding: 8px;
+  border-radius: 50%;
 }
 
 /* Section styles */
@@ -109,25 +163,96 @@ section:nth-child(even) {
 .skills,
 .interests,
 .education {
+  background-color: #dbd6d6;
+  color: #0c0c0c;
+}
+
+/* Dark mode styles for sections */
+.dark .summary,
+.dark .work-experience,
+.dark .project-experience,
+.dark .skills,
+.dark .interests,
+.dark .education {
   background-color: #343434;
   color: #ded7d7;
-}
-
-
-/* Contact info styles */
-.contact-info {
-  list-style: none;
-  padding: 0;
-  text-align: center;
-}
-
-.contact-info li {
-  margin-bottom: 5px;
-  display: inline-block;
-  margin-right: 20px;
 }
 
 /* Icon styles */
 .fa {
   margin-right: 5px;
+}
+
+
+/* Button styles for light mode */
+.light .mode-toggle {
+  color: #333;
+  border: 2px solid #333;
+}
+
+.light .mode-toggle:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Button styles for dark mode */
+.dark .mode-toggle {
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+.dark .mode-toggle:hover {
+  background-color: #fff;
+  color: #333;
+}
+
+/* work experience */
+
+.work-experience {
+  margin-top: 30px;
+  padding: 20px;
+}
+
+/* Adjusted scroll wrapper */
+.work-experience-scroll {
+  overflow-x: auto; /* Enable horizontal scroll */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  display: flex; /* Use flexbox for the scrolling container */
+}
+.work-experience h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+.work-experience-cards {
+  display: flex; /* Use flexbox for the cards */
+  gap: 20px; /* Adjust spacing between cards */
+  flex: 0 0 auto; /* Prevent cards from shrinking */
+  scroll-snap-type: x mandatory; /* Enable snap scrolling */
+}
+
+/* Card styles */
+.work-experience-card {
+  display: inline-block; /* Ensure cards stay in a line */
+  min-width: 300px;
+  max-width: 90%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-right: 20px; /* Adjust the space between cards */
+  vertical-align: top; /* Align cards to the top */
+  /* Additional styles for each card */
+}
+
+/* Different colors for cards */
+.work-experience-card:nth-child(odd) {
+  background-color: #7a6969;
+}
+
+.work-experience-card:nth-child(even) {
+  background-color: #7a6969;
+}
+
+.work-experience-scroll::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
 }

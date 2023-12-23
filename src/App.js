@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import Typed from 'react-typed';
+
 
 const resumeData = {
-  name: 'Rajashekara Uttamanenei',
+  name: 'Pottabattini Santosh Kumar',
   location: 'India',
   phone: '(MyphoneNumber)',
   email: '(MyEmail)',
@@ -68,44 +70,45 @@ const App = () => {
 
       <header>
         <h1>{resumeData.name}</h1>
+        <Typed style={{padding: 3}} strings={[resumeData.summary]} typeSpeed={10} loop={false} />
         <ul className="contact-info">
-          <li>
-            <i className="fa fa-phone" aria-hidden="true"></i>
+          {/* <li>
+            <i className="fas fa-phone"></i>
             {resumeData.phone}
-          </li>
+          </li> */}
           <li>
-            <i className="fa fa-envelope" aria-hidden="true"></i>
+            <i className="fas fa-envelope"></i>
             {resumeData.email}
           </li>
           <li>
+            <i className="fab fa-linkedin"></i>
             <a href={resumeData.linkedin} target="_blank" rel="noopener noreferrer">
-              <i className="fa fa-linkedin-square" aria-hidden="true"></i>
               LinkedIn
             </a>
           </li>
         </ul>
       </header>
 
-      <section className="summary">
-        <h2>Summary</h2>
-        <p>{resumeData.summary}</p>
-      </section>
-
       <section className="work-experience">
         <h2>Work Experience</h2>
-        {resumeData.workExperience.map((exp, index) => (
-          <div key={index} className="exp">
-            <h3>{exp.title}</h3>
-            <p>{exp.company}</p>
-            <p>{exp.duration}</p>
-            <ul>
-              {exp.details.map((detail, i) => (
-                <li key={i}>{detail}</li>
-              ))}
-            </ul>
+        <div className="work-experience-scroll">
+          <div className="work-experience-cards">
+            {resumeData.workExperience.map((exp, index) => (
+              <div key={index} className="work-experience-card">
+                <h3>{exp.title}</h3>
+                <p>{exp.company}</p>
+                <p>{exp.duration}</p>
+                <ul>
+                  {exp.details.map((detail, i) => (
+                    <li key={i}>{detail}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </section>
+
 
       <section className="project-experience">
         <h2>Project Experience</h2>
@@ -143,9 +146,9 @@ const App = () => {
         <p>{resumeData.education.graduationDate}</p>
       </section>
 
-      <footer>
+      {/* <footer>
         <p>&copy; Your Name</p>
-      </footer>
+      </footer> */}
     </div>
   );
 };
