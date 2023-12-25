@@ -1,258 +1,38 @@
-/* Global styles */
-:root {
-  --primary-color: #212121;
-  --secondary-color: #ded7d7;
-  /* Add more colors as needed */
+.App {
+  text-align: center;
 }
 
-/* Cursor blinking animation */
-.typing-animation::after {
-  content: '|';
-  animation: blink-caret 0.75s infinite;
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
 }
 
-@keyframes blink-caret {
-  50% {
-    opacity: 0;
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
   }
 }
 
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  transition: all 0.3s ease;
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
 }
 
-.app {
-  transition: all 0.3s ease;
-  padding: 20px;
-  margin: 0 auto; /* Centers the content */
+.App-link {
+  color: #61dafb;
 }
 
-.dark {
-  background-color: #212121;
-  color: #fff;
-}
-
-.light {
-  background-color: #e5e5e9;
-  color: #333;
-}
-
-/* Button styles */
-.mode-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 10px 20px;
-  background-color: transparent;
-  color: #fff;
-  border: 2px solid #fff;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 999;
-}
-
-.mode-toggle:hover {
-  background-color: #fff;
-  color: #333;
-}
-
-/* Header styles */
-header {
-  text-align: center;
-  padding: 20px 0;
-  background-color: var(--bg-color-header);
-}
-
-header h1 {
-  margin-bottom: 5px;
-}
-
-header p {
-  font-size: 1.2em;
-  margin-bottom: 15px;
-}
-
-/* Contact info styles */
-.contact-info {
-  list-style: none;
-  padding: 0;
-  text-align: center;
-}
-
-.contact-info li {
-  margin-bottom: 10px;
-  display: inline-block;
-  margin-right: 20px;
-  position: relative;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.contact-info li:nth-child(odd) {
-  animation: fade-in 0.8s ease forwards;
-  animation-delay: 0.2s;
-}
-
-.contact-info li:nth-child(even) {
-  animation: fade-in 0.8s ease forwards;
-  animation-delay: 0.4s;
-}
-
-/* Hover effect for icons */
-.contact-info li i {
-  margin-right: 5px;
-  transition: all 0.3s ease;
-}
-
-.contact-info li:hover i {
-  color: #fff;
-  background-color: var(--border-color-light);
-  padding: 8px;
-  border-radius: 50%;
-}
-
-/* Section styles */
-section {
-  padding: 20px;
-  margin-bottom: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-h2 {
-  margin-bottom: 10px;
-}
-
-/* Apply animation to sections */
-section {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-section:nth-child(odd) {
-  animation: fade-in 0.8s ease forwards;
-  animation-delay: 0.2s;
-}
-
-section:nth-child(even) {
-  animation: fade-in 0.8s ease forwards;
-  animation-delay: 0.4s;
-}
-
-@keyframes fade-in {
+@keyframes App-logo-spin {
   from {
-    opacity: 0;
-    transform: translateY(20px);
+    transform: rotate(0deg);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
-}
-
-/* Other section styles */
-.summary,
-.work-experience,
-.project-experience,
-.skills,
-.interests,
-.education {
-  background-color: #dbd6d6;
-  color: #0c0c0c;
-}
-
-/* Dark mode styles for sections */
-.dark .summary,
-.dark .work-experience,
-.dark .project-experience,
-.dark .skills,
-.dark .interests,
-.dark .education {
-  background-color: #343434;
-  color: #ded7d7;
-}
-
-/* Icon styles */
-.fa {
-  margin-right: 5px;
-}
-
-
-/* Button styles for light mode */
-.light .mode-toggle {
-  color: #333;
-  border: 2px solid #333;
-}
-
-.light .mode-toggle:hover {
-  background-color: #333;
-  color: #fff;
-}
-
-/* Button styles for dark mode */
-.dark .mode-toggle {
-  color: #fff;
-  border: 2px solid #fff;
-}
-
-.dark .mode-toggle:hover {
-  background-color: #fff;
-  color: #333;
-}
-
-/* work experience */
-
-.work-experience {
-  margin-top: 30px;
-  padding: 20px;
-}
-
-/* Adjusted scroll wrapper */
-.work-experience-scroll {
-  overflow-x: auto; /* Enable horizontal scroll */
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-  display: flex; /* Use flexbox for the scrolling container */
-}
-.work-experience h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-.work-experience-cards {
-  display: flex; /* Use flexbox for the cards */
-  gap: 20px; /* Adjust spacing between cards */
-  flex: 0 0 auto; /* Prevent cards from shrinking */
-  scroll-snap-type: x mandatory; /* Enable snap scrolling */
-}
-
-/* Card styles */
-.work-experience-card {
-  display: inline-block; /* Ensure cards stay in a line */
-  min-width: 300px;
-  max-width: 90%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 20px;
-  margin-right: 20px; /* Adjust the space between cards */
-  vertical-align: top; /* Align cards to the top */
-  /* Additional styles for each card */
-}
-
-/* Different colors for cards */
-.work-experience-card:nth-child(odd) {
-  background-color: #7a6969;
-}
-
-.work-experience-card:nth-child(even) {
-  background-color: #7a6969;
-}
-
-.work-experience-scroll::-webkit-scrollbar {
-  display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
 }
