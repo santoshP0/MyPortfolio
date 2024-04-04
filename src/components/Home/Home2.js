@@ -13,18 +13,23 @@ function Home2() {
     <Container fluid className="home-about-section" id="about">
       <Container>
         <Row>
-          <Col md={8} className="home-about-description">
+          <Col className="home-about-description">
             <h1 style={{ fontSize: "2.6em" }}>
               LET ME <span className="purple"> INTRODUCE </span> MYSELF
             </h1>
             <p className="home-about-body">
-              I fell in love with programming and I have at least learnt
-              something, I think… 🤷‍♂️
+              I'm a software engineer deeply passionate about building impactful applications for both Android and iOS platforms. 
+              Within my <span className="purple">4.5 years</span> of industry experience, I have committed <span className="purple">4 years</span> exclusively to professional <span className="purple">React Native development</span>, specializing in crafting seamless cross-platform experiences.
+              Additionally, I possess proficiency in <span className="purple">React.js</span>.
               <br />
-              <br />I am fluent in classics like
-              <i>
-                <b className="purple"> Javascript and Python. </b>
-              </i>
+              <br />Proficient in  
+              <b className="purple"> React Native</b>,
+              <b className="purple"> React.js</b>,
+              <b className="purple"> Node.js</b>,
+              <b className="purple"> AWS</b> with expertise in 
+              <b className="purple"> TypeScript</b>,
+              <b className="purple"> JavaScript</b> and
+              <b className="purple"> Python</b>
               <br />
               <br />
               My field of Interest's are building new &nbsp;
@@ -50,41 +55,6 @@ function Home2() {
                 <b className="purple"> React-native and React.js</b>
               </i>
             </p>
-          </Col>
-          <Col md={4} className="myAvtar">
-            <Tilt>
-              <img src={myImg} className="img-fluid" alt="avatar" />
-            </Tilt>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12} className="home-about-social">
-            <h1>FIND ME ON</h1>
-            <p>
-              Feel free to <span className="purple">connect </span>with me
-            </p>
-            <ul className="home-about-social-links">
-              <li className="social-icons">
-                <a
-                  href="mailto:santosh.pk@hotmail.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="icon-colour  home-social-icons"
-                >
-                  <AiTwotoneMail />
-                </a>
-              </li>
-              <li className="social-icons">
-                <a
-                  href="https://www.linkedin.com/in/santosh-kumar-649928265"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="icon-colour  home-social-icons"
-                >
-                  <FaLinkedinIn />
-                </a>
-              </li>
-            </ul>
           </Col>
         </Row>
       </Container>
