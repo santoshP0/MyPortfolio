@@ -18,7 +18,7 @@ function Home() {
               <h1 style={{ paddingBottom: 15 }} className="display-4">
                 <strong className="main-name"> Im a Mobile App Developer </strong>
               </h1>
-              <div style={{ padding: 50, fontSize: 10, justifyContent:"center", textAlign:"center", alignItems:"center"}} className="display-10">
+              <div style={{ padding: 50, justifyContent:"center", textAlign:"center", alignItems:"center"}} className="display-10">
                 <Type />
               </div>
             </Col>
