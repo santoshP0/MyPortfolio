@@ -13,7 +13,7 @@ function About() {
       <Container>
         <Row style={{ justifyContent: "center", padding: "10px" }}>
           <Col
-            md={7}
+            // md={7}
             style={{
               justifyContent: "center",
               paddingTop: "30px",
@@ -21,17 +21,17 @@ function About() {
             }}
           >
             <h1 style={{ fontSize: "2.1em", paddingBottom: "20px" }}>
-              Know Who <strong className="purple">I'M</strong>
+              Professional <strong className="purple">Overview</strong>
             </h1>
             <Aboutcard />
           </Col>
-          <Col
+          {/* <Col
             md={5}
             style={{ paddingTop: "50px", paddingBottom: "50px" }}
             className="about-img"
           >
             <img src={laptopImg} alt="about" className="img-fluid" />
-          </Col>
+          </Col> */}
         </Row>
         <h1 className="project-heading">
           Professional <strong className="purple">Skillset </strong>
