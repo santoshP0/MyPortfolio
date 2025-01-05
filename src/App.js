@@ -41,7 +41,7 @@ function App() {
           <Route path="/resume" element={<Resume />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
-        <a href="mailto:santosh.pk@hotmail.com" target="_blank" rel="noopener noreferrer" className="sticky-text display-7">Santosh.pk@hotmail.com</a>
+        <a href="mailto:santoshpk.mdev@gmail.com" target="_blank" rel="noopener noreferrer" className="sticky-text display-7">santoshpk.mdev@gmail.com</a>
       </div>
     </Router>
   );
