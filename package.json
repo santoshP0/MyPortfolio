@@ -46,5 +46,8 @@
     "node": "20.10.0",
     "npm": "10.2.3",
     "yarn": "4.0.2"
+  },
+  "devDependencies": {
+    "gh-pages": "6.3.0"
   }
 }
