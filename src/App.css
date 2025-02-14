@@ -13,6 +13,14 @@
   }
 }
 
+.card-text-4-lines {
+  height: 4.8em; /* Adjust to fit exactly 4 lines (based on font size and line height) */
+  line-height: 1.2em; /* Adjust based on your font size */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

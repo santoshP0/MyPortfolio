@@ -11,7 +11,7 @@ import {
   DiAws
 } from "react-icons/di";
 import {
-  SiFirebase,
+  SiFirebase, SiTypescript, SiKotlin, SiApple
 } from "react-icons/si";
 
 function Techstack() {
@@ -21,6 +21,18 @@ function Techstack() {
       <Row style={{ paddingTop: "20px" }} >
           <DiJavascript1 />
           <span style={{ fontSize: 10 }} >Javascript</span>
+        </Row>
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+      <Row style={{ paddingTop: "20px" }} >
+          <SiTypescript />
+          <span style={{ fontSize: 10 }} >TypeScript</span>
+        </Row>
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+      <Row style={{ paddingTop: "20px" }} >
+          <SiKotlin />
+          <span style={{ fontSize: 10 }} >Kotlin</span>
         </Row>
       </Col>
       <Col xs={4} md={2} className="tech-icons">
@@ -69,6 +81,12 @@ function Techstack() {
         <Row style={{ paddingTop: "20px" }} >
           <DiAndroid />
           <span style={{ fontSize: 10 }} >Android</span>
+        </Row>
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+        <Row style={{ paddingTop: "20px" }} >
+          <SiApple />
+          <span style={{ fontSize: 10 }} >IOS</span>
         </Row>
       </Col>
       <Col xs={4} md={2} className="tech-icons">
