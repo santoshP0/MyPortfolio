@@ -19,7 +19,7 @@ function Home2() {
             </h1>
             <p className="home-about-body">
               I'm a software engineer deeply passionate about building impactful applications for both Android and iOS platforms. 
-              Within my <span className="purple">5+ years</span> of industry experience, I have committed <span className="purple">4 years</span> exclusively to professional <span className="purple">React Native development</span>, specializing in crafting seamless cross-platform experiences.
+              Within my <span className="purple">5+ years</span> of industry experience, I have committed <span className="purple">4.5 years</span> exclusively to professional <span className="purple">React Native development</span>, specializing in crafting seamless cross-platform experiences.
               Additionally, I possess proficiency in <span className="purple">React.js</span>.
               <br />
               <br />Proficient in  
