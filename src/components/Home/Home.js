@@ -1,30 +1,74 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import homeLogo from "../../Assets/home-main-img-nobg.png";
-import Particle from "../Particle";
 import Home2 from "./Home2";
 import Type from "./Type";
+
+const heroStats = [
+  { label: "XP", value: "5+ Years" },
+  { label: "Specialty", value: "React Native · React.js" },
+  { label: "Current Quest", value: "High-impact mobile worlds" },
+];
 
 function Home() {
   return (
     <>
-      <Container fluid className="home-section" id="home">
-        <Particle />
-        <Container className="home-content d-flex align-items-center justify-content-center text-center">
-            <Col className="lead" >
-              <h1 style={{ paddingBottom: 15 }} className="display-3">
-                Hi, Iam <strong> Pottabattini Santosh. </strong>
-              </h1>
-              <h1 style={{ paddingBottom: 15 }} className="display-4">
-                <strong className="main-name"> Im a Mobile App Developer </strong>
-              </h1>
-              <div style={{ padding: 50, justifyContent:"center", textAlign:"center", alignItems:"center"}} className="display-10">
-                <Type />
-              </div>
-            </Col>
-
+      <section className="hero-section anime-section" id="home">
+        <Container fluid className="hero-wrapper">
+          <div className="hero-frame">
+            <Row className="hero-row align-items-center">
+              <Col md={7} className="hero-copy">
+                <h1 className="hero-title">
+                  Hi, I'm <span className="accent">Pottabattini Santosh</span>
+                </h1>
+                <p className="hero-subtitle">
+                  Mobile App Developer forged in the chaos of fast-moving quests.
+                </p>
+                <div className="hero-type">
+                  <Type />
+                </div>
+                <div className="hero-stats">
+                  {heroStats.map((stat) => (
+                    <div className="hero-stat-card" key={stat.label}>
+                      <span className="hero-stat-label">{stat.label}</span>
+                      <span className="hero-stat-value">{stat.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </Col>
+              <Col md={5} className="hero-visual">
+                <div className="hero-console">
+                  <span className="hero-console__halo" aria-hidden="true" />
+                  <div className="hero-console__ring hero-console__ring--outer" aria-hidden="true" />
+                  <div className="hero-console__ring hero-console__ring--inner" aria-hidden="true" />
+                  <div className="hero-console__shell">
+                    <span className="hero-console__tag">CV ACCESS</span>
+                    <div className="hero-console__status">
+                      <span className="hero-console__code">A-01</span>
+                      <span className="hero-console__subtitle">Action · Isekai Ready</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="hero-console__cta"
+                      onClick={() => {
+                        const resumeSection = document.getElementById("resume");
+                        if (resumeSection) {
+                          resumeSection.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }}
+                      aria-label="Scroll to character sheet"
+                    >
+                      <span className="hero-console__cta-glow" aria-hidden="true" />
+                      <span className="hero-console__cta-icon" aria-hidden="true">⟡</span>
+                      <span className="hero-console__cta-text">View Character Sheet</span>
+                    </button>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </div>
         </Container>
-      </Container>
+        <div className="hero-scanline" aria-hidden="true" />
+      </section>
       <Home2 />
     </>
   );

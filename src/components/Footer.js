@@ -1,47 +1,44 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import {
-  AiFillMail
-} from "react-icons/ai";
+import { AiFillMail } from "react-icons/ai";
 import { FaLinkedinIn } from "react-icons/fa";
 
 function Footer() {
   return (
-    <Container fluid className="footer">
-      <Row>
-        <Col md="6" className="footer-copywright">
-          <h3>This website runs on 99% pixels, 1% magic, and a sprinkle of chaotic energy</h3>
-        </Col>
-        <Col md="2" className="footer-copywright">
-        </Col>
-        <Col md="4" className="footer-body">
-          <ul className="footer-icons">
-            <li className="social-icons">
-            </li>
-            <li className="social-icons">
-              <a
-                href="https://www.linkedin.com/in/santosh-kumar-649928265"
-                style={{ color: "white" }}
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <FaLinkedinIn />
-              </a>
-            </li>
-            <li className="social-icons">
-              <a
-                href="mailto:santoshpk.mdev@gmail.com"
-                style={{ color: "white" }}
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <AiFillMail />
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-    </Container>
+    <footer className="footer">
+      <Container>
+        <Row className="align-items-center gy-3">
+          <Col md={7} className="footer-copywright">
+            <span className="footer-tag">[End Credits]</span>
+            <h3>Thanks for exploring this world. Let’s build the next realm together.</h3>
+          </Col>
+          <Col md={5} className="footer-body">
+            <ul className="footer-icons">
+              <li className="social-icons">
+                <a
+                  href="mailto:santoshpk.mdev@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Email"
+                >
+                  <AiFillMail />
+                </a>
+              </li>
+              <li className="social-icons">
+                <a
+                  href="https://www.linkedin.com/in/santosh-kumar-649928265"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                >
+                  <FaLinkedinIn />
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+      </Container>
+    </footer>
   );
 }
 

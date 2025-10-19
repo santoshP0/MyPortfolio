@@ -1,64 +1,62 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import myImg from "../../Assets/profilepic.png";
-import Tilt from "react-parallax-tilt";
-import {
-  AiTwotoneMail,
-  AiFillInstagram,
-} from "react-icons/ai";
-import { FaLinkedinIn } from "react-icons/fa";
+import Aboutcard from "../About/AboutCard";
+
+const loadout = [
+  "React Native · React.js · Node.js · AWS",
+  "TypeScript · JavaScript · Python",
+  "Pixel-perfect Android & iOS delivery",
+];
 
 function Home2() {
   return (
-    <Container fluid className="home-about-section" id="about">
+    <section className="lore-section anime-section" id="about">
       <Container>
-        <Row>
-          <Col className="home-about-description">
-            <h1 style={{ fontSize: "2.6em" }}>
-              LET ME <span className="purple"> INTRODUCE </span> MYSELF
-            </h1>
-            <p className="home-about-body">
-              I'm a software engineer deeply passionate about building impactful applications for both Android and iOS platforms. 
-              Within my <span className="purple">5+ years</span> of industry experience, I have committed <span className="purple">4.5 years</span> exclusively to professional <span className="purple">React Native development</span>, specializing in crafting seamless cross-platform experiences.
-              Additionally, I possess proficiency in <span className="purple">React.js</span>.
-              <br />
-              <br />Proficient in  
-              <b className="purple"> React Native</b>,
-              <b className="purple"> React.js</b>,
-              <b className="purple"> Node.js</b>,
-              <b className="purple"> AWS</b> with expertise in 
-              <b className="purple"> TypeScript</b>,
-              <b className="purple"> JavaScript</b> and
-              <b className="purple"> Python</b>
-              <br />
-              <br />
-              My field of Interest's are building new &nbsp;
-              <i>
-                <b className="purple">Android and IOS Apps </b> and
-                also in areas related to{" "}
-                <b className="purple">
-                  Data Structure and Algorithms
-                </b>
-              </i>
-              <br />
-              <br />
-              Whenever possible, I also apply my passion for developing products
-              with <b className="purple">Node.js</b> and
-              <i>
-                <b className="purple">
-                  {" "}
-                  Modern Javascript Library and Frameworks
-                </b>
-              </i>
-              &nbsp; like
-              <i>
-                <b className="purple"> React-native and React.js</b>
-              </i>
+        <Row className="lore-row">
+          <Col lg={8} className="lore-copy">
+            <div className="lore-badge">[Lore Upload]</div>
+            <h2 className="lore-title">
+              Battle-tested mobile developer with an action anime mindset.
+            </h2>
+            <p className="lore-body">
+              I'm a software engineer obsessed with building impactful Android and
+              iOS experiences. Across <span className="accent">5+ years</span> in the
+              field, I've spent <span className="accent">4.5 years</span> mastering{" "}
+              <span className="accent">React Native</span> to ship cross-platform apps
+              that feel native in every universe.
+            </p>
+            <p className="lore-body">
+              React.js keeps my web instincts sharp, while{" "}
+              <span className="accent">Data Structures and Algorithms</span> training
+              powers how I solve high-pressure quests. I thrive on blending clean
+              architecture with anime-level dramatic flair.
+            </p>
+            <div className="lore-loadout">
+              <span className="lore-loadout-label">Weapon loadout</span>
+              <ul className="lore-loadout-list">
+                {loadout.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <p className="lore-body">
+              When the mission calls, I deploy <span className="accent">Node.js</span>{" "}
+              backends and modern JavaScript frameworks to deliver cohesive,
+              story-driven products from prototype to launch.
             </p>
           </Col>
         </Row>
+        <Row className="lore-row lore-row--intel">
+          <Col lg={8}>
+            <div className="lore-intel">
+              <span className="lore-intel__tag">[Professional Intel]</span>
+              <Aboutcard />
+            </div>
+          </Col>
+        </Row>
       </Container>
-    </Container>
+    </section>
   );
 }
+
 export default Home2;

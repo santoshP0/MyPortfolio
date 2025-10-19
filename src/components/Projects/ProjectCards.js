@@ -1,67 +1,60 @@
 import React from "react";
-import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { BsApple, BsMedium, BsAndroid2 } from "react-icons/bs";
 
-function ProjectCards(props) {
+function ProjectCard({
+  imgPath,
+  isBlog,
+  title,
+  description,
+  link,
+  AndrLink,
+  iosLink,
+}) {
   return (
-    <Card className="project-card-view d-flex flex-column">
-      {
-       props.isBlog ? (
-        <Card.Img variant="top" src={props.imgPath} alt="card-img" style={{ height: "250px", objectFit: "cover" }}  />
-      ) : (
-        <Card.Img variant="top" src={props.imgPath} alt="card-img"  />
-      )
-      }
-      <Card.Body>
-        <Card.Title style={{lineClamp: 2}} >{props.title}</Card.Title>
-        {
-          props.isBlog ? (
-            <Card.Text className="card-text-4-lines">
-              {props.description}
-            </Card.Text>
+    <article className={`quest-card ${isBlog ? "quest-card--log" : "quest-card--ship"}`}>
+      <div className="quest-card__media">
+        <img src={imgPath} alt={title} loading="lazy" />
+        <span className="quest-card__badge">
+          {isBlog ? "Field Report" : "Deployment"}
+        </span>
+      </div>
+      <div className="quest-card__body">
+        <h4 className="quest-card__title">{title}</h4>
+        <p className="quest-card__desc">{description}</p>
+        <div className="quest-card__actions">
+          {isBlog ? (
+            <Button variant="primary" href={link} target="_blank" rel="noopener noreferrer">
+              <BsMedium /> &nbsp;Blog
+            </Button>
           ) : (
-            <Card.Text  style={{ textAlign: "justify" }}>
-              {props.description}
-            </Card.Text>
-          )
-        }
-        {props.isBlog && (
-          <Button variant="primary" href={props.link} target="_blank">
-            <BsMedium /> &nbsp;
-            Blog
-          </Button>
-        )}
-        
-        {"\n"}
-        {"\n"}
-
-        {/* If the component contains Demo link and if it's not a Blog then, it will render the below component  */}
-
-        {!props.isBlog && props.AndrLink && (
-          <Button
-            variant="primary"
-            href={props.AndrLink}
-            target="_blank"
-            style={{ marginLeft: "10px" }}
-          >
-            <BsAndroid2 /> &nbsp;
-            Android
-          </Button>
-        )}
-        {!props.isBlog && props.iosLink && (
-          <Button
-            variant="primary"
-            href={props.iosLink}
-            target="_blank"
-            style={{ marginLeft: "10px" }}
-          >
-            <BsApple /> &nbsp;
-            IOS
-          </Button>
-        )}
-      </Card.Body>
-    </Card>
+            <>
+              {AndrLink && (
+                <Button
+                  variant="primary"
+                  href={AndrLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <BsAndroid2 /> &nbsp;Android
+                </Button>
+              )}
+              {iosLink && (
+                <Button
+                  variant="primary"
+                  href={iosLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <BsApple /> &nbsp;iOS
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </article>
   );
 }
-export default ProjectCards;
+
+export default ProjectCard;

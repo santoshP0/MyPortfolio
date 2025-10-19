@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Preloader from "../src/components/Pre";
-import Navbar from "./components/Navbar";
 import Home from "./components/Home/Home";
 import About from "./components/About/About";
 import Projects from "./components/Projects/Projects";
-import Footer from "./components/Footer";
 import Resume from "./components/Resume/ResumeNew";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate
-} from "react-router-dom";
-import ScrollToTop from "./components/ScrollToTop";
+import Footer from "./components/Footer";
+import SectionNav from "./components/SectionNav";
 import "./style.css";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -24,26 +17,30 @@ function App() {
     const timer = setTimeout(() => {
       upadateLoad(false);
     }, 700);
-
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = load ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [load]);
+
   return (
-    <Router basename="/MyPortfolio">
+    <>
       <Preloader load={load} />
-      <div className="App" id={load ? "no-scroll" : "scroll"}>
-        <Navbar />
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/project" element={<Projects />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/resume" element={<Resume />} />
-          <Route path="*" element={<Navigate to="/"/>} />
-        </Routes>
-        <a href="mailto:santoshpk.mdev@gmail.com" target="_blank" rel="noopener noreferrer" className="sticky-text display-7">santoshpk.mdev@gmail.com</a>
+      <div className={`App ${load ? "App--locked" : "App--ready"}`}>
+        <main className="anime-layout">
+          <Home />
+          <About />
+          <Projects />
+          <Resume />
+        </main>
+        <SectionNav />
+        <Footer />
       </div>
-    </Router>
+    </>
   );
 }
 
