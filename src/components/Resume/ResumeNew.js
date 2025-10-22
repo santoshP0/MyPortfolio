@@ -130,9 +130,18 @@ function ResumeNew() {
 
       </Container>
 
-      <div className={`resume-modal ${showViewer ? "resume-modal--open" : ""}`}>
+      <div
+        className={`resume-modal ${showViewer ? "resume-modal--open" : ""}`}
+        aria-hidden={!showViewer}
+      >
         <div className="resume-modal__backdrop" onClick={closeViewer} />
-        <div className="resume-modal__shell">
+        <div
+          className="resume-modal__shell"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Character Sheet PDF viewer"
+        >
+          <div className="resume-modal__glow" aria-hidden="true" />
           <div className="resume-modal__frame">
             <button
               type="button"
@@ -142,14 +151,16 @@ function ResumeNew() {
               <AiOutlineArrowLeft />
               <span>Close</span>
             </button>
-            <div className="resume-viewer">
-              <Document
-                file={pdf}
-                onLoadSuccess={onLoadDocument}
-                className="resume-document"
-              >
-                <Page pageNumber={pageNumber} scale={pageScale} />
-              </Document>
+            <div className="resume-modal__body">
+              <div className="resume-viewer">
+                <Document
+                  file={pdf}
+                  onLoadSuccess={onLoadDocument}
+                  className="resume-document"
+                >
+                  <Page pageNumber={pageNumber} scale={pageScale} />
+                </Document>
+              </div>
             </div>
             <div className="resume-controls">
               <Button

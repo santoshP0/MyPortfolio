@@ -427,7 +427,22 @@ strong {
     opacity: 0;
   }
   to {
-    opacity: 0.95;
+    opacity: 1;
+  }
+}
+
+@keyframes resumeAura {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.98) rotate(0deg);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02) rotate(1deg);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(0.99) rotate(-1deg);
   }
 }
 
@@ -992,6 +1007,8 @@ strong {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
 }
 
 .resume-download--secondary {
@@ -1007,48 +1024,91 @@ strong {
   align-items: center;
   z-index: 1200;
   opacity: 0;
-  transition: opacity 0.4s ease;
-  backdrop-filter: blur(15px);
+  visibility: hidden;
+  transition: opacity 0.45s cubic-bezier(0.22, 0.84, 0.3, 1), visibility 0s linear 0.45s;
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(46, 22, 68, 0.35) 0%,
+    rgba(12, 8, 24, 0.9) 42%,
+    rgba(1, 1, 4, 0.95) 100%
+  );
+  isolation: isolate;
+  overscroll-behavior: contain;
 }
 
 .resume-modal--open {
   opacity: 1;
   pointer-events: all;
+  visibility: visible;
+  transition: opacity 0.45s cubic-bezier(0.22, 0.84, 0.3, 1), visibility 0s linear 0s;
 }
 
 .resume-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(5, 5, 5, 0.78);
-  animation: resumeOverlay 0.4s ease forwards;
+  background: radial-gradient(
+      circle at center,
+      rgba(255, 0, 111, 0.15) 0%,
+      rgba(0, 0, 0, 0.9) 70%
+    ),
+    rgba(0, 0, 0, 0.78);
+  animation: resumeOverlay 0.5s ease forwards;
+  backdrop-filter: blur(24px) saturate(120%);
+  pointer-events: none;
+}
+
+.resume-modal--open .resume-modal__backdrop {
+  pointer-events: auto;
 }
 
 .resume-modal__shell {
   position: relative;
-  width: min(920px, 92vw);
-  padding: clamp(1rem, 3vw, 2rem);
+  width: min(980px, 92vw);
+  padding: clamp(1rem, 3vw, 2.1rem);
   z-index: 2;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.resume-modal__glow {
+  position: absolute;
+  inset: 18% 12%;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 64, 164, 0.32), transparent 60%),
+    radial-gradient(circle at 50% 100%, rgba(32, 178, 255, 0.22), transparent 65%);
+  filter: blur(80px);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.resume-modal--open .resume-modal__glow {
+  opacity: 1;
 }
 
 .resume-modal__frame {
   position: relative;
-  border-radius: 32px;
-  border: 1px solid var(--paper-faint);
-  background: rgba(5, 5, 5, 0.94);
-  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.75);
+  width: 100%;
+  max-width: 100%;
+  height: min(88vh, 960px);
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(145deg, rgba(11, 10, 16, 0.94) 0%, rgba(7, 6, 12, 0.98) 100%);
+  box-shadow: 0 50px 160px rgba(0, 0, 0, 0.85), 0 0 60px rgba(255, 0, 93, 0.18);
   padding: clamp(1.5rem, 3vw, 2.5rem);
-  overflow: hidden;
-  transform: translateY(60px) scale(0.96) rotateX(8deg);
-  opacity: 0;
-  transition: transform 0.45s ease, opacity 0.45s ease;
-  max-height: min(90vh, 960px);
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  overflow: hidden;
+  transform: translate3d(0, 64px, 0) scale(0.92) rotateX(10deg);
+  opacity: 0;
+  transition: transform 0.6s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.45s ease;
+  pointer-events: auto;
 }
 
 .resume-modal--open .resume-modal__frame {
-  transform: translateY(0) scale(1) rotateX(0deg);
+  transform: translate3d(0, 0, 0) scale(1) rotateX(0deg);
   opacity: 1;
 }
 
@@ -1056,15 +1116,23 @@ strong {
 .resume-modal__frame::after {
   content: "";
   position: absolute;
-  inset: clamp(0.5rem, 2vw, 1.6rem);
-  border: 1px solid rgba(255, 0, 93, 0.12);
+  inset: clamp(0.55rem, 2vw, 1.7rem);
   border-radius: 26px;
   pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.resume-modal__frame::before {
+  border: 1px solid rgba(255, 0, 120, 0.18);
+  box-shadow: 0 0 25px rgba(255, 0, 120, 0.15);
+  opacity: 0.6;
 }
 
 .resume-modal__frame::after {
-  inset: clamp(1.2rem, 4vw, 2.6rem);
-  border: 1px dashed rgba(245, 245, 245, 0.05);
+  inset: clamp(1.3rem, 4vw, 2.8rem);
+  border: 1px dashed rgba(245, 245, 245, 0.08);
+  animation: resumeAura 6s ease-in-out infinite alternate;
+  opacity: 0.4;
 }
 
 .resume-modal__close {
@@ -1090,13 +1158,53 @@ strong {
   transform: translateX(-4px);
 }
 
+.resume-modal__body {
+  margin-top: clamp(1.8rem, 3vw, 2.6rem);
+  flex: 1 1 auto;
+  display: flex;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(12, 12, 18, 0.18) 100%);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 35px rgba(255, 0, 120, 0.08), inset 0 0 120px rgba(9, 12, 26, 0.55);
+}
+
+.resume-modal__body::after {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto;
+  height: 60%;
+  background: radial-gradient(circle at center, rgba(255, 0, 120, 0.2), transparent 75%);
+  opacity: 0.4;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: resumeScan 12s linear infinite;
+}
+
 .resume-viewer {
-  margin: 0 auto;
+  flex: 1 1 auto;
   display: flex;
   justify-content: center;
-  flex: 1 1 auto;
+  align-items: flex-start;
   overflow: auto;
-  padding: 0 0.5rem 0.5rem;
+  padding: clamp(1rem, 2vw, 1.6rem);
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) rgba(255, 255, 255, 0.06);
+}
+
+.resume-viewer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.resume-viewer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.resume-viewer::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255, 0, 120, 0.45), rgba(32, 178, 255, 0.45));
+  border-radius: 999px;
 }
 
 .resume-document {
@@ -1104,13 +1212,13 @@ strong {
   border-radius: 20px;
   padding: clamp(1rem, 2vw, 1.5rem);
   background: rgba(245, 245, 245, 0.03);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65), 0 0 35px rgba(32, 178, 255, 0.12);
   display: inline-block;
   max-width: 100%;
 }
 
 .resume-controls {
-  margin-top: 1.5rem;
+  margin-top: clamp(1.2rem, 2vw, 1.8rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1119,10 +1227,10 @@ strong {
   letter-spacing: 0.18em;
   font-size: 0.85rem;
   color: var(--paper-soft);
-  position: sticky;
-  bottom: 0;
-  padding: 1rem 0 0;
-  background: linear-gradient(180deg, rgba(5, 5, 5, 0), rgba(5, 5, 5, 0.85));
+  padding: clamp(0.8rem, 2vw, 1.2rem) clamp(0.6rem, 2vw, 1rem) 0;
+  background: linear-gradient(180deg, rgba(9, 10, 18, 0.12) 0%, rgba(5, 5, 8, 0.88) 46%, rgba(5, 5, 8, 0.98) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.6);
 }
 
 .resume-control {
@@ -1643,18 +1751,28 @@ button:focus {
 
   .resume-modal__shell {
     width: 100%;
-    padding: clamp(0.5rem, 2vw, 1rem);
+    padding: clamp(0.5rem, 2vw, 1.2rem);
   }
 
   .resume-modal__frame {
-    padding: clamp(1.2rem, 4vw, 1.8rem);
+    padding: clamp(1.3rem, 4vw, 2rem);
+    height: min(92vh, 820px);
   }
 
   .resume-modal__close {
     gap: 0.35rem;
   }
 
+  .resume-modal__body {
+    margin-top: clamp(1.2rem, 4vw, 2rem);
+    border-radius: 16px;
+  }
 
+  .resume-controls {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-bottom: 0.4rem;
+  }
 }
 
 @media (max-width: 575px) {
@@ -1670,6 +1788,23 @@ button:focus {
   .resume-modal__frame::before,
   .resume-modal__frame::after {
     inset: clamp(0.65rem, 6vw, 1.2rem);
+  }
+
+  .resume-modal__frame {
+    height: min(94vh, 720px);
+  }
+
+  .resume-modal__body {
+    margin-top: clamp(1rem, 5vw, 1.6rem);
+  }
+
+  .resume-viewer {
+    padding: clamp(0.8rem, 6vw, 1.2rem);
+  }
+
+  .resume-control {
+    width: 2.6rem;
+    height: 2.6rem;
   }
 }
 
