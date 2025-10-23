@@ -1,22 +1,19 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Aboutcard from "../About/AboutCard";
-
-const loadout = [
-  "React Native · React.js · Node.js · AWS",
-  "TypeScript · JavaScript · Python",
-  "Pixel-perfect Android & iOS delivery",
-];
+import { LORE_CONTENT } from "../../constants/content";
 
 function Home2() {
+  const loadoutItems = useMemo(() => LORE_CONTENT.loadoutItems, []);
+
   return (
     <section className="lore-section anime-section" id="about">
       <Container>
         <Row className="lore-row">
           <Col lg={8} className="lore-copy">
-            <div className="lore-badge">[Lore Upload]</div>
+            <div className="lore-badge">{LORE_CONTENT.badge}</div>
             <h2 className="lore-title">
-              Battle-tested mobile developer with an action anime mindset.
+              {LORE_CONTENT.title}
             </h2>
             <p className="lore-body">
               I'm a software engineer obsessed with building impactful Android and
@@ -32,9 +29,9 @@ function Home2() {
               architecture with anime-level dramatic flair.
             </p>
             <div className="lore-loadout">
-              <span className="lore-loadout-label">Weapon loadout</span>
+              <span className="lore-loadout-label">{LORE_CONTENT.loadoutLabel}</span>
               <ul className="lore-loadout-list">
-                {loadout.map((item) => (
+                {loadoutItems.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>

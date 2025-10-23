@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Home2 from "./Home2";
 import Type from "./Type";
-
-const heroStats = [
-  { label: "XP", value: "5+ Years" },
-  { label: "Specialty", value: "React Native · React.js" },
-  { label: "Current Quest", value: "High-impact mobile worlds" },
-];
+import { HERO_CONTENT } from "../../constants/content";
 
 function Home() {
+  const heroStats = useMemo(() => HERO_CONTENT.stats, []);
+  const heroConsole = useMemo(() => HERO_CONTENT.console, []);
+
+  const handleScrollToResume = useCallback(() => {
+    const resumeSection = document.getElementById("resume");
+    if (resumeSection) {
+      resumeSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
   return (
     <>
       <section className="hero-section anime-section" id="home">
@@ -18,10 +23,11 @@ function Home() {
             <Row className="hero-row align-items-center">
               <Col md={7} className="hero-copy">
                 <h1 className="hero-title">
-                  Hi, I'm <span className="accent">Pottabattini Santosh</span>
+                  {HERO_CONTENT.greeting}{" "}
+                  <span className="accent">{HERO_CONTENT.name}</span>
                 </h1>
                 <p className="hero-subtitle">
-                  Mobile App Developer forged in the chaos of fast-moving quests.
+                  {HERO_CONTENT.subtitle}
                 </p>
                 <div className="hero-type">
                   <Type />
@@ -41,25 +47,22 @@ function Home() {
                   <div className="hero-console__ring hero-console__ring--outer" aria-hidden="true" />
                   <div className="hero-console__ring hero-console__ring--inner" aria-hidden="true" />
                   <div className="hero-console__shell">
-                    <span className="hero-console__tag">CV ACCESS</span>
+                    <span className="hero-console__tag">{heroConsole.tag}</span>
                     <div className="hero-console__status">
-                      <span className="hero-console__code">A-01</span>
-                      <span className="hero-console__subtitle">Action · Isekai Ready</span>
+                      <span className="hero-console__code">{heroConsole.code}</span>
+                      <span className="hero-console__subtitle">{heroConsole.subtitle}</span>
                     </div>
                     <button
                       type="button"
                       className="hero-console__cta"
-                      onClick={() => {
-                        const resumeSection = document.getElementById("resume");
-                        if (resumeSection) {
-                          resumeSection.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }
-                      }}
+                      onClick={handleScrollToResume}
                       aria-label="Scroll to character sheet"
                     >
                       <span className="hero-console__cta-glow" aria-hidden="true" />
-                      <span className="hero-console__cta-icon" aria-hidden="true">⟡</span>
-                      <span className="hero-console__cta-text">View Character Sheet</span>
+                      <span className="hero-console__cta-icon" aria-hidden="true">
+                        {heroConsole.ctaIcon}
+                      </span>
+                      <span className="hero-console__cta-text">{heroConsole.ctaText}</span>
                     </button>
                   </div>
                 </div>

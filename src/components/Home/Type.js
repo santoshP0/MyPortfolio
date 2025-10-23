@@ -1,22 +1,20 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Typewriter from "typewriter-effect";
+import { TYPEWRITER_STRINGS } from "../../constants/content";
 
 function Type() {
+  const typewriterOptions = useMemo(
+    () => ({
+      strings: TYPEWRITER_STRINGS,
+      autoStart: true,
+      loop: true,
+      deleteSpeed: 50,
+    }),
+    []
+  );
+
   return (
-    <Typewriter
-      options={{
-        strings: [
-          "Senior Software Developer",
-          "Mobile App Developer",
-          "React-native Developer",
-          "Tech Enthusiast",
-          "Problem Solver and Strategist"
-        ],
-        autoStart: true,
-        loop: true,
-        deleteSpeed: 50,
-      }}
-    />
+    <Typewriter options={typewriterOptions} />
   );
 }
 

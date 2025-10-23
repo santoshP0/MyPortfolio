@@ -9,6 +9,7 @@ import {
 } from "react-icons/ai";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import { RESUME_CONTENT, RESUME_STATS } from "../../constants/content";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -31,21 +32,18 @@ function ResumeNew() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const onLoadDocument = ({ numPages }) => {
-    setNumPages(numPages);
-  };
+  const onLoadDocument = useCallback(({ numPages: totalPages }) => {
+    setNumPages(totalPages);
+  }, []);
 
-  const nextPage = () => {
-    if (pageNumber < numPages) {
-      setPageNumber(pageNumber + 1);
-    }
-  };
+  const nextPage = useCallback(() => {
+    if (!numPages) return;
+    setPageNumber((current) => (current < numPages ? current + 1 : current));
+  }, [numPages]);
 
-  const prevPage = () => {
-    if (pageNumber > 1) {
-      setPageNumber(pageNumber - 1);
-    }
-  };
+  const prevPage = useCallback(() => {
+    setPageNumber((current) => (current > 1 ? current - 1 : current));
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = showViewer ? "hidden" : "auto";
@@ -76,14 +74,16 @@ function ResumeNew() {
   }, [openViewer]);
 
   const pageScale = useMemo(() => (width > 1024 ? 1.25 : width > 786 ? 1 : 0.52), [width]);
+  const resumeStats = useMemo(() => RESUME_STATS, []);
+  const resumeCopy = useMemo(() => RESUME_CONTENT, []);
 
   return (
     <section className="resume-section anime-section" id="resume">
       <Container>
         <div className="resume-header">
-          <span className="resume-badge">[Character Sheet]</span>
+          <span className="resume-badge">{resumeCopy.badge}</span>
           <h2 className="resume-title">
-            Download the <span className="accent">full stats</span>
+            {resumeCopy.title} <span className="accent">{resumeCopy.titleAccent}</span>
           </h2>
           <div className="resume-actions">
             <Button
@@ -92,7 +92,7 @@ function ResumeNew() {
               className="resume-download"
             >
               <AiOutlineArrowRight />
-              &nbsp;Open Character Sheet
+              &nbsp;{resumeCopy.primaryCta}
             </Button>
             <Button
               variant="outline-light"
@@ -101,29 +101,19 @@ function ResumeNew() {
               className="resume-download resume-download--secondary"
             >
               <AiOutlineDownload />
-              &nbsp;Download CV
+              &nbsp;{resumeCopy.secondaryCta}
             </Button>
           </div>
         </div>
 
         <div className="resume-console">
           <div className="resume-console__grid">
-            <div className="resume-console__card">
-              <span className="resume-console__label">Experience</span>
-              <span className="resume-console__value">5+ Years</span>
-            </div>
-            <div className="resume-console__card">
-              <span className="resume-console__label">Specialty</span>
-              <span className="resume-console__value">React Native</span>
-            </div>
-            <div className="resume-console__card">
-              <span className="resume-console__label">Allies</span>
-              <span className="resume-console__value">React · Node · AWS</span>
-            </div>
-            <div className="resume-console__card">
-              <span className="resume-console__label">Mode</span>
-              <span className="resume-console__value">Action · Isekai</span>
-            </div>
+            {resumeStats.map(({ label, value }) => (
+              <div className="resume-console__card" key={label}>
+                <span className="resume-console__label">{label}</span>
+                <span className="resume-console__value">{value}</span>
+              </div>
+            ))}
           </div>
           <div className="resume-console__bar" aria-hidden="true" />
         </div>

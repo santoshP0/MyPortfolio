@@ -1,44 +1,28 @@
-import React from "react";
-import { Col, Row } from "react-bootstrap";
-import {
-  DiJavascript1,
-  DiReact,
-  DiNodejs,
-  DiMongodb,
-  DiPython,
-  DiGit,
-  DiAndroid,
-  DiAws
-} from "react-icons/di";
-import {
-  SiFirebase, SiTypescript, SiKotlin, SiApple
-} from "react-icons/si";
+import React, { useCallback, useMemo } from "react";
+import IconGrid from "../common/IconGrid";
+import { TECH_STACK_ITEMS } from "../../constants/content";
 
-const techList = [
-  { Icon: DiJavascript1, label: "Javascript" },
-  { Icon: SiTypescript, label: "TypeScript" },
-  { Icon: SiKotlin, label: "Kotlin" },
-  { Icon: DiNodejs, label: "Node js" },
-  { Icon: DiReact, label: "React-native" },
-  { Icon: DiReact, label: "React js" },
-  { Icon: DiMongodb, label: "Mongodb" },
-  { Icon: DiGit, label: "Git" },
-  { Icon: SiFirebase, label: "Firebase" },
-  { Icon: DiPython, label: "Python" },
-  { Icon: DiAndroid, label: "Android" },
-  { Icon: SiApple, label: "iOS" },
-  { Icon: DiAws, label: "AWS" },
-];
+function Techstack() {
+  const items = useMemo(() => TECH_STACK_ITEMS, []);
+  const labelStyle = useMemo(() => ({ fontSize: 20 }), []);
 
-const Techstack = () => (
-  <Row style={{ justifyContent: "center", paddingBottom: "50px" }}>
-    {techList.map(({ Icon, label }, index) => (
-      <Col key={index} xs={4} md={2} className="tech-icons text-center">
+  const renderItem = useCallback(
+    ({ Icon, label }) => (
+      <>
         <Icon size={80} />
-        <div style={{ fontSize: 20 }}>{label}</div>
-      </Col>
-    ))}
-  </Row>
-);
+        <div style={labelStyle}>{label}</div>
+      </>
+    ),
+    [labelStyle]
+  );
+
+  return (
+    <IconGrid
+      items={items}
+      renderItem={renderItem}
+      colClassName="tech-icons text-center"
+    />
+  );
+}
 
 export default Techstack;

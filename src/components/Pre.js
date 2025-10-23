@@ -1,4 +1,5 @@
 import React from "react";
+import { PRELOADER_MESSAGE } from "../constants/content";
 
 function Pre({ load }) {
   return (
@@ -13,7 +14,7 @@ function Pre({ load }) {
         <span className="preloader-ring preloader-ring--inner" />
         <span className="preloader-spark" />
         <span className="preloader-katana" />
-        <span className="preloader-text">Synchronizing battle HUD...</span>
+        <span className="preloader-text">{PRELOADER_MESSAGE}</span>
       </div>
     </div>
   );

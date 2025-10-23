@@ -1,29 +1,28 @@
-import React from "react";
-import { Col, Row } from "react-bootstrap";
-import {
-  SiVisualstudiocode,
-  SiPostman,
-  SiXcode,
-  SiAndroidstudio,
-} from "react-icons/si";
+import React, { useCallback, useMemo } from "react";
+import IconGrid from "../common/IconGrid";
+import { TOOL_STACK_ITEMS } from "../../constants/content";
 
-const tools = [
-  { Icon: SiVisualstudiocode, label: "Visual Studio" },
-  { Icon: SiPostman, label: "Postman" },
-  { Icon: SiAndroidstudio, label: "Android Studio" },
-  { Icon: SiXcode, label: "Xcode" },
-];
+function Toolstack() {
+  const items = useMemo(() => TOOL_STACK_ITEMS, []);
+  const labelStyle = useMemo(() => ({ fontSize: 20 }), []);
 
-const Toolstack = () => (
-  <Row style={{ justifyContent: "center", paddingBottom: "50px" }}>
-    {tools.map(({ Icon, label }, index) => (
-      <Col key={index} xs={4} md={2} className="tech-icons text-center">
+  const renderItem = useCallback(
+    ({ Icon, label }) => (
+      <>
         <Icon size={80} />
-        <div style={{ fontSize: 20 }}>{label}</div>
-      </Col>
-    ))}
-  </Row>
+        <div style={labelStyle}>{label}</div>
+      </>
+    ),
+    [labelStyle]
+  );
 
-);
+  return (
+    <IconGrid
+      items={items}
+      renderItem={renderItem}
+      colClassName="tech-icons text-center"
+    />
+  );
+}
 
 export default Toolstack;
