@@ -21,6 +21,8 @@ body {
   color: var(--paper);
   font-family: "Rajdhani", sans-serif;
   scroll-behavior: smooth;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
 }
 
 body {
