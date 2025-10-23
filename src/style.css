@@ -576,10 +576,15 @@ strong {
   background: rgba(5, 5, 5, 0.85);
   border: 1px solid var(--paper-faint);
   border-radius: 26px;
-  padding: clamp(2rem, 5vw, 3rem);
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.55);
   position: relative;
   overflow: hidden;
+}
+
+.lore-copy__inner {
+  position: relative;
+  padding: clamp(2rem, 5vw, 3rem);
+  z-index: 1;
 }
 
 .lore-copy::before {
@@ -1079,11 +1084,21 @@ strong {
   .resume-console__card {
     flex: 1 1 calc(50% - 1.2rem);
   }
+
+  .resume-console__card:hover::before,
+  .tech-icons-cardable:hover::before {
+    opacity: 0;
+  }
 }
 
 @media (max-width: 520px) {
   .resume-console__card {
     flex: 1 1 100%;
+  }
+
+  .resume-console__card:hover::before,
+  .tech-icons-cardable:hover::before {
+    opacity: 0;
   }
 }
 

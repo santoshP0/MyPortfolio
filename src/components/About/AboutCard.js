@@ -48,7 +48,7 @@ function AboutCard() {
 
   return (
     <Card className="quote-card-view">
-      <Card.Body>
+      {/* <Card.Body> */}
         <blockquote className="blockquote mb-0">
           <p style={{ textAlign: "justify" }}>
             {paragraphs.map((segments, index) => (
@@ -68,7 +68,7 @@ function AboutCard() {
             ))}
           </ul>
         </blockquote>
-      </Card.Body>
+      {/* </Card.Body> */}
     </Card>
   );
 }
