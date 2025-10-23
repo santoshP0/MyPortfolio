@@ -4,6 +4,7 @@ import { SECTION_NAV_ITEMS } from "../constants/content";
 function SectionNav() {
   const navItems = useMemo(() => SECTION_NAV_ITEMS, []);
   const [activeId, setActiveId] = useState(navItems[0].id);
+  const [hidden, setHidden] = useState(false);
 
   const updateActive = useCallback(() => {
     const scrollPosition = window.scrollY + window.innerHeight * 0.3;
@@ -40,8 +41,19 @@ function SectionNav() {
     setActiveId(id);
   }, [setActiveId]);
 
+  useEffect(() => {
+    const handleToggle = (event) => {
+      setHidden(Boolean(event.detail?.hidden));
+    };
+    window.addEventListener("section-nav:toggle", handleToggle);
+    return () => window.removeEventListener("section-nav:toggle", handleToggle);
+  }, []);
+
   return (
-    <nav className="section-nav" aria-label="Section navigation">
+    <nav
+      className={`section-nav ${hidden ? "section-nav--hidden" : ""}`}
+      aria-label="Section navigation"
+    >
       {navItems.map(({ id, label }) => (
         <a
           key={id}

@@ -54,8 +54,12 @@ function ResumeNew() {
 
   useEffect(() => {
     document.body.style.overflow = showViewer ? "hidden" : "auto";
+    const event = new CustomEvent("section-nav:toggle", { detail: { hidden: showViewer } });
+    window.dispatchEvent(event);
     return () => {
       document.body.style.overflow = "auto";
+      const resetEvent = new CustomEvent("section-nav:toggle", { detail: { hidden: false } });
+      window.dispatchEvent(resetEvent);
     };
   }, [showViewer]);
 

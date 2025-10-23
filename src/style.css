@@ -1548,6 +1548,12 @@ button:focus {
   gap: 0.8rem;
   z-index: 80;
   pointer-events: auto;
+  transition: opacity 0.3s ease, pointer-events 0.3s ease;
+}
+
+.section-nav.section-nav--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .section-nav__item {
