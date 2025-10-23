@@ -7,35 +7,23 @@ import {
   SiAndroidstudio,
 } from "react-icons/si";
 
-function Toolstack() {
-  return (
-    <Row style={{ justifyContent: "center", paddingBottom: "20px" }}>
-      <Col xs={4} md={2} className="tech-icons">
-        <Row style={{ paddingTop: "20px" }} >
-          <SiVisualstudiocode />
-          <span style={{ fontSize: 10 }} >Visual Studio</span>
-        </Row>
+const tools = [
+  { Icon: SiVisualstudiocode, label: "Visual Studio" },
+  { Icon: SiPostman, label: "Postman" },
+  { Icon: SiAndroidstudio, label: "Android Studio" },
+  { Icon: SiXcode, label: "Xcode" },
+];
+
+const Toolstack = () => (
+  <Row style={{ justifyContent: "center", paddingBottom: "50px" }}>
+    {tools.map(({ Icon, label }, index) => (
+      <Col key={index} xs={4} md={2} className="tech-icons text-center">
+        <Icon size={80} />
+        <div style={{ fontSize: 20 }}>{label}</div>
       </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <Row style={{ paddingTop: "20px" }} >
-          <SiPostman />
-          <span style={{ fontSize: 10 }} >Postman</span>
-        </Row>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-      <Row style={{ paddingTop: "20px" }} >
-          <SiAndroidstudio />
-          <span style={{ fontSize: 10 }} >Android Studio</span>
-        </Row>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <Row style={{ paddingTop: "20px" }} >
-          <SiXcode />
-          <span style={{ fontSize: 10 }} >Xcode</span>
-        </Row>
-      </Col>
-    </Row>
-  );
-}
+    ))}
+  </Row>
+
+);
 
 export default Toolstack;
