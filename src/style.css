@@ -239,7 +239,43 @@ strong {
   font-weight: 600;
   text-transform: uppercase;
   color: rgba(245, 245, 245, 0.94);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  will-change: opacity, transform;
 }
+
+.hero-stat-value--heartbeat {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.hero-stat-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.hero-stat-value--hidden {
+  opacity: 0;
+  transform: scale(0.97);
+}
+
+.hero-stat-progress__bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(245, 245, 245, 0.18);
+  overflow: hidden;
+}
+
+.hero-stat-progress__fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 0, 93, 0.9), rgba(255, 0, 93, 0.6));
+  box-shadow: 0 0 14px rgba(255, 0, 93, 0.45);
+  border-radius: inherit;
+  transition: width 0.45s ease;
+}
+
 
 .hero-visual {
   display: flex;
@@ -750,6 +786,26 @@ strong {
   border-color: var(--accent-soft);
 }
 
+.tech-icons-cardable {
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-icons-cardable::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(255, 0, 93, 0.2), rgba(255, 0, 93, 0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.tech-icons-cardable:hover::before {
+  opacity: 1;
+}
+
 /* -------- Projects -------- */
 .project-section {
   padding-block: 5rem;
@@ -827,7 +883,7 @@ strong {
   height: 100%;
   object-fit: cover;
   filter: grayscale(1);
-  transition: transform 0.4s ease;
+  transition: transform 0.4s ease, filter 0.4s ease;
 }
 
 .quest-card__badge {
@@ -911,6 +967,7 @@ strong {
 
 .quest-card:hover .quest-card__media img {
   transform: scale(1.05);
+  filter: grayscale(0);
 }
 
 /* -------- Resume -------- */
@@ -942,33 +999,92 @@ strong {
 }
 
 .resume-console__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.2rem;
 }
 
 .resume-console__card {
-  border: 1px solid rgba(245, 245, 245, 0.12);
-  border-radius: 18px;
-  padding: 1rem 1.2rem;
-  background: rgba(5, 5, 5, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: rgba(245, 245, 245, 0.75);
+  position: relative;
+  border: 1px solid rgba(245, 245, 245, 0.14);
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  background: rgba(5, 5, 5, 0.68);
+  color: var(--paper);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   gap: 0.45rem;
+  overflow: hidden;
+  min-width: 180px;
+  flex: 1 1 calc(33.333% - 1.2rem);
 }
 
-.resume-console__label {
-  font-size: 0.62rem;
+.resume-console__card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(255, 0, 93, 0.2), rgba(255, 0, 93, 0));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.resume-console__card:hover::before {
+  opacity: 1;
+}
+
+.resume-console__chip {
   font-family: "Orbitron", sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 245, 0.72);
 }
 
-.resume-console__value {
-  font-size: 0.85rem;
-  color: var(--paper);
+.resume-console__primary {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resume-console__meta {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 245, 0.68);
+  display: block;
+}
+
+.resume-console__progress {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background: rgba(245, 245, 245, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.resume-console__progress-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255, 0, 93, 0.82), rgba(255, 0, 93, 0.52));
+  box-shadow: 0 0 12px rgba(255, 0, 93, 0.45);
+  transition: width 0.35s ease;
+}
+
+@media (max-width: 768px) {
+  .resume-console__card {
+    flex: 1 1 calc(50% - 1.2rem);
+  }
+}
+
+@media (max-width: 520px) {
+  .resume-console__card {
+    flex: 1 1 100%;
+  }
 }
 
 .resume-console__bar {

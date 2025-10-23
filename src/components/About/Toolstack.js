@@ -20,7 +20,7 @@ function Toolstack() {
     <IconGrid
       items={items}
       renderItem={renderItem}
-      colClassName="tech-icons text-center"
+      colClassName="tech-icons text-center tech-icons-cardable"
     />
   );
 }

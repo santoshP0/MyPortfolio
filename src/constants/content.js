@@ -31,14 +31,27 @@ export const HERO_CONTENT = {
   greeting: "Hi, I'm",
   name: "Pottabattini Santosh",
   subtitle: "Mobile App Developer forged in the chaos of fast-moving quests.",
+  xp: {
+    label: "XP",
+    startDate: "2019-04-01T00:00:00Z",
+    rateMinutes: 60 * 24,
+  },
   stats: [
-    { label: "XP", value: "5+ Years" },
     { label: "Specialty", value: "React Native · React.js" },
     { label: "Current Quest", value: "High-impact mobile worlds" },
   ],
+  specialtySequence: [
+    "React Native",
+    "React.js",
+  ],
+  questSequence: [
+    "AI Agents",
+    "Kotlin",
+    "Swift",
+  ],
   console: {
     tag: "CV ACCESS",
-    code: "A-01",
+    code: "AI-04",
     subtitle: "Action · Isekai Ready",
     ctaText: "View Character Sheet",
     ctaIcon: "⟡",
@@ -171,13 +184,6 @@ export const PROJECT_FIELD_NOTES = [
       "http://blog.zenof.ai/create-a-react-native-video-calling-app-using-twilio/",
     isBlog: true,
   },
-];
-
-export const RESUME_STATS = [
-  { label: "Experience", value: "5+ Years" },
-  { label: "Specialty", value: "React Native" },
-  { label: "Allies", value: "React · Node · AWS" },
-  { label: "Mode", value: "Action · Isekai" },
 ];
 
 export const ABOUT_SECTION_CONTENT = {
