@@ -1089,6 +1089,21 @@ strong {
   .tech-icons-cardable:hover::before {
     opacity: 0;
   }
+
+  .tech-icons:hover {
+    transform: none;
+    border-color: var(--paper-faint);
+  }
+
+  .quest-card:hover {
+    transform: none;
+    border-color: var(--paper-faint);
+  }
+
+  .quest-card:hover .quest-card__media img {
+    transform: none;
+    filter: grayscale(1);
+  }
 }
 
 @media (max-width: 520px) {
@@ -1099,6 +1114,21 @@ strong {
   .resume-console__card:hover::before,
   .tech-icons-cardable:hover::before {
     opacity: 0;
+  }
+
+  .tech-icons:hover {
+    transform: none;
+    border-color: var(--paper-faint);
+  }
+
+  .quest-card:hover {
+    transform: none;
+    border-color: var(--paper-faint);
+  }
+
+  .quest-card:hover .quest-card__media img {
+    transform: none;
+    filter: grayscale(1);
   }
 }
 
