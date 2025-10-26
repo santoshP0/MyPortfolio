@@ -129,23 +129,68 @@ strong {
   z-index: 1;
 }
 
-.hero-frame {
+
+.hero-card {
+  position: relative;
+  width: min(100%, 1080px);
   margin: 0 auto;
-  max-width: 1080px;
+  perspective: 2200px;
+  min-height: clamp(28rem, 75vh, 36rem);
 }
 
+.hero-card__inner {
+  position: relative;
+  display: grid;
+  grid-template-areas: "stack";
+  min-height: inherit;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.hero-card--flipped .hero-card__inner {
+  transform: rotateY(180deg);
+}
+
+.hero-card__face {
+  grid-area: stack;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.hero-card__face.hero-frame {
+  width: 100%;
+  min-height: inherit;
+}
+
+.hero-card__face--back {
+  transform: rotateY(180deg);
+}
+
+.hero-card--flipped .hero-card__face--back,
+.hero-card:not(.hero-card--flipped) .hero-card__face--front {
+  pointer-events: auto;
+}
 
 .hero-frame {
   backdrop-filter: blur(6px);
   background: rgba(5, 5, 5, 0.8);
-  margin: 0 auto;
-  max-width: 1080px;
   border: 1px solid var(--paper-faint);
   border-radius: 28px;
   padding: clamp(2rem, 5vw, 3.5rem);
   position: relative;
   overflow: hidden;
   box-shadow: 0 25px 65px rgba(0, 0, 0, 0.6);
+}
+
+.hero-frame--contact {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .hero-frame::before,
@@ -166,6 +211,126 @@ strong {
 .hero-row {
   position: relative;
   z-index: 2;
+}
+
+.hero-contact {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+}
+
+.hero-contact__row {
+  width: 100%;
+  margin: 0;
+}
+
+.hero-contact__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.hero-contact__badge {
+  display: inline-block;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hero-contact__title {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.hero-contact__subtitle {
+  margin: 0;
+  color: rgba(245, 245, 245, 0.72);
+  line-height: 1.6;
+}
+
+.hero-contact__subtitle a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.hero-contact__subtitle a:hover,
+.hero-contact__subtitle a:focus-visible {
+  text-decoration: underline;
+}
+
+.hero-contact__subtitle--muted {
+  color: rgba(245, 245, 245, 0.58);
+}
+
+.hero-contact__form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hero-contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hero-contact__form .form-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 245, 0.62);
+}
+
+.hero-contact__form .form-control {
+  background: rgba(15, 15, 25, 0.86);
+  border: 1px solid rgba(245, 245, 245, 0.14);
+  color: var(--paper);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.hero-contact__form .form-control::placeholder {
+  color: rgba(245, 245, 245, 0.35);
+}
+
+.hero-contact__form .form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(255, 0, 93, 0.22);
+  background: rgba(20, 20, 30, 0.94);
+  color: var(--paper);
+}
+
+.hero-contact__form textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.hero-contact__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-contact__submit,
+.hero-contact__back {
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.85rem 2rem;
+  border-radius: 999px;
+}
+
+.hero-contact__back {
+  border-width: 1px;
+}
+
+.hero-contact__back:hover,
+.hero-contact__back:focus-visible {
+  color: var(--paper);
+  border-color: rgba(255, 0, 93, 0.65);
 }
 
 .hero-copy {
@@ -1881,6 +2046,24 @@ button:focus {
   .hero-console__cta {
     letter-spacing: 0.22em;
     font-size: 0.58rem;
+  }
+
+  .hero-contact__actions {
+    flex-direction: column;
+  }
+
+  .hero-contact__submit,
+  .hero-contact__back {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-contact__row {
+    gap: 2rem;
+  }
+
+  .hero-card__inner {
+    width: 100%;
   }
 
   .lore-copy,

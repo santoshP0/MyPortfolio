@@ -53,7 +53,7 @@ export const HERO_CONTENT = {
     tag: "CV ACCESS",
     code: "AI-04",
     subtitle: "Action · Isekai Ready",
-    ctaText: "View Character Sheet",
+    ctaText: "Contact Me",
     ctaIcon: "⟡",
   },
 };
