@@ -13,11 +13,11 @@ import {
   SiTypescript,
   SiKotlin,
   SiApple,
-  SiVisualstudiocode,
   SiPostman,
   SiXcode,
   SiAndroidstudio,
 } from "react-icons/si";
+import { VscVscode } from "react-icons/vsc";
 import DenoImage from "../Assets/Projects/Deno.webp";
 import AndroidWidgetImage from "../Assets/Projects/androidWidget.jpg";
 import MobileResponderImage from "../Assets/Projects/MR.webp";
@@ -102,7 +102,7 @@ export const TECH_STACK_ITEMS = [
 ];
 
 export const TOOL_STACK_ITEMS = [
-  { id: "visual-studio-code", Icon: SiVisualstudiocode, label: "Visual Studio" },
+  { id: "visual-studio-code", Icon: VscVscode, label: "Visual Studio" },
   { id: "postman", Icon: SiPostman, label: "Postman" },
   { id: "android-studio", Icon: SiAndroidstudio, label: "Android Studio" },
   { id: "xcode", Icon: SiXcode, label: "Xcode" },
