@@ -1,11 +1,20 @@
+[build]
+  functions = "netlify/functions"
+
 [[redirects]]
-  force = true
-  from = "/*"
+  from = "/api/alertzy/*"
+  to = "/.netlify/functions/alertzy"
   status = 200
-  to = "https://alertzy.app/send"
 
 [[headers]]
-  # Define which paths this specific [[headers]] block will cover.
-  for = "/*"
-    [headers.values]
+  for = "/.netlify/functions/alertzy"
+  [headers.values]
     Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "POST, OPTIONS"
+    Access-Control-Allow-Headers = "content-type"
+    Access-Control-Max-Age = "86400"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

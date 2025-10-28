@@ -14,7 +14,16 @@ import { computeExperience, DEFAULT_MINUTES_PER_XP } from "../../utils/experienc
 
 const HEARTBEAT_STEPS = 5;
 const HEARTBEAT_VISIBLE_STEPS = new Set([0, 2, 4]);
-const ALERTZY_ENDPOINT = "https://alertzy.app/send";
+// Endpoint selection
+// - development: CRA proxy to avoid CORS
+// - production: Netlify Function by default, or absolute proxy URL if provided
+const RAW_PROXY_URL = (process.env.REACT_APP_ALERTZY_PROXY_URL || "").trim();
+const PROD_ALERTZY_ENDPOINT = RAW_PROXY_URL && /^https?:\/\//i.test(RAW_PROXY_URL)
+  ? RAW_PROXY_URL
+  : "/.netlify/functions/alertzy";
+const ALERTZY_ENDPOINT = process.env.NODE_ENV === "production"
+  ? PROD_ALERTZY_ENDPOINT
+  : "/api/alertzy/send";
 const INITIAL_FORM_STATE = Object.freeze({
   name: "",
   email: "",
@@ -75,10 +84,12 @@ function Home() {
 
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const alertzyToken = useMemo(
-    () => (process.env.REACT_APP_ALERTZY_TOKEN ?? "").trim(),
-    []
-  );
+  const IS_PROD = process.env.NODE_ENV === "production";
+  const alertzyToken = useMemo(() => {
+    if (IS_PROD) return ""; // never embed token in production bundle
+    return (process.env.REACT_APP_ALERTZY_TOKEN ?? "").trim();
+  }, [IS_PROD]);
+  const usingServerProxy = useMemo(() => IS_PROD, [IS_PROD]);
 
   const contactEmailHref = useMemo(() => {
     const emailLink = FOOTER_CONTENT.links?.find((link) => link.id === "email")?.href;
@@ -216,20 +227,22 @@ function Home() {
     ].join("\n");
     const title = trimmedName ? `New transmission from ${trimmedName}` : "New portfolio transmission";
 
-    if (!alertzyToken) {
-      window.alert("Alertzy token missing.");
+    if (!alertzyToken && !usingServerProxy) {
+      window.alert("Alertzy token missing. Set REACT_APP_ALERTZY_TOKEN for local dev, or deploy with Netlify Function.");
       return;
     }
 
     setIsSubmitting(true);
     try {
       const payload = {
-        accountKey: alertzyToken,
         title,
         message: messageBody,
         priority: 1,
         group: "Portfolio Contact",
       };
+      if (!usingServerProxy) {
+        payload.accountKey = alertzyToken;
+      }
 
       const response = await fetch(ALERTZY_ENDPOINT, {
         method: "POST",
