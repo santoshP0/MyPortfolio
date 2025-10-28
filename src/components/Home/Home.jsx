@@ -217,7 +217,7 @@ function Home() {
     const title = trimmedName ? `New transmission from ${trimmedName}` : "New portfolio transmission";
 
     if (!alertzyToken) {
-      window.alert("Alertzy token missing. Please set REACT_APP_ALERTZY_TOKEN in your environment.");
+      window.alert("Alertzy token missing.");
       return;
     }
 
