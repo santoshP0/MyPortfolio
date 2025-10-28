@@ -14,7 +14,7 @@ import { computeExperience, DEFAULT_MINUTES_PER_XP } from "../../utils/experienc
 
 const HEARTBEAT_STEPS = 5;
 const HEARTBEAT_VISIBLE_STEPS = new Set([0, 2, 4]);
-const ALERTZY_ENDPOINT = "/api/alertzy/send";
+const ALERTZY_ENDPOINT = "https://alertzy.app/send";
 const INITIAL_FORM_STATE = Object.freeze({
   name: "",
   email: "",
