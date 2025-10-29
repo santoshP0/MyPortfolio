@@ -1,9 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { animate } from "@motionone/dom";
 import { Container, Row, Col } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -84,6 +80,12 @@ function Home() {
 
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sendPhase, setSendPhase] = useState("idle"); // idle | launch | return
+  const [sendStatus, setSendStatus] = useState(null); // null | success | error
+  const animTimerRef = useRef(null);
+  const pendingResultRef = useRef(null); // 'success' | 'error' | null
+  const heroCardRef = useRef(null);
+  const [cardAnimating, setCardAnimating] = useState(false);
   const IS_PROD = process.env.NODE_ENV === "production";
   const alertzyToken = useMemo(() => {
     if (IS_PROD) return ""; // never embed token in production bundle
@@ -235,6 +237,10 @@ function Home() {
     }
 
     setIsSubmitting(true);
+    setSendStatus(null);
+    pendingResultRef.current = null;
+    setSendPhase("launch");
+    setCardAnimating(true);
     try {
       const basePayload = {
         title,
@@ -243,71 +249,116 @@ function Home() {
         group: "Portfolio Contact",
       };
 
-      // Prefer serverless function; fall back to direct proxy in dev
       const endpoints = [
-        "/.netlify/functions/alertzy", // normalized JSON { ok, status, data }
-        "/api/alertzy/send", // direct Alertzy; may return text or JSON
+        "/.netlify/functions/alertzy",
+        "/api/alertzy/send",
       ];
 
-      let lastError = null;
-      for (const endpoint of endpoints) {
-        const payload = { ...basePayload };
-        // Only attach client token when sending directly to Alertzy (not function)
-        if (endpoint.includes("/api/alertzy")) {
-          if (!alertzyToken) {
-            lastError = new Error("Missing local token for direct Alertzy call");
+      const sendTask = (async () => {
+        let lastError = null;
+        for (const endpoint of endpoints) {
+          const payload = { ...basePayload };
+          if (endpoint.includes("/api/alertzy")) {
+            if (!alertzyToken) {
+              lastError = new Error("Missing local token for direct Alertzy call");
+              continue;
+            }
+            payload.accountKey = alertzyToken;
+          }
+
+          try {
+            const response = await fetch(endpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json,text/plain,*/*" },
+              body: JSON.stringify(payload),
+            });
+
+            const ct = response.headers.get("content-type") || "";
+            const isJson = ct.includes("application/json");
+            const bodyRaw = await response.text();
+            const bodyJson = isJson ? (() => { try { return JSON.parse(bodyRaw); } catch { return null; } })() : null;
+
+            console.log("Alertzy endpoint:", endpoint, "status:", response.status, "json:", bodyJson || bodyRaw);
+
+            let success = false;
+            if (endpoint.includes("/.netlify/functions/alertzy")) {
+              success = response.ok && bodyJson && bodyJson.ok === true;
+            } else {
+              const textLower = bodyRaw.toLowerCase();
+              success = response.ok && (textLower.includes("success") || textLower.includes("ok") || (bodyJson && (bodyJson.ok || bodyJson.success)));
+            }
+
+            if (success) {
+              pendingResultRef.current = "success";
+              return;
+            }
+
+            lastError = new Error(`Unexpected response: ${bodyRaw}`);
+            continue;
+          } catch (err) {
+            lastError = err;
             continue;
           }
-          payload.accountKey = alertzyToken;
         }
+        pendingResultRef.current = "error";
+        throw lastError || new Error("Unknown transmission error");
+      })();
 
-        try {
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Accept: "application/json,text/plain,*/*" },
-            body: JSON.stringify(payload),
-          });
+      // Motion One: animate card out (launch)
+      const cardEl = heroCardRef.current;
+      const launch = animate(
+        cardEl,
+        {
+          transform: [
+            "translate3d(0,0,0) scale(1) rotate(0deg)",
+            "translate3d(34vw,-26vh,0) scale(0.16) rotate(-8deg)",
+          ],
+          opacity: [1, 0],
+        },
+        { duration: 0.52, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }
+      );
 
-          const ct = response.headers.get("content-type") || "";
-          const isJson = ct.includes("application/json");
-          const bodyRaw = await response.text();
-          const bodyJson = isJson ? (() => { try { return JSON.parse(bodyRaw); } catch { return null; } })() : null;
+      // Wait for both launch animation and network completion
+      await Promise.allSettled([launch.finished, sendTask]);
 
-          console.log("Alertzy endpoint:", endpoint, "status:", response.status, "json:", bodyJson || bodyRaw);
+      const status = pendingResultRef.current || null;
+      setSendStatus(status);
+      setSendPhase("return");
 
-          // Normalize success detection
-          let success = false;
-          if (endpoint.includes("/.netlify/functions/alertzy")) {
-            success = response.ok && bodyJson && bodyJson.ok === true;
-          } else {
-            // Direct to Alertzy: consider 200/201 and body containing success-like tokens
-            const textLower = bodyRaw.toLowerCase();
-            success = response.ok && (textLower.includes("success") || textLower.includes("ok") || (bodyJson && (bodyJson.ok || bodyJson.success)));
-          }
+      // Motion One: animate card back (return)
+      const ret = animate(
+        cardEl,
+        {
+          transform: [
+            "translate3d(34vw,-26vh,0) scale(0.16) rotate(-8deg)",
+            "translate3d(0,0,0) scale(1) rotate(0deg)",
+          ],
+          opacity: [0, 1],
+        },
+        { duration: 0.43, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }
+      );
 
-          if (success) {
-            window.alert("Transmission sent! I'll be in touch soon.");
-            setFormData(INITIAL_FORM_STATE);
-            setIsFlipped(false);
-            return;
-          }
+      await ret.finished;
+      setCardAnimating(false);
 
-          lastError = new Error(`Unexpected response: ${bodyRaw}`);
-          continue; // try next endpoint
-        } catch (err) {
-          lastError = err;
-          continue; // try next endpoint
-        }
+      if (status === "success") {
+        setFormData(INITIAL_FORM_STATE);
+        setIsFlipped(false);
       }
-
-      throw lastError || new Error("Unknown transmission error");
+      clearTimeout(animTimerRef.current);
+      animTimerRef.current = setTimeout(() => {
+        setSendPhase("idle");
+        setSendStatus(null);
+      }, 900);
     } catch (error) {
       console.error("Failed to dispatch transmission via Alertzy:", error);
-      window.alert("Could not send via Alertzy. Please try again shortly.");
+      pendingResultRef.current = "error";
     } finally {
       setIsSubmitting(false);
     }
   }, [alertzyToken, formData, isSubmitting]);
+
+  useEffect(() => () => clearTimeout(animTimerRef.current), []);
 
   useEffect(() => {
     if (!isFlipped) {
@@ -331,7 +382,33 @@ function Home() {
     <>
       <section className="hero-section anime-section" id="home">
         <Container fluid className="hero-wrapper">
-          <div className={`hero-card ${isFlipped ? "hero-card--flipped" : ""}`}>
+          {/* Status banner */}
+          {(sendPhase !== "idle" || sendStatus) && (
+            <div
+              className={[
+                "tx-status",
+                sendStatus === "success" ? "tx-status--success" : "",
+                sendStatus === "error" ? "tx-status--error" : "",
+              ].join(" ")}
+              role="status"
+              aria-live="polite"
+            >
+              {sendStatus === "success"
+                ? "Transmission sent"
+                : sendStatus === "error"
+                ? "Transmission failed"
+                : "Sending..."}
+            </div>
+          )}
+
+          <div
+            ref={heroCardRef}
+            className={[
+              "hero-card",
+              isFlipped ? "hero-card--flipped" : "",
+              cardAnimating ? "hero-card--animating" : "",
+            ].filter(Boolean).join(" ")}
+          >
             <div className="hero-card__inner">
               <div
                 className="hero-card__face hero-card__face--front hero-frame"

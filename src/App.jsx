@@ -6,6 +6,7 @@ import Projects from "./components/Projects/Projects";
 import Resume from "./components/Resume/ResumeNew";
 import Footer from "./components/Footer";
 import SectionNav from "./components/SectionNav";
+import FPSMeter from "./components/common/FPSMeter";
 import "./style.css";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -55,6 +56,7 @@ function App() {
         </main>
         <SectionNav />
         <Footer />
+        <FPSMeter />
       </div>
     </>
   );
