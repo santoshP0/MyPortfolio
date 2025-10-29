@@ -160,6 +160,7 @@ strong {
   width: min(100%, 1080px);
   margin: 0 auto;
   perspective: 2200px;
+  -webkit-perspective: 2200px;
   min-height: clamp(28rem, 75vh, 36rem);
 }
 
@@ -169,6 +170,7 @@ strong {
   grid-template-areas: "stack";
   min-height: inherit;
   transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
@@ -184,6 +186,7 @@ strong {
   flex-direction: column;
   justify-content: center;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   pointer-events: none;
 }
 

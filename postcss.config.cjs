@@ -1,4 +1,5 @@
 const purgecss = require('@fullhuman/postcss-purgecss').default;
+const autoprefixer = require('autoprefixer');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -10,6 +11,8 @@ module.exports = {
         './src/**/*.{js,jsx,ts,tsx}',
       ],
       defaultExtractor: (content) => content.match(/[^<>'"`\s\.\:]+/g) || [],
+      keyframes: false, // keep all keyframes to avoid prod-only animation breakage
+      variables: true,
       safelist: [
         // Global tokens and small utility classes
         'accent', 'purple',
@@ -33,5 +36,6 @@ module.exports = {
         /^textLayer$/, /^annotationLayer$/,
       ],
     }),
+    autoprefixer(),
   ].filter(Boolean),
 };
