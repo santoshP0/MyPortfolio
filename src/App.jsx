@@ -7,7 +7,7 @@ import Resume from "./components/Resume/ResumeNew";
 import Footer from "./components/Footer";
 import SectionNav from "./components/SectionNav";
 import FPSMeter from "./components/common/FPSMeter";
-import "./style.css";
+import "./styles/index.css";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
