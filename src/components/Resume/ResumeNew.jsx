@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Container } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import pdf from "../../Assets/../Assets/Santosh.pdf";
@@ -31,12 +32,27 @@ function ResumeNew() {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [showViewer, setShowViewer] = useState(false);
+  const modalRootRef = useRef(null);
   const [now, setNow] = useState(() => new Date());
   const openViewer = useCallback(() => {
     setShowViewer(true);
   }, []);
   const closeViewer = useCallback(() => {
     setShowViewer(false);
+  }, []);
+
+  useEffect(() => {
+    // Create a detached root for the modal so it's not clipped by transformed ancestors
+    const el = document.createElement("div");
+    el.className = "resume-modal-root";
+    document.body.appendChild(el);
+    modalRootRef.current = el;
+    return () => {
+      if (modalRootRef.current && modalRootRef.current.parentNode) {
+        modalRootRef.current.parentNode.removeChild(modalRootRef.current);
+      }
+      modalRootRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -66,10 +82,16 @@ function ResumeNew() {
 
   useEffect(() => {
     document.body.style.overflow = showViewer ? "hidden" : "auto";
+    if (showViewer) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
     const event = new CustomEvent("section-nav:toggle", { detail: { hidden: showViewer } });
     window.dispatchEvent(event);
     return () => {
       document.body.style.overflow = "auto";
+      document.body.classList.remove("modal-open");
       const resetEvent = new CustomEvent("section-nav:toggle", { detail: { hidden: false } });
       window.dispatchEvent(resetEvent);
     };
@@ -201,6 +223,83 @@ function ResumeNew() {
     ]
   );
 
+  const modalMarkup = (
+      <div
+        className={`resume-modal ${showViewer ? "resume-modal--open" : ""}`}
+        aria-hidden={!showViewer}
+      >
+        <div className="resume-modal__backdrop" onClick={closeViewer} />
+        <div
+          className="resume-modal__shell"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Character Sheet PDF viewer"
+        >
+          <div className="resume-modal__glow" aria-hidden="true" />
+          <div className="resume-modal__frame">
+            <button
+              type="button"
+              className="resume-modal__close"
+              onClick={closeViewer}
+            >
+              <AiOutlineArrowLeft />
+              <span>Close</span>
+            </button>
+            <div className="resume-modal__body">
+              <div className="resume-viewer">
+                <Document
+                  file={pdf}
+                  onLoadSuccess={onLoadDocument}
+                  className="resume-document"
+                >
+                  <Page pageNumber={pageNumber} scale={pageScale} />
+                </Document>
+              </div>
+            </div>
+            <div className="resume-controls">
+              {numPages === 2 ? (
+                <>
+                  <span className="resume-page-indicator">
+                    {pageNumber} / {numPages}
+                  </span>
+                  <Button
+                    variant="outline-light"
+                    onClick={pageNumber === 1 ? nextPage : prevPage}
+                    className="resume-control resume-control--single"
+                    data-dir={pageNumber === 1 ? "next" : "prev"}
+                  >
+                    <AiOutlineArrowRight />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline-light"
+                    onClick={prevPage}
+                    className="resume-control"
+                    disabled={pageNumber === 1}
+                  >
+                    <AiOutlineArrowLeft />
+                  </Button>
+                  <span className="resume-page-indicator">
+                    {pageNumber} / {numPages ?? "?"}
+                  </span>
+                  <Button
+                    variant="outline-light"
+                    onClick={nextPage}
+                    className="resume-control"
+                    disabled={!numPages || pageNumber === numPages}
+                  >
+                    <AiOutlineArrowRight />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+  );
+
   return (
     <section className="resume-section anime-section" id="resume">
       <Container>
@@ -260,62 +359,7 @@ function ResumeNew() {
 
       </Container>
 
-      <div
-        className={`resume-modal ${showViewer ? "resume-modal--open" : ""}`}
-        aria-hidden={!showViewer}
-      >
-        <div className="resume-modal__backdrop" onClick={closeViewer} />
-        <div
-          className="resume-modal__shell"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Character Sheet PDF viewer"
-        >
-          <div className="resume-modal__glow" aria-hidden="true" />
-          <div className="resume-modal__frame">
-            <button
-              type="button"
-              className="resume-modal__close"
-              onClick={closeViewer}
-            >
-              <AiOutlineArrowLeft />
-              <span>Close</span>
-            </button>
-            <div className="resume-modal__body">
-              <div className="resume-viewer">
-                <Document
-                  file={pdf}
-                  onLoadSuccess={onLoadDocument}
-                  className="resume-document"
-                >
-                  <Page pageNumber={pageNumber} scale={pageScale} />
-                </Document>
-              </div>
-            </div>
-            <div className="resume-controls">
-              <Button
-                variant="outline-light"
-                onClick={prevPage}
-                className="resume-control"
-                disabled={pageNumber === 1}
-              >
-                <AiOutlineArrowLeft />
-              </Button>
-              <span className="resume-page-indicator">
-                {pageNumber} / {numPages ?? "?"}
-              </span>
-              <Button
-                variant="outline-light"
-                onClick={nextPage}
-                className="resume-control"
-                disabled={!numPages || pageNumber === numPages}
-              >
-                <AiOutlineArrowRight />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {modalRootRef.current ? createPortal(modalMarkup, modalRootRef.current) : null}
     </section>
   );
 }
