@@ -1,6 +1,11 @@
 [build]
   functions = "netlify/functions"
 
+[build.environment]
+  # Disable CRA's eslint-webpack-plugin during Netlify builds to avoid
+  # "Cannot set properties of undefined (setting 'defaultMeta')" crashes
+  DISABLE_ESLINT_PLUGIN = "true"
+
 [[redirects]]
   from = "/api/alertzy/*"
   to = "/.netlify/functions/alertzy"
