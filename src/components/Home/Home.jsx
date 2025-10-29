@@ -87,7 +87,9 @@ function Home() {
   const IS_PROD = process.env.NODE_ENV === "production";
   const alertzyToken = useMemo(() => {
     if (IS_PROD) return ""; // never embed token in production bundle
-    return (process.env.REACT_APP_ALERTZY_TOKEN ?? "").trim();
+    const raw = String(process.env.REACT_APP_ALERTZY_TOKEN || "");
+    // Trim whitespace and strip surrounding quotes if present
+    return raw.trim().replace(/^['"]+|['"]+$/g, "");
   }, [IS_PROD]);
   const usingServerProxy = useMemo(() => IS_PROD, [IS_PROD]);
 
@@ -234,32 +236,71 @@ function Home() {
 
     setIsSubmitting(true);
     try {
-      const payload = {
+      const basePayload = {
         title,
         message: messageBody,
         priority: 1,
         group: "Portfolio Contact",
       };
-      if (!usingServerProxy) {
-        payload.accountKey = alertzyToken;
+
+      // Prefer serverless function; fall back to direct proxy in dev
+      const endpoints = [
+        "/.netlify/functions/alertzy", // normalized JSON { ok, status, data }
+        "/api/alertzy/send", // direct Alertzy; may return text or JSON
+      ];
+
+      let lastError = null;
+      for (const endpoint of endpoints) {
+        const payload = { ...basePayload };
+        // Only attach client token when sending directly to Alertzy (not function)
+        if (endpoint.includes("/api/alertzy")) {
+          if (!alertzyToken) {
+            lastError = new Error("Missing local token for direct Alertzy call");
+            continue;
+          }
+          payload.accountKey = alertzyToken;
+        }
+
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json,text/plain,*/*" },
+            body: JSON.stringify(payload),
+          });
+
+          const ct = response.headers.get("content-type") || "";
+          const isJson = ct.includes("application/json");
+          const bodyRaw = await response.text();
+          const bodyJson = isJson ? (() => { try { return JSON.parse(bodyRaw); } catch { return null; } })() : null;
+
+          console.log("Alertzy endpoint:", endpoint, "status:", response.status, "json:", bodyJson || bodyRaw);
+
+          // Normalize success detection
+          let success = false;
+          if (endpoint.includes("/.netlify/functions/alertzy")) {
+            success = response.ok && bodyJson && bodyJson.ok === true;
+          } else {
+            // Direct to Alertzy: consider 200/201 and body containing success-like tokens
+            const textLower = bodyRaw.toLowerCase();
+            success = response.ok && (textLower.includes("success") || textLower.includes("ok") || (bodyJson && (bodyJson.ok || bodyJson.success)));
+          }
+
+          if (success) {
+            window.alert("Transmission sent! I'll be in touch soon.");
+            setFormData(INITIAL_FORM_STATE);
+            setIsFlipped(false);
+            return;
+          }
+
+          lastError = new Error(`Unexpected response: ${bodyRaw}`);
+          continue; // try next endpoint
+        } catch (err) {
+          lastError = err;
+          continue; // try next endpoint
+        }
       }
 
-      const response = await fetch(ALERTZY_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      console.log("Alertzy response:", response);
-      if (!response.ok) {
-        throw new Error(`Alertzy response: ${response.status}`);
-      }
-
-      window.alert("Transmission sent! I'll be in touch soon.");
-      setFormData(INITIAL_FORM_STATE);
-      setIsFlipped(false);
+      throw lastError || new Error("Unknown transmission error");
     } catch (error) {
       console.error("Failed to dispatch transmission via Alertzy:", error);
       window.alert("Could not send via Alertzy. Please try again shortly.");

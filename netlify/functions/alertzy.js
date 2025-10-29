@@ -24,7 +24,8 @@ exports.handler = async function handler(event) {
     return { statusCode: 405, headers: corsHeaders(allowedOrigin), body: "Method Not Allowed" };
   }
 
-  const token = process.env.REACT_APP_ALERTZY_TOKEN;
+  // Sanitize token: trim and strip surrounding quotes if env value was quoted
+  const token = (process.env.REACT_APP_ALERTZY_TOKEN || "").trim().replace(/^['\"]/g, '').replace(/['\"]$/g, '');
   if (!token) {
     return {
       statusCode: 500,
@@ -44,17 +45,20 @@ exports.handler = async function handler(event) {
     });
 
     const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch (_) { data = null; }
+
+    const ok = resp.ok;
     return {
-      statusCode: resp.status,
-      headers: { ...corsHeaders(allowedOrigin), "Content-Type": resp.headers.get("content-type") || "application/json" },
-      body: text,
+      statusCode: ok ? 200 : resp.status,
+      headers: { ...corsHeaders(allowedOrigin), "Content-Type": "application/json" },
+      body: JSON.stringify({ ok, status: resp.status, data: data ?? text }),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      headers: corsHeaders(allowedOrigin),
-      body: JSON.stringify({ error: "proxy_error", detail: String(err) }),
+      headers: { ...corsHeaders(allowedOrigin), "Content-Type": "application/json" },
+      body: JSON.stringify({ ok: false, error: "proxy_error", detail: String(err) }),
     };
   }
 };
-
