@@ -28,6 +28,9 @@ module.exports = {
         /^btn/, /^badge/, /^shadow/,
         /^position-/, /^top-/, /^bottom-/, /^start-/, /^end-/, /^z-/,
         /^modal/, /^fade$/, /^show$/, /^collapse/, /^navbar/, /^nav/, /^dropdown/, /^card/, /^alert/, /^list-group/,
+        // react-pdf text/annotation layers
+        /^react-pdf__/,
+        /^textLayer$/, /^annotationLayer$/,
       ],
     }),
   ].filter(Boolean),

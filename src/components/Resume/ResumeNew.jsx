@@ -322,7 +322,12 @@ function ResumeNew() {
                     className="resume-document"
                   >
                     <div ref={pageWrapRef}>
-                      <Page pageNumber={pageNumber} scale={pageScale} />
+                      <Page
+                        pageNumber={pageNumber}
+                        scale={pageScale}
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                      />
                     </div>
                   </Document>
                   <div
