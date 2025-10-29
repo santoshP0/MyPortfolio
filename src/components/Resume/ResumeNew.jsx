@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
+import { animate } from "@motionone/dom";
 import { Container } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import pdf from "../../Assets/../Assets/Santosh.pdf";
@@ -32,13 +33,43 @@ function ResumeNew() {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [showViewer, setShowViewer] = useState(false);
+  const [pageDirection, setPageDirection] = useState(0); // 1 next, -1 prev
+  const frameRef = useRef(null);
+  const backdropRef = useRef(null);
+  const [tone, setTone] = useState(0); // -1 cool .. 0 neutral .. +1 warm
+  const baseWarm = 0.12;
+  const [warmAlpha, coolAlpha] = React.useMemo(() => {
+    const v = Math.max(-1, Math.min(1, tone));
+    if (v >= 0) {
+      return [Math.min(0.4, baseWarm + v * 0.24), 0];
+    }
+    const reduced = baseWarm + v * 0.4; // reduce warm more quickly going left
+    if (reduced >= 0) return [reduced, 0];
+    const cool = Math.min(0.28, -reduced);
+    return [0, cool];
+  }, [tone]);
   const modalRootRef = useRef(null);
   const [now, setNow] = useState(() => new Date());
   const openViewer = useCallback(() => {
     setShowViewer(true);
   }, []);
   const closeViewer = useCallback(() => {
-    setShowViewer(false);
+    const frame = frameRef.current;
+    const backdrop = backdropRef.current;
+    const anims = [];
+    if (backdrop) {
+      anims.push(animate(backdrop, { opacity: [1, 0] }, { duration: 0.2 }).finished);
+    }
+    if (frame) {
+      anims.push(
+        animate(
+          frame,
+          { transform: ["translateY(0) scale(1)", "translateY(8px) scale(0.98)"], opacity: [1, 0] },
+          { duration: 0.22, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+        ).finished
+      );
+    }
+    Promise.all(anims).catch(() => {}).finally(() => setShowViewer(false));
   }, []);
 
   useEffect(() => {
@@ -73,10 +104,12 @@ function ResumeNew() {
 
   const nextPage = useCallback(() => {
     if (!numPages) return;
+    setPageDirection(1);
     setPageNumber((current) => (current < numPages ? current + 1 : current));
   }, [numPages]);
 
   const prevPage = useCallback(() => {
+    setPageDirection(-1);
     setPageNumber((current) => (current > 1 ? current - 1 : current));
   }, []);
 
@@ -107,6 +140,23 @@ function ResumeNew() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showViewer, closeViewer]);
+
+  // Animate open when modal becomes visible
+  useEffect(() => {
+    if (!showViewer) return;
+    const frame = frameRef.current;
+    const backdrop = backdropRef.current;
+    if (backdrop) {
+      animate(backdrop, { opacity: [0, 1] }, { duration: 0.22 });
+    }
+    if (frame) {
+      animate(
+        frame,
+        { transform: ["translateY(18px) scale(0.98)", "translateY(0) scale(1)"], opacity: [0, 1] },
+        { duration: 0.3, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+      );
+    }
+  }, [showViewer]);
 
   useEffect(() => {
     const handleResumeOpen = () => openViewer();
@@ -223,12 +273,30 @@ function ResumeNew() {
     ]
   );
 
+  // Animate PDF page transitions using motion.dev (Motion One)
+  const pageWrapRef = useRef(null);
+  useEffect(() => {
+    if (!pageWrapRef.current) return;
+    const dir = pageDirection || 1;
+    animate(
+      pageWrapRef.current,
+      { transform: [
+          `translateX(${dir > 0 ? 24 : -24}px) scale(0.995)`,
+          "translateX(0px) scale(1)"
+        ],
+        opacity: [0, 1],
+        filter: ["blur(6px)", "blur(0px)"]
+      },
+      { duration: 0.28, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+    );
+  }, [pageNumber, pageDirection]);
+
   const modalMarkup = (
       <div
         className={`resume-modal ${showViewer ? "resume-modal--open" : ""}`}
         aria-hidden={!showViewer}
       >
-        <div className="resume-modal__backdrop" onClick={closeViewer} />
+        <div ref={backdropRef} className="resume-modal__backdrop" onClick={closeViewer} />
         <div
           className="resume-modal__shell"
           role="dialog"
@@ -236,7 +304,7 @@ function ResumeNew() {
           aria-label="Character Sheet PDF viewer"
         >
           <div className="resume-modal__glow" aria-hidden="true" />
-          <div className="resume-modal__frame">
+          <div ref={frameRef} className="resume-modal__frame">
             <button
               type="button"
               className="resume-modal__close"
@@ -247,13 +315,25 @@ function ResumeNew() {
             </button>
             <div className="resume-modal__body">
               <div className="resume-viewer">
-                <Document
-                  file={pdf}
-                  onLoadSuccess={onLoadDocument}
-                  className="resume-document"
-                >
-                  <Page pageNumber={pageNumber} scale={pageScale} />
-                </Document>
+                <div className="resume-pdf">
+                  <Document
+                    file={pdf}
+                    onLoadSuccess={onLoadDocument}
+                    className="resume-document"
+                  >
+                    <div ref={pageWrapRef}>
+                      <Page pageNumber={pageNumber} scale={pageScale} />
+                    </div>
+                  </Document>
+                  <div
+                    className="resume-pdf__tint resume-pdf__tint--warm"
+                    style={{ backgroundColor: `rgba(255, 224, 178, ${warmAlpha})` }}
+                  />
+                  <div
+                    className="resume-pdf__tint resume-pdf__tint--cool"
+                    style={{ backgroundColor: `rgba(178, 208, 255, ${coolAlpha})` }}
+                  />
+                </div>
               </div>
             </div>
             <div className="resume-controls">
@@ -294,6 +374,18 @@ function ResumeNew() {
                   </Button>
                 </>
               )}
+            </div>
+            <div className="resume-tint" role="group" aria-label="PDF tone control">
+              <input
+                type="range"
+                min={-1}
+                max={1}
+                step={0.01}
+                value={tone}
+                onChange={(e) => setTone(parseFloat(e.target.value))}
+                className="resume-tint__range"
+              />
+              <span className="resume-tint__label">Tone</span>
             </div>
           </div>
         </div>
