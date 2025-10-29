@@ -1,0 +1,21 @@
+[build]
+  functions = "netlify/functions"
+  command = "bun run build"
+
+[[redirects]]
+  from = "/api/alertzy/*"
+  to = "/.netlify/functions/alertzy"
+  status = 200
+
+[[headers]]
+  for = "/.netlify/functions/alertzy"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "POST, OPTIONS"
+    Access-Control-Allow-Headers = "content-type"
+    Access-Control-Max-Age = "86400"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
