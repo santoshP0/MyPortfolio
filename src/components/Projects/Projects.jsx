@@ -5,7 +5,7 @@ import {
   PROJECT_DEPLOYMENTS,
   PROJECT_FIELD_NOTES,
   PROJECTS_CONTENT,
-} from "../../constants/content";
+} from "../../constants";
 
 function Projects() {
   const deployments = useMemo(() => PROJECT_DEPLOYMENTS, []);

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import Typewriter from "typewriter-effect";
-import { TYPEWRITER_STRINGS } from "../../constants/content";
+import { TYPEWRITER_STRINGS } from "../../constants";
 
 function Type() {
   const typewriterOptions = useMemo(

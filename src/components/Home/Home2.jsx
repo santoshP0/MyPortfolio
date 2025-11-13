@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Aboutcard from "../About/AboutCard";
-import { LORE_CONTENT } from "../../constants/content";
+import { LORE_CONTENT } from "../../constants";
 
 function Home2() {
   const loadoutItems = useMemo(() => LORE_CONTENT.loadoutItems, []);

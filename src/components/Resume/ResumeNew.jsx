@@ -12,7 +12,7 @@ import {
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { HERO_CONTENT, RESUME_CONTENT } from "../../constants/content";
+import { HERO_CONTENT, RESUME_CONTENT } from "../../constants";
 import { computeExperience, DEFAULT_MINUTES_PER_XP, MS_PER_MINUTE } from "../../utils/experience";
 
 // Configure PDF.js worker for newer react-pdf versions

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import IconGrid from "../common/IconGrid";
-import { TECH_STACK_ITEMS } from "../../constants/content";
+import { TECH_STACK_ITEMS } from "../../constants";
 
 function Techstack() {
   const items = useMemo(() => TECH_STACK_ITEMS, []);

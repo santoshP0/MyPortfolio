@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import Card from "react-bootstrap/Card";
 import { ImPointRight } from "react-icons/im";
-import { ABOUT_CARD_CONTENT } from "../../constants/content";
+import { ABOUT_CARD_CONTENT } from "../../constants";
 
 function AboutCard() {
   const paragraphs = useMemo(

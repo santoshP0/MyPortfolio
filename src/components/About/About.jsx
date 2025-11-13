@@ -3,7 +3,7 @@ import { Container } from "react-bootstrap";
 import Techstack from "./Techstack";
 import Aboutcard from "./AboutCard";
 import Toolstack from "./Toolstack";
-import { ABOUT_SECTION_CONTENT } from "../../constants/content";
+import { ABOUT_SECTION_CONTENT } from "../../constants";
 
 function About() {
   const sectionContent = useMemo(() => ABOUT_SECTION_CONTENT, []);

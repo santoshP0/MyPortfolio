@@ -1,72 +1,27 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { animate } from "@motionone/dom";
 import { Container, Row, Col } from "react-bootstrap";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import Home2 from "./Home2";
 import Type from "./Type";
-import { HERO_CONTENT, FOOTER_CONTENT } from "../../constants/content";
+import HeroStatCard from "./HeroStatCard";
+import HeroConsole from "./HeroConsole";
+import HeroContactCard from "./HeroContactCard";
+import HeroStatusBanner from "./HeroStatusBanner";
+import {
+  HERO_CONTENT,
+  HERO_CONTACT_COPY,
+  FOOTER_CONTENT,
+} from "../../constants";
 import { computeExperience, DEFAULT_MINUTES_PER_XP } from "../../utils/experience";
+import useHeartbeatSequence from "../../hooks/useHeartbeatSequence";
+import { sendAlertzyTransmission } from "../../utils/alertzy";
 
-const HEARTBEAT_STEPS = 5;
-const HEARTBEAT_VISIBLE_STEPS = new Set([0, 2, 4]);
-// Endpoint selection
-// - development: CRA proxy to avoid CORS
-// - production: Netlify Function by default, or absolute proxy URL if provided
-const RAW_PROXY_URL = (process.env.REACT_APP_ALERTZY_PROXY_URL || "").trim();
-const PROD_ALERTZY_ENDPOINT = RAW_PROXY_URL && /^https?:\/\//i.test(RAW_PROXY_URL)
-  ? RAW_PROXY_URL
-  : "/.netlify/functions/alertzy";
-const ALERTZY_ENDPOINT = process.env.NODE_ENV === "production"
-  ? PROD_ALERTZY_ENDPOINT
-  : "/api/alertzy/send";
 const INITIAL_FORM_STATE = Object.freeze({
   name: "",
   email: "",
   message: "",
 });
-
-function useHeartbeatSequence(options, fallbackValue) {
-  const sequence = useMemo(() => {
-    if (options && options.length) {
-      return options.filter(Boolean);
-    }
-    return fallbackValue ? [fallbackValue] : [];
-  }, [options, fallbackValue]);
-
-  const [index, setIndex] = useState(0);
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    setIndex(0);
-    setStep(0);
-  }, [sequence]);
-
-  useEffect(() => {
-    if (!sequence.length) {
-      return undefined;
-    }
-    const interval = setInterval(() => {
-      setStep((prev) => (prev + 1) % HEARTBEAT_STEPS);
-    }, 300);
-    return () => clearInterval(interval);
-  }, [sequence.length]);
-
-  useEffect(() => {
-    if (!sequence.length) {
-      return;
-    }
-    if (step === HEARTBEAT_STEPS - 1) {
-      setIndex((prev) => (prev + 1) % sequence.length);
-    }
-  }, [step, sequence.length]);
-
-  const visible = sequence.length ? HEARTBEAT_VISIBLE_STEPS.has(step) : true;
-  const value = sequence.length ? sequence[index % sequence.length] : fallbackValue ?? "";
-  const animate = sequence.length > 0;
-
-  return { value, visible, animate };
-}
+const STATUS_RESET_DELAY = 900;
 
 function Home() {
   const heroConsole = useMemo(() => HERO_CONTENT.console, []);
@@ -249,62 +204,14 @@ function Home() {
         group: "Portfolio Contact",
       };
 
-      const endpoints = [
-        "/.netlify/functions/alertzy",
-        "/api/alertzy/send",
-      ];
-
       const sendTask = (async () => {
-        let lastError = null;
-        for (const endpoint of endpoints) {
-          const payload = { ...basePayload };
-          if (endpoint.includes("/api/alertzy")) {
-            if (!alertzyToken) {
-              lastError = new Error("Missing local token for direct Alertzy call");
-              continue;
-            }
-            payload.accountKey = alertzyToken;
-          }
-
-          try {
-            const response = await fetch(endpoint, {
-              method: "POST",
-              headers: { "Content-Type": "application/json", Accept: "application/json,text/plain,*/*" },
-              body: JSON.stringify(payload),
-            });
-
-            const ct = response.headers.get("content-type") || "";
-            const isJson = ct.includes("application/json");
-            const bodyRaw = await response.text();
-            const bodyJson = isJson ? (() => { try { return JSON.parse(bodyRaw); } catch { return null; } })() : null;
-
-            console.log("Alertzy endpoint:", endpoint, "status:", response.status, "json:", bodyJson || bodyRaw);
-
-            let success = false;
-            if (endpoint.includes("/.netlify/functions/alertzy")) {
-              success = response.ok && bodyJson && bodyJson.ok === true;
-            } else {
-              const textLower = bodyRaw.toLowerCase();
-              success = response.ok && (textLower.includes("success") || textLower.includes("ok") || (bodyJson && (bodyJson.ok || bodyJson.success)));
-            }
-
-            if (success) {
-              pendingResultRef.current = "success";
-              return;
-            }
-
-            lastError = new Error(`Unexpected response: ${bodyRaw}`);
-            continue;
-          } catch (err) {
-            lastError = err;
-            continue;
-          }
+        const result = await sendAlertzyTransmission(basePayload, { token: alertzyToken });
+        pendingResultRef.current = result.ok ? "success" : "error";
+        if (!result.ok) {
+          throw result.error || new Error("Unknown transmission error");
         }
-        pendingResultRef.current = "error";
-        throw lastError || new Error("Unknown transmission error");
       })();
 
-      // Motion One: animate card out (launch)
       const cardEl = heroCardRef.current;
       const launch = animate(
         cardEl,
@@ -318,14 +225,12 @@ function Home() {
         { duration: 0.52, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }
       );
 
-      // Wait for both launch animation and network completion
       await Promise.allSettled([launch.finished, sendTask]);
 
       const status = pendingResultRef.current || null;
       setSendStatus(status);
       setSendPhase("return");
 
-      // Motion One: animate card back (return)
       const ret = animate(
         cardEl,
         {
@@ -349,14 +254,17 @@ function Home() {
       animTimerRef.current = setTimeout(() => {
         setSendPhase("idle");
         setSendStatus(null);
-      }, 900);
+      }, STATUS_RESET_DELAY);
     } catch (error) {
       console.error("Failed to dispatch transmission via Alertzy:", error);
       pendingResultRef.current = "error";
+      setSendStatus("error");
+      setSendPhase("idle");
+      setCardAnimating(false);
     } finally {
       setIsSubmitting(false);
     }
-  }, [alertzyToken, formData, isSubmitting]);
+  }, [alertzyToken, formData, isSubmitting, usingServerProxy]);
 
   useEffect(() => () => clearTimeout(animTimerRef.current), []);
 
@@ -382,24 +290,7 @@ function Home() {
     <>
       <section className="hero-section anime-section" id="home">
         <Container fluid className="hero-wrapper">
-          {/* Status banner */}
-          {(sendPhase !== "idle" || sendStatus) && (
-            <div
-              className={[
-                "tx-status",
-                sendStatus === "success" ? "tx-status--success" : "",
-                sendStatus === "error" ? "tx-status--error" : "",
-              ].join(" ")}
-              role="status"
-              aria-live="polite"
-            >
-              {sendStatus === "success"
-                ? "Transmission sent"
-                : sendStatus === "error"
-                ? "Transmission failed"
-                : "Sending..."}
-            </div>
-          )}
+          <HeroStatusBanner phase={sendPhase} status={sendStatus} />
 
           <div
             ref={heroCardRef}
@@ -428,65 +319,12 @@ function Home() {
                     </div>
                     <div className="hero-stats">
                       {heroStats.map((stat) => (
-                        <div className="hero-stat-card" key={`${stat.label}-${stat.value}`}>
-                          <span className="hero-stat-label">{stat.label}</span>
-                          <span
-                            className={[
-                              "hero-stat-value",
-                              stat.animate ? "hero-stat-value--heartbeat" : "",
-                              stat.visible ? "" : "hero-stat-value--hidden",
-                            ].filter(Boolean).join(" ")}
-                          >
-                            {stat.value}
-                          </span>
-                          {stat.progress ? (
-                            <div className="hero-stat-progress">
-                              <div
-                                className="hero-stat-progress__bar"
-                                role="progressbar"
-                                aria-valuenow={Math.round(stat.progress.percent)}
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                                aria-valuetext={stat.progress.ariaText}
-                                aria-label="Experience progress"
-                                title={stat.progress.ariaText}
-                              >
-                                <span
-                                  className="hero-stat-progress__fill"
-                                  style={{ width: `${stat.progress.percent}%` }}
-                                />
-                              </div>
-                            </div>
-                          ) : null}
-                        </div>
+                        <HeroStatCard key={`${stat.label}-${stat.value}`} {...stat} />
                       ))}
                     </div>
                   </Col>
                   <Col md={5} className="hero-visual">
-                    <div className="hero-console">
-                      <span className="hero-console__halo" aria-hidden="true" />
-                      <div className="hero-console__ring hero-console__ring--outer" aria-hidden="true" />
-                      <div className="hero-console__ring hero-console__ring--inner" aria-hidden="true" />
-                      <div className="hero-console__shell">
-                        <span className="hero-console__tag">{heroConsole.tag}</span>
-                        <div className="hero-console__status">
-                          <span className="hero-console__code">{heroConsole.code}</span>
-                          <span className="hero-console__subtitle">{heroConsole.subtitle}</span>
-                        </div>
-                        <button
-                          type="button"
-                          className="hero-console__cta"
-                          onClick={handleOpenContact}
-                          aria-label="Reveal contact form"
-                        >
-                          <span className="hero-console__cta-glow" aria-hidden="true" />
-                          <span className="hero-console__cta-icon" aria-hidden="true">
-                            {heroConsole.ctaIcon}
-                          </span>
-                          <span className="hero-console__cta-text">{heroConsole.ctaText}</span>
-                        </button>
-                      </div>
-                    </div>
+                    <HeroConsole consoleCopy={heroConsole} onRevealContact={handleOpenContact} />
                   </Col>
                 </Row>
               </div>
@@ -494,81 +332,16 @@ function Home() {
                 className="hero-card__face hero-card__face--back hero-frame hero-frame--contact"
                 aria-hidden={!isFlipped}
               >
-                <div className="hero-contact">
-                  <Row className="hero-contact__row align-items-start gy-4">
-                    <Col lg={6} className="hero-contact__copy">
-                      <span className="hero-contact__badge">[Comm Signal]</span>
-                      <h3 className="hero-contact__title">
-                        Let&apos;s build the next realm together
-                      </h3>
-                      <p className="hero-contact__subtitle">
-                        Share your mission briefing and I&apos;ll respond with next steps.
-                      </p>
-                      <p className="hero-contact__subtitle hero-contact__subtitle--muted">
-                        Prefer a direct channel? Reach me at{" "}
-                        <a href={contactEmailHref}>{contactEmailDisplay}</a>.
-                      </p>
-                    </Col>
-                    <Col lg={6} className="hero-contact__form-col">
-                      <Form className="hero-contact__form" onSubmit={handleContactSubmit}>
-                        <Form.Group controlId="contactName">
-                          <Form.Label>Squad Handle</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            placeholder="Your name"
-                            autoComplete="name"
-                          />
-                        </Form.Group>
-                        <Form.Group controlId="contactEmail">
-                          <Form.Label>Transmission Channel</Form.Label>
-                          <Form.Control
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            placeholder="you@example.com"
-                            autoComplete="email"
-                            required
-                          />
-                        </Form.Group>
-                        <Form.Group controlId="contactMessage">
-                          <Form.Label>Mission Brief</Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            name="message"
-                            value={formData.message}
-                            onChange={handleInputChange}
-                            placeholder="Tell me about the product, problem, or idea."
-                            rows={5}
-                            required
-                          />
-                        </Form.Group>
-                        <div className="hero-contact__actions">
-                          <Button
-                            type="submit"
-                            variant="primary"
-                            className="hero-contact__submit"
-                            disabled={isSubmitting}
-                          >
-                            Send Transmission
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline-light"
-                            onClick={handleCloseContact}
-                            className="hero-contact__back"
-                            disabled={isSubmitting}
-                          >
-                            Return
-                          </Button>
-                        </div>
-                      </Form>
-                    </Col>
-                  </Row>
-                </div>
+                <HeroContactCard
+                  copy={HERO_CONTACT_COPY}
+                  emailHref={contactEmailHref}
+                  emailDisplay={contactEmailDisplay}
+                  formData={formData}
+                  isSubmitting={isSubmitting}
+                  onSubmit={handleContactSubmit}
+                  onClose={handleCloseContact}
+                  onInputChange={handleInputChange}
+                />
               </div>
             </div>
           </div>

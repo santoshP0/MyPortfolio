@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { SECTION_NAV_ITEMS } from "../constants/content";
+import { SECTION_NAV_ITEMS } from "../constants";
 
 function SectionNav() {
   const navItems = useMemo(() => SECTION_NAV_ITEMS, []);

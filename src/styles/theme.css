@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@600&display=swap");
 
+/* Keep these tokens in sync with src/constants/theme.js */
+
 :root {
   --ink: #050505;
   --paper: #f5f5f5;
@@ -7,5 +9,12 @@
   --paper-soft: rgba(245, 245, 245, 0.82);
   --paper-faint: rgba(245, 245, 245, 0.12);
   --accent-soft: rgba(255, 0, 93, 0.6);
+  --success: #21c486;
+  --success-soft: rgba(33, 196, 134, 0.45);
+  --success-glow: rgba(33, 196, 134, 0.4);
+  --warning: #ffb400;
+  --warning-soft: rgba(255, 180, 0, 0.45);
+  --danger: #ff5050;
+  --danger-soft: rgba(255, 80, 80, 0.55);
+  --danger-glow: rgba(255, 80, 80, 0.4);
 }
-

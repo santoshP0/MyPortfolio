@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { AiFillMail } from "react-icons/ai";
 import { FaLinkedinIn } from "react-icons/fa";
-import { FOOTER_CONTENT } from "../constants/content";
+import { FOOTER_CONTENT } from "../constants";
 
 const iconMap = {
   mail: AiFillMail,

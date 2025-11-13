@@ -1,5 +1,5 @@
 import React from "react";
-import { PRELOADER_MESSAGE } from "../constants/content";
+import { PRELOADER_MESSAGE } from "../constants";
 
 function Pre({ load }) {
   return (
