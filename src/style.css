@@ -2355,30 +2355,76 @@ button:focus {
     gap: 1.8rem;
   }
 
+  .resume-modal {
+    place-items: stretch;
+    padding: 0;
+  }
+
+  .resume-modal__backdrop {
+    background: rgba(0, 0, 0, 0.85);
+  }
+
   .resume-modal__shell {
     width: 100%;
-    padding: clamp(0.4rem, 2vw, 0.8rem);
+    padding: 0;
   }
 
   .resume-modal__frame {
-    padding: clamp(0.4rem, 3vw, 0.8rem);
-    height: min(92vh, 820px);
+    padding: clamp(0.8rem, 4vw, 1.25rem);
+    min-height: 100vh;
+    height: auto;
+    width: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    background: linear-gradient(180deg, rgba(8, 8, 10, 0.98), rgba(4, 4, 6, 0.98));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
   }
 
   .resume-modal__close {
-    gap: 0.35rem;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    padding-right: 3rem;
+    font-size: 0.9rem;
   }
 
-  .resume-modal__body {
-    margin-top: clamp(0.9rem, 4vw, 1.4rem);
-    border-radius: 12px;
+  .resume-tint {
+    position: static;
+    transform: none;
+    margin: 0.5rem 0 0.2rem;
   }
 
   .resume-controls {
-    position: absolute;
-    top: clamp(0.6rem, 3vw, 1rem);
-    right: clamp(0.6rem, 3vw, 1rem);
-    gap: 0.5rem;
+    position: static;
+    margin-top: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .resume-modal__body {
+    margin-top: 0.6rem;
+    border-radius: 14px;
+    background: rgba(26, 26, 32, 0.9);
+    flex: 0 0 auto;
+  }
+
+  .resume-viewer {
+    padding: 0.4rem 0.4rem 0.3rem;
+    justify-content: center;
+    flex: 0 0 auto;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .resume-document {
+    width: min(96vw, 600px);
+    max-width: none;
+  }
+
+  .resume-viewer canvas {
+    width: 100% !important;
+    height: auto !important;
   }
 }
 
