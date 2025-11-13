@@ -2184,7 +2184,15 @@ button:focus {
   }
 
   .hero-frame {
-    padding: 2.2rem 1.6rem;
+    padding: clamp(1.6rem, 5vw, 2rem);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(180deg, rgba(14, 14, 20, 0.97), rgba(7, 7, 11, 0.98));
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  .hero-frame::before,
+  .hero-frame::after {
+    opacity: 0;
   }
 
   .hero-visual {
@@ -2229,13 +2237,26 @@ button:focus {
     width: 100%;
   }
 
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .hero-stat-card {
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: none;
+  }
+
   .lore-copy,
   .skill-frame {
-    padding: 2rem 1.6rem;
+    padding: 1.6rem 1.4rem;
   }
 
   .resume-console {
-    padding: 1.4rem;
+    padding: 1.25rem;
   }
 
   .resume-console__grid {
@@ -2256,6 +2277,75 @@ button:focus {
 
   .footer-icons {
     justify-content: center;
+  }
+
+  .skill-frame,
+  .lore-intel,
+  .quest-card,
+  .quote-card-view,
+  .resume-console {
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: linear-gradient(180deg, rgba(10, 10, 14, 0.95), rgba(5, 5, 7, 0.98));
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .skill-section,
+  .project-section,
+  .resume-section {
+    padding-inline: 0.4rem;
+  }
+
+  .quest-card__body {
+    padding: 1.3rem 1.1rem 1.5rem;
+  }
+
+  .tech-icons {
+    padding: 1rem;
+    border-radius: 18px;
+    border-color: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-type {
+    font-size: 1.1rem;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .quest-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    justify-items: stretch;
+  }
+
+  .skill-frame,
+  .lore-intel,
+  .quote-card-view {
+    border-radius: 18px;
+  }
+
+  .quest-card {
+    border-radius: 22px;
+  }
+
+  .quest-card__media img {
+    border-radius: 18px;
+  }
+
+  .resume-actions {
+    gap: 0.6rem;
   }
 }
 
@@ -2332,5 +2422,13 @@ button:focus {
   .tech-icons {
     aspect-ratio: auto;
     padding: 1.2rem;
+  }
+
+  .tx-status {
+    top: auto;
+    bottom: 12px;
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, 0);
   }
 }
