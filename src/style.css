@@ -2479,3 +2479,315 @@ button:focus {
     transform: translate(-50%, 0);
   }
 }
+
+/* -------- Cyberpunk Anime Animations -------- */
+
+/* Hero visual container for anime character */
+.hero-visual__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  position: relative;
+}
+
+/* Anime Console Enhancements */
+.anime-console__halo {
+  animation: anime-glow-pulse 3s ease-in-out infinite alternate;
+}
+
+.anime-console__ring {
+  border-color: var(--anime-neon-cyan, #00ffff);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+  animation: anime-ring-rotate 8s linear infinite;
+}
+
+.anime-console__shell {
+  background: linear-gradient(160deg, rgba(5, 5, 5, 0.95), rgba(8, 8, 8, 0.85));
+  border: 2px solid var(--anime-pastel-purple, #c5a3d9);
+  box-shadow:
+    inset 0 0 30px rgba(197, 163, 217, 0.2),
+    0 0 40px rgba(0, 255, 255, 0.3);
+}
+
+.anime-console__tag {
+  color: var(--anime-neon-cyan, #00ffff);
+  text-shadow: 0 0 10px currentColor;
+  position: relative;
+}
+
+.anime-console__tag-glow::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(90deg, transparent, var(--anime-neon-cyan, #00ffff), transparent);
+  filter: blur(2px);
+  animation: anime-tag-sweep 2s linear infinite;
+}
+
+.anime-console__code {
+  background: linear-gradient(90deg, var(--anime-pastel-purple, #c5a3d9), var(--anime-pastel-pink, #ffb3d1));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(197, 163, 217, 0.5);
+}
+
+.anime-console__subtitle {
+  color: var(--anime-pastel-blue, #a6d1e6);
+  text-shadow: 0 0 8px currentColor;
+}
+
+.anime-console__cta {
+  background: linear-gradient(135deg, var(--accent-color, #f83556), var(--anime-pastel-purple, #c5a3d9));
+  border: 2px solid var(--anime-neon-cyan, #00ffff);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+  transition: all 0.3s var(--anime-elastic-ease);
+}
+
+.anime-console__cta:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 0 35px rgba(255, 20, 147, 0.6);
+}
+
+.anime-console__cta-glow {
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.anime-console__cta-icon {
+  color: var(--anime-neon-cyan, #00ffff);
+  text-shadow: 0 0 15px currentColor;
+}
+
+.anime-console__ascii-art {
+  margin: 1rem 0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.65rem;
+  color: var(--anime-pastel-blue, #a6d1e6);
+  opacity: 0.8;
+  text-shadow: 0 0 5px currentColor;
+}
+
+.anime-console__ascii-content {
+  margin: 0;
+  white-space: pre;
+  line-height: 1.2;
+}
+
+.anime-console__particles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  pointer-events: none;
+}
+
+.anime-console__particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--anime-neon-cyan, #00ffff);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  opacity: 0;
+  animation: anime-console-particle 3s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.anime-console__sparkles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.anime-console__sparkle {
+  position: absolute;
+  font-size: 1rem;
+  opacity: 0;
+  animation: anime-sparkle 0.8s ease-in-out;
+  animation-delay: var(--delay, 0s);
+  transform: translateX(var(--position, 0));
+}
+
+.anime-console__border-glow {
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, var(--anime-neon-cyan, #00ffff), var(--anime-pastel-purple, #c5a3d9), var(--anime-neon-magenta, #ff1493), var(--anime-neon-cyan, #00ffff));
+  background-size: 400% 400%;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.6;
+  animation: anime-border-gradient 4s ease-in-out infinite;
+  filter: blur(3px);
+}
+
+/* Keyframe Animations */
+@keyframes digital-glitch {
+  0%, 100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(-2px, 2px);
+    filter: hue-rotate(90deg);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+    filter: hue-rotate(180deg);
+  }
+  60% {
+    transform: translate(2px, 2px);
+    filter: hue-rotate(270deg);
+  }
+  80% {
+    transform: translate(2px, -2px);
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes anime-sparkle {
+  0%, 100% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+@keyframes manga-text-reveal {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes data-corruption {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; text-shadow: 2px 0 var(--anime-neon-magenta, #ff1493), -2px 0 var(--anime-neon-cyan, #00ffff); }
+}
+
+@keyframes anime-glow-pulse {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes anime-ring-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes anime-tag-sweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes anime-console-particle {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(
+      calc(cos(var(--angle, 0deg)) * 80px),
+      calc(sin(var(--angle, 0deg)) * 80px)
+    ) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc(cos(var(--angle, 0deg)) * 120px),
+      calc(sin(var(--angle, 0deg)) * 120px)
+    ) scale(0.5);
+  }
+}
+
+@keyframes anime-border-gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Text effect classes */
+.anime-glitch-text {
+  animation: digital-glitch 4s infinite;
+  animation-delay: 2s;
+}
+
+.anime-glow-text {
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 20px var(--anime-neon-cyan, #00ffff),
+    0 0 30px var(--anime-neon-cyan, #00ffff);
+  animation: anime-glow-pulse 2s ease-in-out infinite alternate;
+}
+
+/* Responsive adjustments for anime console */
+@media (max-width: 768px) {
+  .anime-console__particles {
+    display: none;
+  }
+
+  .anime-console__ascii-art {
+    font-size: 0.55rem;
+    opacity: 0.6;
+  }
+
+  .anime-console__border-glow {
+    animation: none;
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anime-console__halo,
+  .anime-console__ring,
+  .anime-console__particle,
+  .anime-console__sparkle,
+  .anime-console__border-glow,
+  .anime-glitch-text,
+  .anime-glow-text {
+    animation: none;
+  }
+
+  .anime-console__cta:hover {
+    transform: none;
+  }
+}

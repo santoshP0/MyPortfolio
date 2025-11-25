@@ -1,0 +1,357 @@
+/* Anime Button Component Styles */
+.anime-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-color, #ffffff);
+  font-family: "Orbitron", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s var(--anime-elastic-ease);
+  border-radius: var(--anime-border-soft, 12px);
+  outline: none;
+}
+
+.anime-btn:focus-visible {
+  outline: 2px solid var(--anime-neon-cyan, #00ffff);
+  outline-offset: 2px;
+}
+
+/* Button content wrapper */
+.anime-btn__content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  z-index: 2;
+  transition: all 0.3s var(--anime-elastic-ease);
+}
+
+.anime-btn__text {
+  position: relative;
+  z-index: 2;
+}
+
+/* Button variants */
+.anime-btn--primary .anime-btn__content {
+  background: linear-gradient(
+    135deg,
+    var(--accent-color, #f83556) 0%,
+    var(--anime-pastel-purple, #c5a3d9) 50%,
+    var(--anime-pastel-pink, #ffb3d1) 100%
+  );
+  color: #ffffff;
+}
+
+.anime-btn--secondary .anime-btn__content {
+  background: linear-gradient(
+    135deg,
+    var(--anime-pastel-blue, #a6d1e6) 0%,
+    var(--anime-neon-cyan, #00ffff) 50%,
+    var(--anime-pastel-purple, #c5a3d9) 100%
+  );
+  color: #000000;
+}
+
+.anime-btn--outline .anime-btn__content {
+  background: transparent;
+  border: 2px solid var(--anime-neon-cyan, #00ffff);
+  color: var(--anime-neon-cyan, #00ffff);
+}
+
+/* Button sizes */
+.anime-btn--small .anime-btn__content {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.8rem;
+}
+
+.anime-btn--medium .anime-btn__content {
+  padding: 0.8rem 1.6rem;
+  font-size: 0.9rem;
+}
+
+.anime-btn--large .anime-btn__content {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+/* Button glow effect */
+.anime-btn__glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.anime-btn:hover .anime-btn__glow {
+  opacity: 1;
+  animation: anime-btn-sweep 1s ease-in-out infinite;
+}
+
+/* Button particles */
+.anime-btn__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.anime-btn:hover .anime-btn__particles {
+  opacity: 1;
+}
+
+.anime-btn__particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  opacity: 0;
+  animation: anime-btn-particle 2s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  box-shadow: 0 0 6px currentColor;
+}
+
+.anime-btn--primary .anime-btn__particle {
+  background: var(--anime-pastel-blue, #a6d1e6);
+}
+
+.anime-btn--secondary .anime-btn__particle {
+  background: var(--anime-pastel-pink, #ffb3d1);
+}
+
+.anime-btn--outline .anime-btn__particle {
+  background: var(--anime-neon-cyan, #00ffff);
+}
+
+/* Button border glow */
+.anime-btn__border {
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    45deg,
+    var(--anime-neon-cyan, #00ffff),
+    var(--anime-pastel-purple, #c5a3d9),
+    var(--anime-neon-magenta, #ff1493),
+    var(--anime-neon-cyan, #00ffff)
+  );
+  background-size: 400% 400%;
+  border-radius: inherit;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: anime-btn-border 4s ease-in-out infinite;
+  filter: blur(2px);
+}
+
+.anime-btn:hover .anime-btn__border {
+  opacity: 0.6;
+}
+
+/* Button sparkle effect */
+.anime-btn__sparkle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.anime-btn:hover .anime-btn__sparkle {
+  opacity: 1;
+  animation: anime-btn-sparkle 1.5s ease-in-out infinite;
+}
+
+/* Button hover and active states */
+.anime-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 255, 255, 0.3);
+}
+
+.anime-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+}
+
+.anime-btn:active .anime-btn__content {
+  transform: scale(0.95);
+}
+
+/* Disabled state */
+.anime-btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.anime-btn--disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.anime-btn--disabled .anime-btn__glow,
+.anime-btn--disabled .anime-btn__particles,
+.anime-btn--disabled .anime-btn__border,
+.anime-btn--disabled .anime-btn__sparkle {
+  opacity: 0;
+  animation: none;
+}
+
+/* Keyframe animations */
+@keyframes anime-btn-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes anime-btn-particle {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(
+      calc(cos(var(--angle, 0deg)) * 20px),
+      calc(sin(var(--angle, 0deg)) * 20px)
+    ) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc(cos(var(--angle, 0deg)) * 40px),
+      calc(sin(var(--angle, 0deg)) * 40px)
+    ) scale(0.5);
+  }
+}
+
+@keyframes anime-btn-border {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes anime-btn-sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .anime-btn__particles {
+    display: none;
+  }
+
+  .anime-btn:hover {
+    transform: translateY(-1px) scale(1.01);
+  }
+
+  .anime-btn:active {
+    transform: scale(0.99);
+  }
+}
+
+@media (max-width: 480px) {
+  .anime-btn--small .anime-btn__content {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .anime-btn--medium .anime-btn__content {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .anime-btn--large .anime-btn__content {
+    padding: 0.8rem 1.6rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Accessibility and reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .anime-btn,
+  .anime-btn__content,
+  .anime-btn__glow,
+  .anime-btn__border,
+  .anime-btn__sparkle {
+    transition: none;
+    animation: none;
+  }
+
+  .anime-btn:hover {
+    transform: none;
+  }
+
+  .anime-btn:active {
+    transform: scale(0.95);
+  }
+
+  .anime-btn__particles,
+  .anime-btn__particle {
+    display: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .anime-btn {
+    border: 2px solid currentColor;
+  }
+
+  .anime-btn__border {
+    display: none;
+  }
+
+  .anime-btn__particles,
+  .anime-btn__sparkle {
+    display: none;
+  }
+}

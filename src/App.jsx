@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Preloader from "../src/components/Pre";
+import AnimatedBackground from "./components/Anime/AnimatedBackground";
 import Home from "./components/Home/Home";
 import About from "./components/About/About";
 import Projects from "./components/Projects/Projects";
@@ -8,6 +9,8 @@ import Footer from "./components/Footer";
 import SectionNav from "./components/SectionNav";
 import FPSMeter from "./components/common/FPSMeter";
 import "./styles/index.css";
+import "./styles/anime-theme.css";
+import "./styles/responsive-anime.css";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -47,6 +50,7 @@ function App() {
   return (
     <>
       <Preloader load={load} />
+      <AnimatedBackground />
       <div className={`App ${load ? "App--locked" : "App--ready"}`}>
         <main className="anime-layout">
           <Home />

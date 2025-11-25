@@ -21,12 +21,12 @@ import { VscVscode } from "react-icons/vsc";
 
 export const ABOUT_SECTION_CONTENT = {
   skills: {
-    title: "Core",
-    accent: "Skillset",
+    title: "Jutsu",
+    accent: "Mastery",
   },
   tools: {
-    title: "Command",
-    accent: "Center",
+    title: "Arsenal",
+    accent: "Storage",
   },
 };
 
@@ -55,35 +55,36 @@ export const TOOL_STACK_ITEMS = [
 
 export const ABOUT_CARD_CONTENT = {
   introSegments: [
-    { type: "text", value: "Hi Everyone, I am " },
+    { type: "text", value: "Greetings, fellow developers! I am " },
     { type: "accent", value: "Pottabattini Santosh Kumar " },
-    { type: "text", value: "from " },
-    { type: "accent", value: " Telangana, India." },
+    { type: "text", value: "on a coding journey from " },
+    { type: "accent", value: " Telangana, India - The Training Grounds." },
   ],
   jobSegments: [
-    { type: "text", value: "I am currently employed as a " },
-    { type: "accent", value: "Senior Software Developer " },
-    { type: "text", value: "at " },
+    { type: "text", value: "Currently serving as a " },
+    { type: "accent", value: "Senior Code Warrior " },
+    { type: "text", value: "at the legendary " },
     {
       type: "link",
       value: "Hexagon's Capability Center India (HCCI)",
       href: "https://hexagon.com/company/careers/capability-centre-india",
     },
-    { type: "text", value: "." },
+    { type: "text", value: " - where epic coding battles happen daily!" },
   ],
   educationSegments: [
-    { type: "text", value: "I have earned a " },
-    { type: "accent", value: " Bachelor of Technology (B.Tech) " },
+    { type: "text", value: "Trained at the prestigious " },
+    { type: "accent", value: "Mahaveer Institute of Science and Technology " },
     {
       type: "text",
       value:
-        " degree with a specialization in Computer Science Engineering (CSE) from Mahaveer Institute of science and technology.",
+        " dojo, where I mastered the ancient art of Computer Science Engineering (CSE) and earned my Bachelor of Technology (B.Tech) black belt.",
     },
   ],
-  activitiesHeading: "Apart from coding, some other activities that I love to do!",
+  activitiesHeading: "When not coding epic applications, you'll find me:",
   activities: [
-    "Playing Games",
-    "Exploring New Tech",
-    "Watching Movies/Animes/TV series",
+    "Training in gaming arenas (aka Playing Games)",
+    "Discovering new power techniques (aka Exploring New Tech)",
+    "Studying anime battle strategies for code inspiration (aka Watching Anime)",
+    "Analyzing movie plots for UX lessons (aka Watching Movies)",
   ],
 };

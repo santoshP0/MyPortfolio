@@ -1,0 +1,233 @@
+/* Animated Background Styles */
+.anime-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.anime-background__canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+}
+
+/* Digital glitch overlay */
+.anime-background__glitch-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 20, 147, calc(0.03 * var(--glitch-intensity))) 2px,
+    rgba(255, 20, 147, calc(0.03 * var(--glitch-intensity))) 4px
+  );
+  animation: digital-glitch 0.3s infinite;
+  mix-blend-mode: screen;
+}
+
+/* Neon gradient overlays */
+.anime-background__gradient-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(0, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  animation: anime-pulse 4s ease-in-out infinite alternate;
+}
+
+.anime-background__gradient-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: radial-gradient(
+    ellipse at bottom,
+    rgba(255, 20, 147, 0.1) 0%,
+    transparent 70%
+  );
+  animation: anime-pulse 4s ease-in-out infinite alternate-reverse;
+}
+
+/* Data corruption effects */
+.anime-background__data-corruption {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  animation: data-corruption 8s infinite;
+  pointer-events: none;
+}
+
+.anime-background__data-corruption::before,
+.anime-background__data-corruption::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--anime-neon-cyan, #00ffff),
+    transparent
+  );
+}
+
+.anime-background__data-corruption::before {
+  top: 20%;
+  animation: anime-scan 3s linear infinite;
+}
+
+.anime-background__data-corruption::after {
+  bottom: 30%;
+  animation: anime-scan 3s linear infinite 1.5s;
+}
+
+/* Scanline effects */
+.anime-background__scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 255, 255, 0.03) 1px,
+    rgba(0, 255, 255, 0.03) 2px
+  );
+  pointer-events: none;
+  animation: scanline-move 10s linear infinite;
+}
+
+/* Keyframe animations */
+@keyframes digital-glitch {
+  0%, 100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+    opacity: 0.3;
+  }
+  20% {
+    transform: translate(-2px, 2px);
+    filter: hue-rotate(90deg);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translate(-2px, -2px);
+    filter: hue-rotate(180deg);
+    opacity: 0.4;
+  }
+  60% {
+    transform: translate(2px, 2px);
+    filter: hue-rotate(270deg);
+    opacity: 0.6;
+  }
+  80% {
+    transform: translate(2px, -2px);
+    filter: hue-rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes anime-pulse {
+  0% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes data-corruption {
+  0%, 90%, 100% {
+    opacity: 0;
+  }
+  91%, 93%, 95%, 97% {
+    opacity: 0.1;
+  }
+  92%, 94%, 96%, 98% {
+    opacity: 0;
+  }
+}
+
+@keyframes anime-scan {
+  0% {
+    transform: translateY(-100vh);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes scanline-move {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(4px);
+  }
+}
+
+/* Responsive optimizations */
+@media (max-width: 768px) {
+  .anime-background__canvas {
+    opacity: 0.3;
+  }
+
+  .anime-background__glitch-overlay {
+    background-size: 8px 4px;
+    animation-duration: 0.5s;
+  }
+
+  .anime-background__scanlines {
+    background-size: 100% 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anime-background__glitch-overlay,
+  .anime-background__gradient-top,
+  .anime-background__gradient-bottom,
+  .anime-background__scanlines {
+    animation: none;
+  }
+
+  .anime-background__data-corruption {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Performance optimizations */
+@media (max-width: 480px) {
+  .anime-background__canvas {
+    display: none;
+  }
+
+  .anime-background__gradient-top,
+  .anime-background__gradient-bottom {
+    opacity: 0.5;
+  }
+}

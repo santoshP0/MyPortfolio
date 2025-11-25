@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { animate } from "@motionone/dom";
 import { Container, Row, Col } from "react-bootstrap";
+import AnimeCharacter from "../Anime/AnimeCharacter";
 import Home2 from "./Home2";
 import Type from "./Type";
 import HeroStatCard from "./HeroStatCard";
@@ -324,7 +325,10 @@ function Home() {
                     </div>
                   </Col>
                   <Col md={5} className="hero-visual">
-                    <HeroConsole consoleCopy={heroConsole} onRevealContact={handleOpenContact} />
+                    <div className="hero-visual__container">
+                      <HeroConsole consoleCopy={heroConsole} onRevealContact={handleOpenContact} />
+                      <AnimeCharacter />
+                    </div>
                   </Col>
                 </Row>
               </div>

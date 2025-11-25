@@ -1,0 +1,751 @@
+/* Mobile-Optimized Anime Styling */
+/* Performance-focused anime effects for mobile devices */
+
+/* Reduce particle effects on mobile for performance */
+@media (max-width: 768px) {
+  .anime-background__canvas {
+    opacity: 0.3;
+  }
+
+  .anime-background__glitch-overlay {
+    animation-duration: 0.5s;
+  }
+
+  .anime-background__data-corruption {
+    display: none;
+  }
+
+  .anime-background__scanlines {
+    background-size: 100% 3px;
+  }
+}
+
+/* Simplify animations on smaller screens */
+@media (max-width: 480px) {
+  .anime-character {
+    width: 160px;
+    height: 220px;
+  }
+
+  .anime-character__particles {
+    display: none;
+  }
+
+  .anime-character__code-elements {
+    display: none;
+  }
+
+  .anime-character__status-badges {
+    top: 5px;
+    right: 5px;
+  }
+
+  .anime-character__badge {
+    width: 30px;
+    height: 30px;
+  }
+
+  .anime-character__hover-indicator {
+    display: none;
+  }
+}
+
+/* Touch-friendly anime button interactions */
+@media (max-width: 768px) {
+  .anime-btn {
+    min-height: 44px; /* Touch target size */
+    min-width: 44px;
+  }
+
+  .anime-btn__content {
+    padding: 0.75rem 1.2rem;
+  }
+
+  .anime-btn:hover {
+    transform: none; /* Remove hover transforms on touch devices */
+  }
+
+  .anime-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Reduce sparkle effects on mobile */
+  .anime-btn__sparkle,
+  .anime-btn__particles {
+    display: none;
+  }
+
+  .anime-btn__border {
+    animation: none;
+    opacity: 0.3;
+  }
+}
+
+/* Optimized anime character sizing for mobile */
+@media (max-width: 768px) {
+  .hero-visual__container {
+    gap: 1rem;
+  }
+
+  .anime-character {
+    margin-top: 1rem;
+  }
+
+  .anime-character__image-wrapper {
+    width: 200px;
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .anime-character {
+    width: 140px;
+    height: 200px;
+  }
+
+  .anime-character__image-wrapper {
+    width: 140px;
+    height: 200px;
+  }
+}
+
+/* Optimized glitch effect intensity for mobile performance */
+@media (max-width: 768px) {
+  .anime-glitch-text {
+    animation: none;
+    background: linear-gradient(90deg, var(--anime-pastel-purple, #c5a3d9), var(--anime-pastel-pink, #ffb3d1));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .anime-glow-text {
+    text-shadow: 0 0 5px currentColor;
+    animation: none;
+  }
+}
+
+/* Console optimizations for mobile */
+@media (max-width: 768px) {
+  .anime-console__particles {
+    display: none;
+  }
+
+  .anime-console__ascii-art {
+    font-size: 0.55rem;
+    opacity: 0.6;
+  }
+
+  .anime-console__border-glow {
+    animation: none;
+    opacity: 0.3;
+  }
+
+  .anime-console__halo {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .anime-console__ring {
+    animation-duration: 12s; /* Slower animation for performance */
+    border-width: 1px;
+  }
+
+  .anime-console__shell {
+    border-width: 1px;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .anime-console__shell {
+    width: 85%;
+    padding: 1.8rem 1.4rem 1.6rem;
+  }
+
+  .anime-console__code {
+    font-size: 1.8rem;
+  }
+
+  .anime-console__cta {
+    font-size: 0.55rem;
+    padding: 0.7rem 1.4rem;
+  }
+}
+
+/* Hero section mobile optimizations */
+@media (max-width: 768px) {
+  .hero-visual {
+    padding-bottom: 1.5rem;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .hero-stat-card {
+    padding: 0.8rem 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-stats {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .hero-stat-card {
+    padding: 0.7rem 0.8rem;
+  }
+}
+
+/* Button size optimizations for touch */
+@media (max-width: 768px) {
+  .anime-btn--small .anime-btn__content {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+
+  .anime-btn--medium .anime-btn__content {
+    padding: 1rem 1.6rem;
+    font-size: 0.9rem;
+    min-height: 48px;
+  }
+
+  .anime-btn--large .anime-btn__content {
+    padding: 1.2rem 2rem;
+    font-size: 1rem;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .anime-btn--small .anime-btn__content {
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .anime-btn--medium .anime-btn__content {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .anime-btn--large .anime-btn__content {
+    padding: 0.9rem 1.4rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Performance optimizations */
+@media (max-width: 480px) {
+  /* Disable most expensive animations on small screens */
+  .anime-character__glow,
+  .anime-character__code-line,
+  .anime-console__tag-glow::after,
+  .anime-btn__glow {
+    display: none;
+  }
+
+  /* Simplify background effects */
+  .anime-background__gradient-top,
+  .anime-background__gradient-bottom {
+    opacity: 0.3;
+    animation: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .anime-character,
+  .anime-character__container,
+  .anime-character__image,
+  .anime-character__silhouette,
+  .anime-character__glow,
+  .anime-character__particle,
+  .anime-character__code-line,
+  .anime-console__halo,
+  .anime-console__ring,
+  .anime-console__particle,
+  .anime-console__sparkle,
+  .anime-console__border-glow,
+  .anime-console__tag-glow::after,
+  .anime-btn,
+  .anime-btn__content,
+  .anime-btn__glow,
+  .anime-btn__border,
+  .anime-btn__sparkle,
+  .anime-btn__particle,
+  .anime-background__canvas,
+  .anime-background__glitch-overlay,
+  .anime-background__data-corruption,
+  .anime-background__scanlines,
+  .anime-glitch-text,
+  .anime-glow-text {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .anime-character:hover,
+  .anime-btn:hover,
+  .anime-console:hover {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .anime-btn,
+  .anime-character__image-wrapper,
+  .anime-console__shell {
+    border: 2px solid currentColor;
+  }
+
+  .anime-btn__border,
+  .anime-character__glow,
+  .anime-console__border-glow {
+    display: none !important;
+  }
+
+  .anime-character__particle,
+  .anime-console__particle,
+  .anime-btn__particle {
+    display: none;
+  }
+}
+
+/* Battery saving mode optimizations */
+@media (prefers-reduced-data: reduce) {
+  .anime-background__canvas {
+    display: none;
+  }
+
+  .anime-character__particles,
+  .anime-console__particles,
+  .anime-btn__particles {
+    display: none;
+  }
+
+  .anime-character__code-elements,
+  .anime-console__ascii-art {
+    display: none;
+  }
+}
+
+/* Memory usage optimizations for older devices */
+@supports not (gap: 1rem) {
+  /* Fallback for browsers without gap support */
+  .hero-visual__container {
+    margin-top: 1rem;
+  }
+
+  .hero-stats > * {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Disable complex animations */
+  .anime-character,
+  .anime-console,
+  .anime-btn {
+    animation: none !important;
+  }
+}
+
+/* Small screen specific adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+  .anime-character {
+    width: 120px;
+    height: 160px;
+  }
+
+  .hero-visual {
+    padding-bottom: 1rem;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  .hero-stat-card {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .anime-character:hover,
+  .anime-btn:hover,
+  .anime-console:hover {
+    transform: none;
+  }
+
+  .anime-character__hover-indicator {
+    display: none;
+  }
+
+  .anime-btn__sparkle,
+  .anime-btn__particles,
+  .anime-console__sparkles {
+    display: none;
+  }
+
+  /* Add active states for touch feedback */
+  .anime-character:active,
+  .anime-btn:active {
+    transform: scale(0.95);
+  }
+}
+
+/* -------- Anime Navigation Styling -------- */
+.anime-section-nav {
+  position: fixed;
+  right: clamp(0.75rem, 2vw, 1.6rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  z-index: 80;
+  pointer-events: auto;
+  transition: opacity 0.3s ease, pointer-events 0.3s ease;
+  padding: 1rem 0.5rem;
+  background: rgba(5, 5, 5, 0.8);
+  border-radius: var(--anime-border-soft, 12px);
+  border: 1px solid var(--anime-pastel-purple, #c5a3d9);
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.4),
+    inset 0 0 20px rgba(197, 163, 217, 0.1);
+  backdrop-filter: blur(4px);
+}
+
+.anime-section-nav.anime-section-nav--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Anime navigation items */
+.anime-nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--anime-border-soft, 12px);
+  background: rgba(5, 5, 5, 0.6);
+  color: rgba(245, 245, 245, 0.7);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.3s var(--anime-elastic-ease);
+  border: 1px solid transparent;
+  overflow: hidden;
+  animation: anime-nav-item-entrance 0.6s ease-out both;
+  animation-delay: var(--animation-delay, 0s);
+}
+
+.anime-nav-item:hover,
+.anime-nav-item:focus-visible {
+  color: var(--paper);
+  border-color: var(--anime-neon-cyan, #00ffff);
+  transform: translateX(-4px) scale(1.05);
+  background: rgba(5, 5, 5, 0.9);
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.3),
+    0 8px 25px rgba(0, 255, 255, 0.2);
+}
+
+.anime-nav-item--active {
+  border-color: var(--anime-neon-magenta, #ff1493);
+  color: var(--paper);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 20, 147, 0.2) 0%,
+    rgba(197, 163, 217, 0.2) 100%
+  );
+  box-shadow:
+    0 0 25px rgba(255, 20, 147, 0.4),
+    0 8px 25px rgba(255, 20, 147, 0.3);
+  animation: anime-nav-active-pulse 2s ease-in-out infinite;
+}
+
+/* Navigation icon */
+.anime-nav__icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 5px currentColor);
+  transition: all 0.3s ease;
+}
+
+.anime-nav-item:hover .anime-nav__icon {
+  transform: scale(1.2) rotate(5deg);
+  filter: drop-shadow(0 0 10px var(--anime-neon-cyan, #00ffff));
+}
+
+.anime-nav-item--active .anime-nav__icon {
+  animation: anime-nav-icon-bounce 1.5s ease-in-out infinite;
+}
+
+/* Navigation dot */
+.anime-nav__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+  position: relative;
+}
+
+.anime-nav__dot--pulse {
+  animation: anime-nav-dot-pulse 2s ease-in-out infinite;
+}
+
+.anime-nav__dot::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.3;
+  animation: anime-nav-dot-ring 2s ease-in-out infinite;
+}
+
+/* Navigation label */
+.anime-nav__label {
+  white-space: nowrap;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+/* Navigation glow effect */
+.anime-nav__glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 255, 255, 0.2),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.anime-nav-item:hover .anime-nav__glow {
+  opacity: 1;
+  animation: anime-nav-glow-sweep 1.5s ease-in-out infinite;
+}
+
+/* Navigation particles */
+.anime-nav__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.anime-nav-item:hover .anime-nav__particles {
+  opacity: 1;
+}
+
+.anime-nav__particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: var(--anime-neon-cyan, #00ffff);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  opacity: 0;
+  animation: anime-nav-particle 2s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  box-shadow: 0 0 5px currentColor;
+}
+
+/* Navigation accent */
+.anime-nav__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--anime-neon-cyan, #00ffff) 0%,
+    var(--anime-pastel-purple, #c5a3d9) 50%,
+    var(--anime-neon-magenta, #ff1493) 100%
+  );
+  border-radius: 3px 0 0 3px;
+  opacity: 0.6;
+  filter: blur(2px);
+}
+
+/* Navigation border glow */
+.anime-nav__border-glow {
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(
+    45deg,
+    var(--anime-neon-cyan, #00ffff),
+    var(--anime-pastel-purple, #c5a3d9),
+    var(--anime-neon-magenta, #ff1493),
+    var(--anime-neon-cyan, #00ffff)
+  );
+  background-size: 400% 400%;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.4;
+  animation: anime-nav-border-gradient 4s ease-in-out infinite;
+  filter: blur(4px);
+}
+
+/* Navigation animations */
+@keyframes anime-nav-item-entrance {
+  0% {
+    opacity: 0;
+    transform: translateX(20px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes anime-nav-active-pulse {
+  0%, 100% {
+    transform: translateX(-4px) scale(1.05);
+  }
+  50% {
+    transform: translateX(-4px) scale(1.08);
+  }
+}
+
+@keyframes anime-nav-icon-bounce {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+@keyframes anime-nav-dot-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.8;
+  }
+}
+
+@keyframes anime-nav-dot-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes anime-nav-glow-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes anime-nav-particle {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(0, -15px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, -25px) scale(0.5);
+  }
+}
+
+@keyframes anime-nav-border-gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Responsive navigation adjustments */
+@media (max-width: 991px) {
+  .anime-section-nav {
+    display: none;
+  }
+}
+
+/* Touch device navigation optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .anime-nav-item:hover {
+    transform: none;
+  }
+
+  .anime-nav__particles {
+    display: none;
+  }
+
+  .anime-nav__glow {
+    display: none;
+  }
+
+  .anime-nav-item:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Reduced motion navigation */
+@media (prefers-reduced-motion: reduce) {
+  .anime-section-nav,
+  .anime-nav-item,
+  .anime-nav__dot,
+  .anime-nav__dot--pulse,
+  .anime-nav__icon,
+  .anime-nav__glow,
+  .anime-nav__border-glow {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .anime-nav-item:hover,
+  .anime-nav-item--active {
+    transform: none !important;
+  }
+
+  .anime-nav__particles {
+    display: none !important;
+  }
+}

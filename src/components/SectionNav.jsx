@@ -49,22 +49,58 @@ function SectionNav() {
     return () => window.removeEventListener("section-nav:toggle", handleToggle);
   }, []);
 
+  // Anime-style icon mapping for navigation items
+  const getAnimeIcon = (label) => {
+    const iconMap = {
+      'Home': '🏠',
+      'About': '👤',
+      'Projects': '⚔️',
+      'Resume': '📜',
+      'Contact': '💬',
+      'Skills': '🎯',
+      'Journey': '🗺️',
+    };
+    return iconMap[label] || '✨';
+  };
+
   return (
     <nav
-      className={`section-nav ${hidden ? "section-nav--hidden" : ""}`}
+      className={`anime-section-nav ${hidden ? "anime-section-nav--hidden" : ""}`}
       aria-label="Section navigation"
     >
-      {navItems.map(({ id, label }) => (
+      {navItems.map(({ id, label }, index) => (
         <a
           key={id}
           href={`#${id}`}
-          className={`section-nav__item ${activeId === id ? "section-nav__item--active" : ""}`}
+          className={`anime-nav-item ${activeId === id ? "anime-nav-item--active" : ""}`}
           onClick={(event) => handleNavClick(event, id)}
+          style={{
+            '--animation-delay': `${index * 0.1}s`,
+          }}
         >
-          <span className="section-nav__dot" aria-hidden="true" />
-          <span className="section-nav__label">{label}</span>
+          <span className="anime-nav__icon" aria-hidden="true">
+            {getAnimeIcon(label)}
+          </span>
+          <span className="anime-nav__dot anime-nav__dot--pulse" aria-hidden="true" />
+          <span className="anime-nav__label">{label}</span>
+          <span className="anime-nav__glow" aria-hidden="true" />
+          <span className="anime-nav__particles" aria-hidden="true">
+            {[...Array(3)].map((_, i) => (
+              <span
+                key={i}
+                className="anime-nav__particle"
+                style={{
+                  '--delay': `${i * 0.2}s`,
+                }}
+              />
+            ))}
+          </span>
         </a>
       ))}
+
+      {/* Anime-style navigation accent */}
+      <div className="anime-nav__accent" aria-hidden="true" />
+      <div className="anime-nav__border-glow" aria-hidden="true" />
     </nav>
   );
 }
