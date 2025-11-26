@@ -23,6 +23,16 @@ const INITIAL_FORM_STATE = Object.freeze({
 });
 const STATUS_RESET_DELAY = 900;
 
+/**
+ * @component
+ * @description The main component for the hero section of the portfolio.
+ * It orchestrates a complex UI with a flippable card that serves as the main
+ * interface. The front of the card displays professional stats and a dynamic "typewriter"
+ * effect, while the back contains a contact form. This component manages the state for
+ * the card flip, form data, submission status, and dynamic stats like experience points (XP).
+ * It sources its content from various constants and uses several child components to build the UI.
+ * @returns {JSX.Element} The rendered hero section.
+ */
 function Home() {
   const heroConsole = useMemo(() => HERO_CONTENT.console, []);
   const xpConfig = HERO_CONTENT.xp ?? {};

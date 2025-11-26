@@ -1,5 +1,21 @@
 import React from "react";
 
+/**
+ * @component
+ * @description Renders an interactive, console-themed component for the hero section.
+ * This component displays status information and includes a call-to-action (CTA) button
+ * that triggers an event to reveal a contact form.
+ *
+ * @param {object} props - The component props.
+ * @param {object} props.consoleCopy - An object containing the text and icons to be displayed.
+ * @param {string} props.consoleCopy.tag - A tag line.
+ * @param {string} props.consoleCopy.code - A status code.
+ * @param {string} props.consoleCopy.subtitle - A subtitle message.
+ * @param {string} props.consoleCopy.ctaIcon - The icon for the CTA button.
+ * @param {string} props.consoleCopy.ctaText - The text for the CTA button.
+ * @param {function(): void} props.onRevealContact - A callback function to be executed when the CTA button is clicked.
+ * @returns {JSX.Element|null} The rendered hero console component, or null if `consoleCopy` is not provided.
+ */
 function HeroConsole({ consoleCopy, onRevealContact }) {
   if (!consoleCopy) return null;
 

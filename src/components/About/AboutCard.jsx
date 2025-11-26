@@ -3,6 +3,15 @@ import Card from "react-bootstrap/Card";
 import { ImPointRight } from "react-icons/im";
 import { ABOUT_CARD_CONTENT } from "../../constants";
 
+/**
+ * @component
+ * @description Renders a card component that displays a detailed "about me" section.
+ * The card includes dynamically rendered paragraphs with support for different
+ * segment types like plain text, accented text, and hyperlinks. It also lists
+ * personal activities or hobbies.
+ * The content for the card is sourced from the `ABOUT_CARD_CONTENT` constant.
+ * @returns {JSX.Element} The rendered card view for the about section.
+ */
 function AboutCard() {
   const paragraphs = useMemo(
     () => [

@@ -9,6 +9,14 @@ const iconMap = {
   linkedin: FaLinkedinIn,
 };
 
+/**
+ * @component
+ * @description Renders the site-wide footer. The footer includes a copyright message,
+ * a custom tag, and a list of social media links with corresponding icons.
+ * The content for the footer is sourced from the `FOOTER_CONTENT` constant,
+ * and the icons are dynamically mapped from an `iconMap`.
+ * @returns {JSX.Element} The rendered footer component.
+ */
 function Footer() {
   const links = useMemo(
     () =>

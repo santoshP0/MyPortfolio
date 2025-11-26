@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+/**
+ * @component
+ * @description A component that measures and displays the current frames per second (FPS) of the application.
+ * It uses `requestAnimationFrame` to count frames over a set interval and calculates the FPS,
+ * smoothing the value with an exponential moving average for stability. The component
+ * dynamically updates a color-coded indicator based on the performance level (good, ok, bad).
+ * The calculation is paused when the page is not visible to conserve resources.
+ * @returns {JSX.Element} A div element displaying the current FPS.
+ */
 function FPSMeter() {
   const [fps, setFps] = useState(60);
   const rafRef = useRef(0);

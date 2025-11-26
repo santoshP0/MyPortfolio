@@ -1,6 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SECTION_NAV_ITEMS } from "../constants";
 
+/**
+ * @component
+ * @description Renders a side navigation menu for scrolling between different sections of the page.
+ * It automatically highlights the active section based on the user's scroll position
+ * and provides smooth scrolling when a navigation item is clicked. The component can also
+ * be hidden or shown by dispatching a custom `section-nav:toggle` event on the window.
+ * The navigation items are sourced from the `SECTION_NAV_ITEMS` constant.
+ * @returns {JSX.Element} The rendered section navigation component.
+ */
 function SectionNav() {
   const navItems = useMemo(() => SECTION_NAV_ITEMS, []);
   const [activeId, setActiveId] = useState(navItems[0].id);

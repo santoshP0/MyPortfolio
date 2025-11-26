@@ -7,6 +7,15 @@ import {
   PROJECTS_CONTENT,
 } from "../../constants";
 
+/**
+ * @component
+ * @description The main container for the "Projects" section of the portfolio.
+ * It organizes and displays project information, which is divided into two main
+ * categories: "Deployments" (featured projects) and "Field Notes" (smaller projects or articles).
+ * The component maps over data sourced from constants and uses the `ProjectCard`
+ * component to render each individual project.
+ * @returns {JSX.Element} The rendered projects section.
+ */
 function Projects() {
   const deployments = useMemo(() => PROJECT_DEPLOYMENTS, []);
   const fieldNotes = useMemo(() => PROJECT_FIELD_NOTES, []);
