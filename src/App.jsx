@@ -11,6 +11,15 @@ import "./styles/index.css";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+/**
+ * @component
+ * @description The root component of the application. It orchestrates the overall layout
+ * and manages the initial loading state. It renders the preloader, main sections
+ * of the portfolio (Home, About, Projects, Resume), the section navigation, and the footer.
+ * It also includes side effects for managing the preloader's visibility and normalizing
+ * the URL path to the root on initial load.
+ * @returns {JSX.Element} The rendered application structure.
+ */
 function App() {
   const [load, upadateLoad] = useState(true);
 

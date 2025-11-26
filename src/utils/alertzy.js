@@ -13,6 +13,23 @@ const parseJson = (raw) => {
 
 const isNetlifyEndpoint = (endpoint) => endpoint.includes("/.netlify/functions/alertzy");
 
+/**
+ * @async
+ * @function sendAlertzyTransmission
+ * @description Sends a notification payload to the Alertzy service. This function is designed
+ * to be robust, attempting to send the payload to a series of endpoints, including
+ * Netlify functions or a direct API endpoint. It gracefully falls back to the next
+ * endpoint if a request fails. It handles both direct API calls (which require a token)
+ * and proxied requests through serverless functions.
+ *
+ * @param {object} basePayload - The core payload for the Alertzy API (e.g., { title, message, priority }).
+ * @param {object} [options={}] - Optional configuration for the transmission.
+ * @param {string} [options.token] - The Alertzy account key/token, required for direct API calls.
+ * @param {Array<string>} [options.endpoints=DEFAULT_ALERTZY_ENDPOINTS] - An array of API endpoints to try in sequence.
+ * @returns {Promise<{ok: boolean, endpoint?: string, error?: Error}>} A promise that resolves to an object indicating success or failure.
+ * - On success: `{ ok: true, endpoint: string }`
+ * - On failure: `{ ok: false, error: Error }`
+ */
 export async function sendAlertzyTransmission(basePayload, { token, endpoints = DEFAULT_ALERTZY_ENDPOINTS } = {}) {
   let lastError = null;
 

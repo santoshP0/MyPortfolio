@@ -2,6 +2,23 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import { BsApple, BsMedium, BsAndroid2 } from "react-icons/bs";
 
+/**
+ * @component
+ * @description Renders a card for displaying an individual project or a blog post.
+ * The card's appearance and the links it displays are determined by the `isBlog` prop.
+ * For projects, it can display separate links for Android and iOS. For blog posts,
+ * it shows a single link to the article.
+ *
+ * @param {object} props - The component props.
+ * @param {string} props.imgPath - The path to the project's image.
+ * @param {boolean} props.isBlog - If true, the card is styled as a blog post.
+ * @param {string} props.title - The title of the project or blog post.
+ * @param {string} props.description - A brief description of the project or blog post.
+ * @param {string} [props.link] - The URL to the blog post (used if `isBlog` is true).
+ * @param {string} [props.AndrLink] - The URL to the Android version of the project.
+ * @param {string} [props.iosLink] - The URL to the iOS version of the project.
+ * @returns {JSX.Element} The rendered project card.
+ */
 function ProjectCard({
   imgPath,
   isBlog,

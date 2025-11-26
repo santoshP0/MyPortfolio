@@ -5,6 +5,15 @@ import Aboutcard from "./AboutCard";
 import Toolstack from "./Toolstack";
 import { ABOUT_SECTION_CONTENT } from "../../constants";
 
+/**
+ * @component
+ * @description The main container for the "About" or "Skills" section of the page.
+ * It arranges and displays the Techstack and Toolstack components, which showcase
+ * the user's technical skills and the tools they use.
+ * The content is fetched from the ABOUT_SECTION_CONTENT constant.
+ * This component is identified by the id="skills" for navigation purposes.
+ * @returns {JSX.Element} The rendered About section.
+ */
 function About() {
   const sectionContent = useMemo(() => ABOUT_SECTION_CONTENT, []);
 

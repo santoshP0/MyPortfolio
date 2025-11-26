@@ -62,6 +62,29 @@ const minutesBetween = (end, start) => {
   return Math.max(0, Math.floor((end.getTime() - start.getTime()) / MS_PER_MINUTE));
 };
 
+/**
+ * @function computeExperience
+ * @description Calculates gamified experience points (XP) and leveling progress based on a start date.
+ * This function determines the total XP earned, the current level, and the progress
+ * towards the next level, based on the time elapsed since a given start date.
+ * It handles edge cases like invalid or future dates gracefully.
+ *
+ * @param {string|Date} startDateInput - The starting date for the experience calculation (e.g., "2020-01-01T00:00:00Z").
+ * @param {string|Date} [currentDateInput=new Date()] - The current date for the calculation. Defaults to the current system time.
+ * @param {number} [minutesPerXpInput=DEFAULT_MINUTES_PER_XP] - The number of minutes required to earn one XP. Defaults to 1 day.
+ * @returns {{
+ *   totalXp: number,
+ *   level: number,
+ *   xpIntoLevel: number,
+ *   xpRemaining: number,
+ *   xpPerLevel: number,
+ *   percent: number,
+ *   startDate: Date,
+ *   currentDate: Date,
+ *   levelStart?: Date,
+ *   nextLevelStart?: Date
+ * }} An object containing detailed experience and level information.
+ */
 export const computeExperience = (startDateInput, currentDateInput, minutesPerXpInput) => {
   const startDate = parseDate(startDateInput);
   const currentDate = currentDateInput ? new Date(currentDateInput) : new Date();

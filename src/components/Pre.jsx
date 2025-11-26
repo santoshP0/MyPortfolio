@@ -1,6 +1,16 @@
 import React from "react";
 import { PRELOADER_MESSAGE } from "../constants";
 
+/**
+ * @component
+ * @description A preloader component that displays while the main application content is loading.
+ * It features a custom animation and a text message. The visibility of the preloader
+ * is controlled by the `load` prop.
+ *
+ * @param {object} props - The component props.
+ * @param {boolean} props.load - A boolean that determines whether the preloader is active or hidden.
+ * @returns {JSX.Element} The rendered preloader component.
+ */
 function Pre({ load }) {
   return (
     <div className={`preloader ${load ? "preloader--active" : "preloader--hidden"}`}>

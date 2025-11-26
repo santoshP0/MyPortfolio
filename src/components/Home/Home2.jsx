@@ -3,6 +3,14 @@ import { Container, Row, Col } from "react-bootstrap";
 import Aboutcard from "../About/AboutCard";
 import { LORE_CONTENT } from "../../constants";
 
+/**
+ * @component
+ * @description Renders a supplementary "about" section for the homepage, identified by `id="about"`.
+ * This component provides a more narrative-driven overview of the user's skills and
+ * experience, framed as "lore". It also embeds the `Aboutcard` component to provide
+ * more detailed, structured information. The content is sourced from the `LORE_CONTENT` constant.
+ * @returns {JSX.Element} The rendered "lore" or secondary about section.
+ */
 function Home2() {
   const loadoutItems = useMemo(() => LORE_CONTENT.loadoutItems, []);
 

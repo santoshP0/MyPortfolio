@@ -1,6 +1,23 @@
 import React from "react";
 import { Row, Col, Form, Button } from "react-bootstrap";
 
+/**
+ * @component
+ * @description Renders a contact form card for the hero section.
+ * This component includes fields for name, email, and message, along with submit and cancel buttons.
+ * It's designed to be used within a flippable card interface.
+ *
+ * @param {object} props - The component props.
+ * @param {object} props.copy - An object containing the text for labels, buttons, and other copy.
+ * @param {string} props.emailHref - The `href` value for the direct email link.
+ * @param {string} props.emailDisplay - The display text for the direct email link.
+ * @param {object} props.formData - An object containing the current values of the form fields (name, email, message).
+ * @param {boolean} props.isSubmitting - A boolean indicating whether the form is currently being submitted.
+ * @param {function(Event): void} props.onSubmit - The callback function to handle form submission.
+ * @param {function(): void} props.onClose - The callback function to handle closing the contact card.
+ * @param {function(Event): void} props.onInputChange - The callback function to handle changes in form inputs.
+ * @returns {JSX.Element} The rendered contact card component.
+ */
 function HeroContactCard({
   copy,
   emailHref,

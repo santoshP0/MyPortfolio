@@ -28,6 +28,16 @@ try {
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 }
 
+/**
+ * @component
+ * @description Renders the "Resume" section, which includes dynamic professional stats and
+ * an interactive PDF viewer for the user's resume. This component provides functionality
+ * to either open the resume in a custom-built, animated modal or download it directly.
+ * The modal viewer uses `react-pdf` to render the document, supports page navigation,
+ * and features a unique "tone" slider to apply a color tint to the PDF. It also
+ * manages global side effects, such as disabling body scroll when the modal is open.
+ * @returns {JSX.Element} The rendered resume section and the PDF viewer modal.
+ */
 function ResumeNew() {
   const [width, setWidth] = useState(1200);
   const [numPages, setNumPages] = useState(null);
