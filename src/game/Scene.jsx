@@ -1,16 +1,13 @@
-import React from 'react';
-import { Physics } from '@react-three/rapier';
-import Ground from './Ground';
+import React from "react";
+import { Canvas } from "@react-three/fiber";
 
-function Scene() {
+const Scene = () => {
   return (
-    <Physics>
+    <>
       <ambientLight intensity={0.5} />
-      <directionalLight position={[0, 10, 0]} intensity={1} />
-      <Ground />
-      {/* Other 3D objects will go here */}
-    </Physics>
+      <directionalLight position={[10, 10, 5]} intensity={1} />
+    </>
   );
-}
+};
 
 export default Scene;
