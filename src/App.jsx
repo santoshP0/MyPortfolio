@@ -22,6 +22,7 @@ function App() {
           <Scene />
         </Canvas>
       </KeyboardControls>
+      <div className="crosshair">+</div>
       <Footer />
     </div>
   );
