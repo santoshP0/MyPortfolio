@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Preloader from "../src/components/Pre";
-import Home from "./components/Home/Home";
-import About from "./components/About/About";
-import Projects from "./components/Projects/Projects";
-import Resume from "./components/Resume/ResumeNew";
+import { Canvas } from "@react-three/fiber";
+import Scene from "./game/Scene";
 import Footer from "./components/Footer";
-import SectionNav from "./components/SectionNav";
 import FPSMeter from "./components/common/FPSMeter";
 import "./styles/index.css";
 import "./App.css";
@@ -46,15 +42,10 @@ function App() {
 
   return (
     <>
-      <Preloader load={load} />
       <div className={`App ${load ? "App--locked" : "App--ready"}`}>
-        <main className="anime-layout">
-          <Home />
-          <About />
-          <Projects />
-          <Resume />
-        </main>
-        <SectionNav />
+        <Canvas style={{ flex: 1, height: '100vh' }}>
+          <Scene />
+        </Canvas>
         <Footer />
         <FPSMeter />
       </div>
