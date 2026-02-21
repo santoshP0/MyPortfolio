@@ -59,22 +59,39 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
     const signedSpeed = _velXZ.dot(_fwd);
 
     let nx = _velXZ.x, nz = _velXZ.z;
+
+    // Lateral direction (car's right axis)
+    const _lat = new THREE.Vector3(1, 0, 0).applyQuaternion(_quat);
+    const lateralSpeed = nx * _lat.x + nz * _lat.z;
+
+    // ── Lateral grip: cancel ~88% of sideways velocity each frame ──
+    // This simulates tire grip — car follows its nose, doesn't slide sideways
+    nx -= _lat.x * lateralSpeed * 0.88;
+    nz -= _lat.z * lateralSpeed * 0.88;
+
     if (forward) {
-      nx += _fwd.x * ACCELERATION; nz += _fwd.z * ACCELERATION;
+      // Acceleration: bigger kick when nearly stopped (like clutch release), tapers at speed
+      const accelFactor = ACCELERATION * (1 + Math.max(0, 1 - speed / 4) * 0.6);
+      nx += _fwd.x * accelFactor; nz += _fwd.z * accelFactor;
     } else if (backward) {
       const f = signedSpeed > 0.1 ? -BRAKE_FORCE : -ACCELERATION * 0.6;
       nx += _fwd.x * f; nz += _fwd.z * f;
     } else {
-      nx *= 0.92; nz *= 0.92;
+      // Rolling drag only when no input
+      nx *= 0.93; nz *= 0.93;
     }
     const spd2 = Math.sqrt(nx * nx + nz * nz);
     if (spd2 > MAX_SPEED) { const s = MAX_SPEED / spd2; nx *= s; nz *= s; }
     rigidBodyRef.current.setLinvel({ x: nx, y: vel.y, z: nz }, true);
 
     // ── Turning ─────────────────────────────────────────────────
+    // Turn rate: tight at low speed (parking lot feel), wide at high speed (highway feel)
+    // Formula: at speed 0 → TURN_SPEED full, at MAX_SPEED → ~40% of TURN_SPEED
+    const speedBlend = Math.min(speed / MAX_SPEED, 1);
+    const effectiveTurn = TURN_SPEED * (1.0 - speedBlend * 0.6);
     if (speed > 0.3) {
-      if (left) rigidBodyRef.current.setAngvel({ x: 0, y: TURN_SPEED, z: 0 }, true);
-      else if (right) rigidBodyRef.current.setAngvel({ x: 0, y: -TURN_SPEED, z: 0 }, true);
+      if (left) rigidBodyRef.current.setAngvel({ x: 0, y: effectiveTurn, z: 0 }, true);
+      else if (right) rigidBodyRef.current.setAngvel({ x: 0, y: -effectiveTurn, z: 0 }, true);
       else rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
     } else {
       rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
@@ -95,11 +112,25 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
       }
     }
 
-    // ── Engine audio ────────────────────────────────────────────
+    // ── Engine audio ─────────────────────────────────────────────
+    // Engine ALWAYS plays — idle hum at rest, revs up with speed
     if (engineAudioRef.current?.context) {
+      const isAccel = forward || backward;
       const t = Math.min(speed / MAX_SPEED, 1);
-      engineAudioRef.current.setVolume(speed < 0.15 ? 0 : 0.2 + t * 0.8);
-      if (speed >= 0.15) engineAudioRef.current.setPlaybackRate(0.55 + t * 0.85);
+
+      // Idle pitch 0.5, full-speed pitch 1.45
+      // Pressing accelerator at any speed raises pitch slightly ("rev" feel)
+      const revBoost = isAccel ? 0.08 : 0;
+      const targetRate = 0.5 + t * 0.95 + revBoost;
+
+      // Idle volume 0.15 (always audible), climbs to 1.0 at max speed
+      const targetVol = 0.15 + t * 0.85;
+
+      // Smooth the transitions so it doesn't snap instantly
+      const curRate = engineAudioRef.current.playbackRate ?? targetRate;
+      const curVol = engineAudioRef.current.getVolume?.() ?? targetVol;
+      engineAudioRef.current.setPlaybackRate(curRate + (targetRate - curRate) * 0.12);
+      engineAudioRef.current.setVolume(curVol + (targetVol - curVol) * 0.12);
     }
 
     // ── Write carState for SandTrail (plain JS — no Rapier after here) ──
