@@ -2,7 +2,7 @@ import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react
 import { useFrame } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
-import { useKeyboardControls } from "@react-three/drei";
+import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import { Controls } from "../App";
 
 const Car = forwardRef((props, fwdRef) => {
@@ -10,6 +10,7 @@ const Car = forwardRef((props, fwdRef) => {
   useImperativeHandle(fwdRef, () => rigidBodyRef.current);
 
   const [_, get] = useKeyboardControls();
+  const { scene } = useGLTF("/models/car/car.glb");
 
   const speed = 10;
   const rotationSpeed = 1;
@@ -53,10 +54,7 @@ const Car = forwardRef((props, fwdRef) => {
 
   return (
     <RigidBody ref={rigidBodyRef} colliders="cuboid" {...props}>
-      <mesh castShadow>
-        <boxGeometry args={[1, 0.5, 2]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
+      <primitive object={scene} scale={[0.5, 0.5, 0.5]} />
     </RigidBody>
   );
 });
