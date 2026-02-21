@@ -1,50 +1,54 @@
 import React, { memo, useMemo } from "react";
 import { useTexture, Sky } from "@react-three/drei";
-import { RigidBody } from "@react-three/rapier";
+import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import * as THREE from "three";
+import { terrainHeight } from "../utils/terrain";
 
-const DUNE_DATA = [
-  { pos: [-28, 0, -35], scale: [14, 4, 8], rot: [0, 0.4, 0] },
-  { pos: [30, 0, -28], scale: [10, 3, 7], rot: [0, 1.1, 0] },
-  { pos: [-20, 0, 20], scale: [12, 3.5, 9], rot: [0, 2.3, 0] },
-  { pos: [35, 0, 15], scale: [9, 2.5, 6], rot: [0, 0.8, 0] },
-  { pos: [5, 0, -42], scale: [16, 3, 10], rot: [0, 1.6, 0] },
-  { pos: [-38, 0, 10], scale: [11, 3, 8], rot: [0, 0.3, 0] },
-  { pos: [20, 0, -38], scale: [13, 3.5, 9], rot: [0, 2.0, 0] },
-];
+const TERRAIN_SIZE = 200;
+const VISUAL_SEGS = 60;
 
+/**
+ * Split approach:
+ * - Physics: Flat CuboidCollider at y=0 (100% stable, no fall-through ever)
+ * - Visuals: Heightmap mesh (beautiful rolling sand dunes, no physics)
+ *
+ * Objects are spawned at terrainHeight(x,z) + lift in App.jsx so they
+ * appear grounded on the visual terrain.
+ */
 const Desert = memo(() => {
   const [basecolor] = useTexture(["/textures/sand_basecolor.png"]);
   basecolor.wrapS = basecolor.wrapT = THREE.RepeatWrapping;
-  // 400×400 ground, repeat texture 40× for density
-  basecolor.repeat.set(40, 40);
+  basecolor.repeat.set(30, 30);
+
+  // High-res visual mesh — no physics attached
+  const visualGeo = useMemo(() => {
+    const g = new THREE.PlaneGeometry(TERRAIN_SIZE, TERRAIN_SIZE, VISUAL_SEGS, VISUAL_SEGS);
+    g.rotateX(-Math.PI / 2);
+    const pos = g.attributes.position.array;
+    for (let i = 0; i < pos.length / 3; i++) {
+      pos[i * 3 + 1] = terrainHeight(pos[i * 3], pos[i * 3 + 2]);
+    }
+    g.attributes.position.needsUpdate = true;
+    g.computeVertexNormals();
+    return g;
+  }, []);
 
   return (
     <>
-      {/* Large ground plane — 400×400 so the car never sees the edge visually */}
-      <RigidBody type="fixed" colliders="cuboid">
-        <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-          <planeGeometry args={[400, 400]} />
-          <meshStandardMaterial map={basecolor} color="#c8a060" roughness={1} metalness={0} />
-        </mesh>
+      {/* ── Stable flat physics floor ── */}
+      {/* CuboidCollider is the most reliable ground collider in Rapier.
+          Half-extents [100, 0.5, 100] = 200×1×200 solid box.
+          Top face at y = 0, which is approx the average terrain height. */}
+      <RigidBody type="fixed" position={[0, -0.5, 0]}>
+        <CuboidCollider args={[100, 0.5, 100]} />
       </RigidBody>
 
-      {/* Decorative dunes */}
-      {DUNE_DATA.map((d, i) => (
-        <mesh
-          key={i}
-          position={[d.pos[0], d.pos[1] + d.scale[1] * 0.45, d.pos[2]]}
-          scale={d.scale}
-          rotation={d.rot}
-          receiveShadow
-          castShadow
-        >
-          <sphereGeometry args={[1, 10, 7, 0, Math.PI * 2, 0, Math.PI / 2]} />
-          <meshStandardMaterial color="#c09050" roughness={1} metalness={0} />
-        </mesh>
-      ))}
+      {/* ── Visual rolling terrain (purely decorative) ── */}
+      <mesh receiveShadow geometry={visualGeo}>
+        <meshStandardMaterial map={basecolor} color="#c49a50" roughness={1} metalness={0} />
+      </mesh>
 
-      {/* Sunset sky */}
+      {/* ── Sunset sky ── */}
       <Sky
         sunPosition={[80, 12, -60]}
         rayleigh={3}

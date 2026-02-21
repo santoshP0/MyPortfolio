@@ -3,51 +3,35 @@ import { RigidBody } from "@react-three/rapier";
 import { useBulletStore } from "../store/useBulletStore";
 import { useObjectStore } from "../store/useObjectStore";
 import { useTargetedObjectStore } from "../store/useTargetedObjectStore";
-import { usePortfolioPanelStore } from "../store/usePortfolioPanelStore";
 
 const Bullet = memo(({ id, position, velocity }) => {
   const rigidBodyRef = useRef();
-  const removeBullet = useBulletStore((state) => state.removeBullet);
-  const updateObjectHealth = useObjectStore((state) => state.updateObjectHealth);
-  const setTargetedObject = useTargetedObjectStore((state) => state.setTargetedObject);
+  const removeBullet = useBulletStore((s) => s.removeBullet);
+  const updateHealth = useObjectStore((s) => s.updateObjectHealth);
+  const revealObject = useObjectStore((s) => s.revealObject);
+  const setTargeted = useTargetedObjectStore((s) => s.setTargetedObject);
 
-  // Apply velocity once mounted
   useEffect(() => {
     if (!rigidBodyRef.current || !velocity) return;
-    rigidBodyRef.current.setLinvel(
-      { x: velocity[0], y: velocity[1], z: velocity[2] },
-      true
-    );
-    // Auto-remove bullet after 3 seconds to avoid memory leak
-    const timer = setTimeout(() => removeBullet(id), 3000);
-    return () => clearTimeout(timer);
-  }, []); // run once on mount
+    rigidBodyRef.current.setLinvel({ x: velocity[0], y: velocity[1], z: velocity[2] }, true);
+    const t = setTimeout(() => removeBullet(id), 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleCollisionEnter = ({ other }) => {
-    // userData can be on the rigidBodyObject (Three.js) or on the Rapier body
-    const userData =
-      other.rigidBodyObject?.userData ||
-      other.rigidBody?.userData ||
-      {};
+    const ud = other.rigidBodyObject?.userData || other.rigidBody?.userData || {};
 
-    if (userData.type === "breakable") {
-      const targetId = userData.id;
-      const portfolioItemId = userData.portfolioItemId;
+    if (ud.type === "breakable") {
+      const obj = useObjectStore.getState().objects.find((o) => o.id === ud.id);
+      if (obj && obj.health > 0) {
+        const newHealth = obj.health - 1;
+        updateHealth(ud.id, newHealth);
+        setTargeted(ud.id, newHealth, obj.initialHealth);
 
-      if (targetId) {
-        const currentObject = useObjectStore.getState().objects.find(
-          (obj) => obj.id === targetId
-        );
-        if (currentObject && currentObject.health > 0) {
-          const newHealth = currentObject.health - 1;
-          updateObjectHealth(targetId, newHealth);
-          setTargetedObject(targetId, newHealth, currentObject.initialHealth);
-
-          if (newHealth <= 0 && portfolioItemId) {
-            // Unlock pointer so user can interact with the panel
-            if (document.pointerLockElement) document.exitPointerLock();
-            usePortfolioPanelStore.getState().setActivePortfolioItemId(portfolioItemId);
-          }
+        if (newHealth <= 0) {
+          // Mark as revealed — a permanent panel will appear at its position
+          // No pointer lock change, no pause triggered
+          revealObject(ud.id);
         }
       }
     }
@@ -60,8 +44,8 @@ const Bullet = memo(({ id, position, velocity }) => {
       ref={rigidBodyRef}
       colliders="ball"
       type="dynamic"
-      gravityScale={0.3}
-      restitution={0.2}
+      gravityScale={0.2}
+      restitution={0.1}
       onCollisionEnter={handleCollisionEnter}
       userData={{ type: "bullet" }}
       position={position}
