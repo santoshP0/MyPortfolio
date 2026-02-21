@@ -1,68 +1,63 @@
-import React, { useRef, forwardRef, useImperativeHandle } from "react";
+import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useBox } from "@react-three/cannon";
-import { useHotkeys } from "react-hotkeys-hook";
+import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
+import { useKeyboardControls } from "@react-three/drei";
+import { Controls } from "../App";
 
 const Car = forwardRef((props, fwdRef) => {
-  const [ref, api] = useBox(() => ({
-    mass: 1,
-    position: [0, 1, 0],
-    angularDamping: 0.9,
-    linearDamping: 0.9,
-    ...props,
-  }));
+  const rigidBodyRef = useRef();
+  useImperativeHandle(fwdRef, () => rigidBodyRef.current);
 
-  useImperativeHandle(fwdRef, () => ref.current);
+  const [_, get] = useKeyboardControls();
 
-  const move = useRef({ forward: false, backward: false, left: false, right: false });
+  const speed = 10;
+  const rotationSpeed = 1;
 
-  useHotkeys("w, up", () => (move.current.forward = true), { keydown: true });
-  useHotkeys("w, up", () => (move.current.forward = false), { keyup: true });
-  useHotkeys("s, down", () => (move.current.backward = true), { keydown: true });
-  useHotkeys("s, down", () => (move.current.backward = false), { keyup: true });
-  useHotkeys("a, left", () => (move.current.left = true), { keydown: true });
-  useHotkeys("a, left", () => (move.current.left = false), { keyup: true });
-  useHotkeys("d, right", () => (move.current.right = true), { keydown: true });
-  useHotkeys("d, right", () => (move.current.right = false), { keyup: true });
+  useFrame(() => {
+    const { forward, backward, left, right } = get();
 
-  const force = 100;
-  const turnForce = 50;
+    if (!rigidBodyRef.current) return;
 
-  useFrame((state, delta) => {
-    const { forward, backward, left, right } = move.current;
-    
     const impulse = { x: 0, y: 0, z: 0 };
     const torque = { x: 0, y: 0, z: 0 };
 
+    const currentRotation = rigidBodyRef.current.rotation();
+    const quaternion = new THREE.Quaternion(
+      currentRotation.x,
+      currentRotation.y,
+      currentRotation.z,
+      currentRotation.w
+    );
+
     if (forward) {
-      const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(ref.current.quaternion);
-      impulse.x += forwardVector.x * force * delta;
-      impulse.y += forwardVector.y * force * delta;
-      impulse.z += forwardVector.z * force * delta;
+      const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
+      impulse.x += forwardVector.x * speed;
+      impulse.z += forwardVector.z * speed;
     }
     if (backward) {
-      const backwardVector = new THREE.Vector3(0, 0, 1).applyQuaternion(ref.current.quaternion);
-      impulse.x += backwardVector.x * force * delta;
-      impulse.y += backwardVector.y * force * delta;
-      impulse.z += backwardVector.z * force * delta;
+      const backwardVector = new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion);
+      impulse.x += backwardVector.x * speed;
+      impulse.z += backwardVector.z * speed;
     }
     if (left) {
-      torque.y = turnForce * delta;
+      torque.y += rotationSpeed;
     }
     if (right) {
-      torque.y = -turnForce * delta;
+      torque.y -= rotationSpeed;
     }
 
-    api.applyImpulse([impulse.x, impulse.y, impulse.z], [0, 0, 0]);
-    api.applyTorque([torque.x, torque.y, torque.z]);
+    rigidBodyRef.current.applyImpulse(impulse, true);
+    rigidBodyRef.current.applyTorqueImpulse(torque, true);
   });
 
   return (
-    <mesh ref={ref} castShadow>
-      <boxGeometry args={[1, 0.5, 2]} />
-      <meshStandardMaterial color="red" />
-    </mesh>
+    <RigidBody ref={rigidBodyRef} colliders="cuboid" {...props}>
+      <mesh castShadow>
+        <boxGeometry args={[1, 0.5, 2]} />
+        <meshStandardMaterial color="red" />
+      </mesh>
+    </RigidBody>
   );
 });
 
