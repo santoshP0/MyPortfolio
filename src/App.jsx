@@ -1,6 +1,6 @@
-import React, { useRef, useMemo, useEffect } from "react";
+import React, { useRef, useMemo, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, KeyboardControls, PositionalAudio } from "@react-three/drei";
+import { OrbitControls, KeyboardControls, PositionalAudio, Html } from "@react-three/drei";
 import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
 import Desert from "./components/Desert";
@@ -9,7 +9,7 @@ import InstancedBreakableObjects from "./components/InstancedBreakableObjects";
 import PortfolioPanel from "./components/PortfolioPanel";
 import IntroOverlay from "./components/IntroOverlay";
 import HealthBarHUD from "./components/HealthBarHUD";
-import Scene from "./components/Scene"; // Import Scene
+import Scene from "./components/Scene";
 import { useBulletStore } from "./store/useBulletStore";
 import { useObjectStore } from "./store/useObjectStore";
 import { usePortfolioPanelStore } from "./store/usePortfolioPanelStore";
@@ -83,21 +83,23 @@ function App() {
             shadow-camera-bottom={-20}
           />
           <RapierPhysics>
-            <Desert position={[0, -0.5, 0]} />
-            <Car ref={carRef} />
-            {bullets.map((bullet) => (
-              <Bullet
-                key={bullet.id}
-                id={bullet.id}
-                position={bullet.position}
-                velocity={bullet.velocity}
-              />
-            ))}
-            <InstancedBreakableObjects />
-            <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay />
+            <Suspense fallback={<Html><div>Loading...</div></Html>}>
+              <Desert position={[0, -0.5, 0]} />
+              <Car ref={carRef} />
+              {bullets.map((bullet) => (
+                <Bullet
+                  key={bullet.id}
+                  id={bullet.id}
+                  position={bullet.position}
+                  velocity={bullet.velocity}
+                />
+              ))}
+              <InstancedBreakableObjects />
+              <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay />
+            </Suspense>
           </RapierPhysics>
           <OrbitControls ref={controlsRef} />
-          <Scene carRef={carRef} controlsRef={controlsRef} /> {/* Render the Scene component */}
+          <Scene carRef={carRef} controlsRef={controlsRef} />
         </Canvas>
       </KeyboardControls>
       <PortfolioPanel content={activeContent} onClose={clearactivePortfolioItemId} />

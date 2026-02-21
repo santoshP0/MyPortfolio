@@ -1,17 +1,22 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle, memo } from "react";
-import { useFrame } from "@react-three/fiber";
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, memo, Suspense } from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
-import { useKeyboardControls, useGLTF, PositionalAudio } from "@react-three/drei";
+import { useKeyboardControls, PositionalAudio } from "@react-three/drei";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Controls } from "../App";
 import { useBulletStore } from "../store/useBulletStore";
+
+const CarModel = () => {
+  const gltf = useLoader(GLTFLoader, "/models/car/car.glb");
+  return <primitive object={gltf.scene} scale={[0.5, 0.5, 0.5]} />;
+};
 
 const Car = memo(forwardRef((props, fwdRef) => {
   const rigidBodyRef = useRef();
   useImperativeHandle(fwdRef, () => rigidBodyRef.current);
 
   const [_, get] = useKeyboardControls();
-  const { scene } = useGLTF("/models/car/car.glb");
   const addBullet = useBulletStore((state) => state.addBullet);
 
   const forwardForce = 15;
@@ -118,7 +123,9 @@ const Car = memo(forwardRef((props, fwdRef) => {
       angularDamping={0.5}
       {...props}
     >
-      <primitive object={scene} scale={[0.5, 0.5, 0.5]} />
+      <Suspense fallback={null}>
+        <CarModel />
+      </Suspense>
       <PositionalAudio ref={engineAudioRef} url="/audio/engine_loop.mp3" loop autoplay />
       <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" /> {/* Shooting sound */}
     </RigidBody>
