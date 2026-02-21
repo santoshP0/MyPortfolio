@@ -1,15 +1,15 @@
 import React, { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, KeyboardControls } from "@react-three/drei";
+import { OrbitControls, KeyboardControls, PositionalAudio } from "@react-three/drei";
 import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
 import Desert from "./components/Desert";
 import Bullet from "./components/Bullet";
 import BreakableObject from "./components/BreakableObject";
-import PortfolioPanel from "./components/PortfolioPanel"; // Import PortfolioPanel
+import PortfolioPanel from "./components/PortfolioPanel";
 import { useBulletStore } from "./store/useBulletStore";
 import { useObjectStore } from "./store/useObjectStore";
-import { usePortfolioPanelStore } from "./store/usePortfolioPanelStore"; // Import usePortfolioPanelStore
+import { usePortfolioPanelStore } from "./store/usePortfolioPanelStore";
 import { portfolioData } from "./data/portfolioData";
 import { nanoid } from "nanoid";
 import "./index.css";
@@ -34,13 +34,11 @@ function App() {
   const activePortfolioItemId = usePortfolioPanelStore((state) => state.activePortfolioItemId);
   const clearactivePortfolioItemId = usePortfolioPanelStore((state) => state.clearactivePortfolioItemId);
 
-  // Initialize some breakable objects with portfolio data
   useEffect(() => {
-    // Adding objects to match ProjectReq.md categories
-    addObject([-5, 0, -10], [1, 1, 1], 3, nanoid(), "project1"); // Projects
-    addObject([5, 0, -15], [1.5, 1.5, 1.5], 5, nanoid(), "skill1"); // Skills
-    addObject([-10, 0, -5], [1, 2, 1], 4, nanoid(), "experience1"); // Experience
-    addObject([10, 0, -5], [0.8, 0.8, 0.8], 2, nanoid(), "contact"); // Contact
+    addObject([-5, 0, -10], [1, 1, 1], 3, nanoid(), "project1");
+    addObject([5, 0, -15], [1.5, 1.5, 1.5], 5, nanoid(), "skill1");
+    addObject([-10, 0, -5], [1, 2, 1], 4, nanoid(), "experience1");
+    addObject([10, 0, -5], [0.8, 0.8, 0.8], 2, nanoid(), "contact");
   }, [addObject]);
 
   const map = useMemo(() => [
@@ -108,6 +106,8 @@ function App() {
                 portfolioItemId={object.portfolioItemId}
               />
             ))}
+            {/* Ambient desert wind audio */}
+            <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay />
           </RapierPhysics>
           <OrbitControls ref={controlsRef} />
         </Canvas>

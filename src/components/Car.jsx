@@ -2,9 +2,9 @@ import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react
 import { useFrame } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
-import { useKeyboardControls, useGLTF } from "@react-three/drei";
+import { useKeyboardControls, useGLTF, PositionalAudio } from "@react-three/drei";
 import { Controls } from "../App";
-import { useBulletStore } from "../store/useBulletStore"; // Import the bullet store
+import { useBulletStore } from "../store/useBulletStore";
 
 const Car = forwardRef((props, fwdRef) => {
   const rigidBodyRef = useRef();
@@ -24,6 +24,9 @@ const Car = forwardRef((props, fwdRef) => {
   const lastShotTime = useRef(0);
   const shootCooldown = 200; // milliseconds
 
+  const engineAudioRef = useRef();
+  const shootAudioRef = useRef(); // Ref for shoot audio
+
   useFrame(() => {
     const { forward, backward, left, right, shoot } = get();
 
@@ -42,6 +45,13 @@ const Car = forwardRef((props, fwdRef) => {
 
     const currentVelocity = rigidBodyRef.current.linvel();
     const currentAngularVelocity = rigidBodyRef.current.angvel();
+
+    // Engine sound volume based on speed
+    if (engineAudioRef.current) {
+      const speed = new THREE.Vector3(currentVelocity.x, 0, currentVelocity.z).length();
+      engineAudioRef.current.setVolume(Math.min(speed / (maxSpeed / 2), 1));
+    }
+
 
     if (forward) {
       const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
@@ -79,6 +89,7 @@ const Car = forwardRef((props, fwdRef) => {
       );
 
       addBullet(bulletPosition.toArray(), bulletVelocity.toArray());
+      shootAudioRef.current.play(); // Play shooting sound
     }
 
     // Limit linear velocity
@@ -108,6 +119,8 @@ const Car = forwardRef((props, fwdRef) => {
       {...props}
     >
       <primitive object={scene} scale={[0.5, 0.5, 0.5]} />
+      <PositionalAudio ref={engineAudioRef} url="/audio/engine_loop.mp3" loop autoplay />
+      <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" /> {/* Shooting sound */}
     </RigidBody>
   );
 });

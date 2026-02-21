@@ -3,6 +3,7 @@ import { RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useObjectStore } from "../store/useObjectStore";
 import { usePortfolioPanelStore } from "../store/usePortfolioPanelStore"; // Import usePortfolioPanelStore
+import { PositionalAudio } from "@react-three/drei"; // Import PositionalAudio
 
 function BreakableObject({ id, position, args, health: initialHealth = 10, portfolioItemId, ...props }) {
   const rigidBodyRef = useRef();
@@ -11,6 +12,7 @@ function BreakableObject({ id, position, args, health: initialHealth = 10, portf
   const setactivePortfolioItemId = usePortfolioPanelStore((state) => state.setactivePortfolioItemId);
 
   const [currentHealth, setCurrentHealth] = useState(initialHealth);
+  const explosionAudioRef = useRef(); // Ref for explosion audio
 
   useFrame(() => {
     // Optional: Add any animation or behavior for the object
@@ -25,6 +27,7 @@ function BreakableObject({ id, position, args, health: initialHealth = 10, portf
         if (newHealth <= 0) {
           removeObject(id);
           console.log(`Object ${id} destroyed!`);
+          explosionAudioRef.current.play(); // Play explosion sound
           if (portfolioItemId) {
             setactivePortfolioItemId(portfolioItemId); // Set active portfolio item
           }
@@ -42,7 +45,7 @@ function BreakableObject({ id, position, args, health: initialHealth = 10, portf
       colliders="cuboid"
       type="fixed"
       onCollisionEnter={handleCollisionEnter}
-      userData={{ id, type: "breakable", portfolioItemId }} // Add portfolioItemId to userData
+      userData={{ id, type: "breakable", portfolioItemId }}
       position={position}
       {...props}
     >
@@ -50,6 +53,7 @@ function BreakableObject({ id, position, args, health: initialHealth = 10, portf
         <boxGeometry args={args} />
         <meshStandardMaterial color={materialColor} />
       </mesh>
+      <PositionalAudio ref={explosionAudioRef} url="/audio/explosion.mp3" /> {/* Explosion sound */}
     </RigidBody>
   );
 }
