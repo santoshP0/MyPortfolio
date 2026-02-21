@@ -6,7 +6,6 @@ import { useKeyboardControls, PositionalAudio, useGLTF } from "@react-three/drei
 import { Controls } from "../App";
 import { useBulletStore } from "../store/useBulletStore";
 
-// Preload the car model
 useGLTF.preload("/models/car/car.glb");
 
 const CarModel = () => {
@@ -15,7 +14,6 @@ const CarModel = () => {
     <primitive
       object={scene}
       scale={[0.5, 0.5, 0.5]}
-      // Many GLTF car models face +Z by default; rotate to face -Z (forward in Three.js)
       rotation={[0, Math.PI, 0]}
     />
   );
@@ -29,121 +27,112 @@ const Car = memo(forwardRef((props, fwdRef) => {
   const addBullet = useBulletStore((state) => state.addBullet);
 
   // Physics constants
-  const ACCELERATION = 1.8;   // velocity added per frame
-  const BRAKE_FORCE = 1.5;    // velocity removed per frame when braking
-  const MAX_SPEED = 14;       // m/s max linear speed
-  const TURN_SPEED = 2.2;     // angular velocity when turning
-  const BULLET_SPEED = 60;    // bullet initial velocity
-  const GRAVITY_COMP = 9.8;   // keep car grounded
+  const ACCELERATION = 1.8;
+  const BRAKE_FORCE = 1.5;
+  const MAX_SPEED = 14;
+  const TURN_SPEED = 2.2;
+  const BULLET_SPEED = 60;
+  const SHOOT_COOLDOWN = 250;
 
   const lastShotTime = useRef(0);
-  const SHOOT_COOLDOWN = 250; // ms
 
   const engineAudioRef = useRef();
   const shootAudioRef = useRef();
 
+  // Smoothed camera targets — avoid re-allocating every frame
+  const camPos = useRef(new THREE.Vector3(0, 8, 18));
+  const camLook = useRef(new THREE.Vector3(0, 1.5, 0));
+
+  const tmpCamTarget = new THREE.Vector3();
+  const tmpLookTarget = new THREE.Vector3();
+
   useFrame((state, delta) => {
     const { forward, backward, left, right, shoot } = get();
-
     if (!rigidBodyRef.current) return;
 
     const vel = rigidBodyRef.current.linvel();
     const rot = rigidBodyRef.current.rotation();
     const quat = new THREE.Quaternion(rot.x, rot.y, rot.z, rot.w);
-
-    // Car's forward direction in world space (-Z local → world)
     const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(quat);
 
-    // ── Speed management ──────────────────────────────────────────
-    let speed = new THREE.Vector3(vel.x, 0, vel.z).length();
-
-    // Project current velocity onto car's forward to get signed speed
+    // ── Speed ────────────────────────────────────────────────────
+    const speed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
     const velXZ = new THREE.Vector3(vel.x, 0, vel.z);
-    const signedSpeed = velXZ.dot(fwd); // positive = moving forward
+    const signedSpeed = velXZ.dot(fwd);
 
     let newVelXZ = velXZ.clone();
 
     if (forward) {
-      newVelXZ.add(fwd.clone().multiplyScalar(ACCELERATION));
+      newVelXZ.addScaledVector(fwd, ACCELERATION);
     } else if (backward) {
-      // Braking if moving forward, reversing if stopped
       if (signedSpeed > 0.1) {
-        newVelXZ.add(fwd.clone().multiplyScalar(-BRAKE_FORCE)); // brake
+        newVelXZ.addScaledVector(fwd, -BRAKE_FORCE);
       } else {
-        newVelXZ.add(fwd.clone().multiplyScalar(-ACCELERATION * 0.6)); // reverse
+        newVelXZ.addScaledVector(fwd, -ACCELERATION * 0.6);
       }
     } else {
-      // Natural drag on XZ plane only
       newVelXZ.multiplyScalar(0.92);
     }
 
-    // Clamp to max speed
-    if (newVelXZ.length() > MAX_SPEED) {
-      newVelXZ.normalize().multiplyScalar(MAX_SPEED);
-    }
+    if (newVelXZ.length() > MAX_SPEED) newVelXZ.normalize().multiplyScalar(MAX_SPEED);
+    rigidBodyRef.current.setLinvel({ x: newVelXZ.x, y: vel.y, z: newVelXZ.z }, true);
 
-    // Keep Y velocity (gravity falls through), only override XZ
-    rigidBodyRef.current.setLinvel(
-      { x: newVelXZ.x, y: vel.y, z: newVelXZ.z },
-      true
-    );
-
-    // ── Turning (only when moving) ────────────────────────────────
-    const isMoving = speed > 0.3;
-    if (isMoving) {
-      if (left) {
-        rigidBodyRef.current.setAngvel({ x: 0, y: TURN_SPEED, z: 0 }, true);
-      } else if (right) {
-        rigidBodyRef.current.setAngvel({ x: 0, y: -TURN_SPEED, z: 0 }, true);
-      } else {
-        rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
-      }
+    // ── Turning ──────────────────────────────────────────────────
+    if (speed > 0.3) {
+      if (left) rigidBodyRef.current.setAngvel({ x: 0, y: TURN_SPEED, z: 0 }, true);
+      else if (right) rigidBodyRef.current.setAngvel({ x: 0, y: -TURN_SPEED, z: 0 }, true);
+      else rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
     } else {
       rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
     }
 
-    // ── Shooting ─────────────────────────────────────────────────
+    // ── Shoot ────────────────────────────────────────────────────
     const now = Date.now();
     if (shoot && now - lastShotTime.current > SHOOT_COOLDOWN) {
       lastShotTime.current = now;
-      const pos = rigidBodyRef.current.translation();
-
-      const bulletPos = new THREE.Vector3(
-        pos.x + fwd.x * 2.5,
-        pos.y + 0.8,
-        pos.z + fwd.z * 2.5
+      const p = rigidBodyRef.current.translation();
+      addBullet(
+        [p.x + fwd.x * 2.5, p.y + 0.8, p.z + fwd.z * 2.5],
+        [fwd.x * BULLET_SPEED, fwd.y * BULLET_SPEED, fwd.z * BULLET_SPEED]
       );
-      const bulletVel = fwd.clone().multiplyScalar(BULLET_SPEED);
-      addBullet(bulletPos.toArray(), bulletVel.toArray());
-
-      if (shootAudioRef.current) shootAudioRef.current.play();
+      // Prevent overlapping audio — stop stale play before starting new
+      if (shootAudioRef.current) {
+        if (shootAudioRef.current.isPlaying) shootAudioRef.current.stop();
+        shootAudioRef.current.play();
+      }
     }
 
-    // ── Engine audio ──────────────────────────────────────────────
-    if (engineAudioRef.current) {
-      engineAudioRef.current.setVolume(0.2 + Math.min(speed / MAX_SPEED, 1) * 0.8);
+    // ── Engine audio — pitch & volume tied to speed ───────────────
+    if (engineAudioRef.current?.context) {
+      const t = Math.min(speed / MAX_SPEED, 1);
+      if (speed < 0.15) {
+        // Silent at rest (avoid ugly constant drone)
+        engineAudioRef.current.setVolume(0);
+      } else {
+        // Volume 0.2 → 1.0, playback rate 0.55 (idle) → 1.4 (full speed)
+        engineAudioRef.current.setVolume(0.2 + t * 0.8);
+        engineAudioRef.current.setPlaybackRate(0.55 + t * 0.85);
+      }
     }
 
-    // ── Third-person camera follow ────────────────────────────────
-    // Position camera behind and above, looking slightly in front of the car
+    // ── Camera — dual lerp (position + lookAt target) ─────────────
+    // This prevents the "jitter" caused by directly setting lookAt each frame.
     const carPos = rigidBodyRef.current.translation();
-    const camOffset = new THREE.Vector3(0, 5.5, 13).applyQuaternion(quat);
-    const camTarget = new THREE.Vector3(
-      carPos.x + camOffset.x,
-      carPos.y + camOffset.y,
-      carPos.z + camOffset.z
-    );
 
-    // Smooth follow (lerp speed 0.07 = smooth, 0.15 = snappy)
-    state.camera.position.lerp(camTarget, 0.09);
+    // Camera sits above and behind, offset rotated with the car
+    const offset = new THREE.Vector3(0, 5.5, 13).applyQuaternion(quat);
+    tmpCamTarget.set(carPos.x + offset.x, carPos.y + offset.y, carPos.z + offset.z);
+    camPos.current.lerp(tmpCamTarget, 0.07);          // position: slow = smooth
+    state.camera.position.copy(camPos.current);
 
-    // Look at a point slightly ahead of the car, not the car itself
-    const lookAt = new THREE.Vector3(
-      carPos.x - fwd.x * 3,
-      carPos.y + 1.2,
-      carPos.z - fwd.z * 3
+    // Look slightly ahead of the car
+    tmpLookTarget.set(
+      carPos.x - fwd.x * 4,
+      carPos.y + 1.5,
+      carPos.z - fwd.z * 4
     );
-    state.camera.lookAt(lookAt);
+    camLook.current.lerp(tmpLookTarget, 0.07);        // look target: same rate = no judder
+    state.camera.lookAt(camLook.current);
   });
 
   return (
@@ -155,15 +144,25 @@ const Car = memo(forwardRef((props, fwdRef) => {
       angularDamping={0.9}
       restitution={0}
       friction={0.7}
-      // Lock rotation on X and Z so the car stays upright
-      lockRotations={false}
       {...props}
     >
       <Suspense fallback={null}>
         <CarModel />
       </Suspense>
-      <PositionalAudio ref={engineAudioRef} url="/audio/engine_loop.mp3" loop autoplay distance={10} />
-      <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" distance={10} />
+      <PositionalAudio
+        ref={engineAudioRef}
+        url="/audio/engine_loop.mp3"
+        loop
+        autoplay
+        distance={12}
+      />
+      {/* Shoot: no loop, no autoplay — triggered manually */}
+      <PositionalAudio
+        ref={shootAudioRef}
+        url="/audio/shoot.mp3"
+        loop={false}
+        distance={12}
+      />
     </RigidBody>
   );
 }));

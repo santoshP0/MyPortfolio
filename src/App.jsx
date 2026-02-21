@@ -1,12 +1,14 @@
 import React, { useRef, useMemo, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { KeyboardControls, PositionalAudio, Html, Environment } from "@react-three/drei";
+import { KeyboardControls, PositionalAudio, Html } from "@react-three/drei";
 import { Physics as RapierPhysics, RigidBody } from "@react-three/rapier";
 import Car from "./components/Car";
 import Desert from "./components/Desert";
 import Bullet from "./components/Bullet";
 import BreakableObjects from "./components/BreakableObjects";
+import SandTrail from "./components/SandTrail";
 import PortfolioPanel from "./components/PortfolioPanel";
+import PauseSystem from "./components/PauseSystem";
 import IntroOverlay from "./components/IntroOverlay";
 import HealthBarHUD from "./components/HealthBarHUD";
 import Scene from "./components/Scene";
@@ -140,10 +142,12 @@ function App() {
             </Suspense>
           </RapierPhysics>
 
+          <SandTrail carRef={carRef} />
           <Scene carRef={carRef} />
         </Canvas>
       </KeyboardControls>
       <PortfolioPanel content={activeContent} onClose={clearactivePortfolioItemId} />
+      <PauseSystem />
       <IntroOverlay />
       <HealthBarHUD />
     </div>
