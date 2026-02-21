@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { OrbitControls, KeyboardControls, PositionalAudio } from "@react-three/drei";
 import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
@@ -8,7 +8,8 @@ import Bullet from "./components/Bullet";
 import InstancedBreakableObjects from "./components/InstancedBreakableObjects";
 import PortfolioPanel from "./components/PortfolioPanel";
 import IntroOverlay from "./components/IntroOverlay";
-import HealthBarHUD from "./components/HealthBarHUD"; // Import HealthBarHUD
+import HealthBarHUD from "./components/HealthBarHUD";
+import Scene from "./components/Scene"; // Import Scene
 import { useBulletStore } from "./store/useBulletStore";
 import { useObjectStore } from "./store/useObjectStore";
 import { usePortfolioPanelStore } from "./store/usePortfolioPanelStore";
@@ -28,7 +29,6 @@ function App() {
   const carRef = useRef();
   const controlsRef = useRef();
   const bullets = useBulletStore((state) => state.bullets);
-  const removeBullet = useBulletStore((state) => state.removeBullet);
 
   const objects = useObjectStore((state) => state.objects);
   const addObject = useObjectStore((state) => state.addObject);
@@ -50,23 +50,6 @@ function App() {
     { name: Controls.right, keys: ["ArrowRight", "d"] },
     { name: Controls.shoot, keys: ["Space"] },
   ], []);
-
-  useFrame(() => {
-    if (carRef.current && controlsRef.current) {
-      const rigidBody = carRef.current;
-      if (rigidBody) {
-        const carPosition = rigidBody.translation();
-        controlsRef.current.target.lerp(carPosition, 0.1);
-        controlsRef.current.update();
-      }
-    }
-
-    bullets.forEach((bullet) => {
-      if (Date.now() - bullet.timestamp > 3000) {
-        removeBullet(bullet.id);
-      }
-    });
-  });
 
   const getPortfolioItemContent = (id) => {
     if (!id) return null;
@@ -114,11 +97,12 @@ function App() {
             <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay />
           </RapierPhysics>
           <OrbitControls ref={controlsRef} />
+          <Scene carRef={carRef} controlsRef={controlsRef} /> {/* Render the Scene component */}
         </Canvas>
       </KeyboardControls>
       <PortfolioPanel content={activeContent} onClose={clearactivePortfolioItemId} />
       <IntroOverlay />
-      <HealthBarHUD /> {/* Render the HealthBarHUD */}
+      <HealthBarHUD />
     </div>
   );
 }
