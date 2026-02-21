@@ -5,17 +5,30 @@ import * as THREE from "three";
 
 function Desert(props) {
   const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }));
-  const texture = useTexture("/textures/sand.jpg"); // Placeholder texture
+  
+  const [basecolor, normalMap, heightMap] = useTexture([
+    "/textures/sand_basecolor.png",
+    "/textures/sand_normal.png",
+    "/textures/sand_height.png",
+  ]);
 
-  // Repeat the texture
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(10, 10);
+  // Repeat the textures
+  [basecolor, normalMap, heightMap].forEach((texture) => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(10, 10);
+  });
 
   return (
     <>
       <mesh ref={ref} receiveShadow>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial map={texture} />
+        <planeGeometry args={[100, 100, 128, 128]} /> {/* Increased segments for displacement */}
+        <meshStandardMaterial
+          map={basecolor}
+          normalMap={normalMap}
+          displacementMap={heightMap}
+          displacementScale={2}
+          flatShading={false}
+        />
       </mesh>
       <Sky sunPosition={[100, 20, 100]} />
     </>
