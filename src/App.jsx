@@ -11,6 +11,7 @@ import PortfolioPanel from "./components/PortfolioPanel";
 import PauseSystem from "./components/PauseSystem";
 import IntroOverlay from "./components/IntroOverlay";
 import HealthBarHUD from "./components/HealthBarHUD";
+import ControlsHUD from "./components/ControlsHUD";
 import Scene from "./components/Scene";
 import { useBulletStore } from "./store/useBulletStore";
 import { useObjectStore } from "./store/useObjectStore";
@@ -158,6 +159,7 @@ function App() {
       <PauseSystem />
       <IntroOverlay />
       <HealthBarHUD />
+      <ControlsHUD />
     </div>
   );
 }
