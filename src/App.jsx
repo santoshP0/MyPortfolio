@@ -30,8 +30,8 @@ export const Controls = {
   shoot: "shoot",
 };
 
-// terrainHeight(x,z) + 1.2 places objects flush on the visual terrain surface
-const spawnY = (x, z, lift = 1.2) => terrainHeight(x, z) + lift;
+// Objects spawn slightly above terrain, gravity drops them to the surface
+const spawnY = (x, z) => terrainHeight(x, z) + 3;
 
 // Object spawn data [x, z, health, portfolioId]
 const OBJECT_SPAWNS = [

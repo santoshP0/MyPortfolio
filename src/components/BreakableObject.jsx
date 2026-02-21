@@ -1,29 +1,21 @@
-import React, { useRef } from "react";
+import React from "react";
 import { RigidBody } from "@react-three/rapier";
-import * as THREE from "three";
 
 /**
  * A single breakable object with its own RigidBody.
- * Each object has health, changes color as it takes damage,
- * and disappears (scales to 0) when destroyed.
+ * type="dynamic" so the car can push them around like plastic boxes.
+ * High mass + damping so they feel heavy but still moveable.
  */
 function BreakableObject({ id, position, health, initialHealth, portfolioItemId, type = "stone" }) {
-  // When health is 0, stop rendering this object (physics + mesh)
   if (health <= 0) return null;
 
   const healthRatio = health / initialHealth;
 
-  // Color shifts from earthy brown -> cracked orange -> burning red
   let color;
-  if (healthRatio > 0.65) {
-    color = "#6B4226"; // healthy - dark sandstone
-  } else if (healthRatio > 0.3) {
-    color = "#C46A00"; // cracked - orange
-  } else {
-    color = "#8B0000"; // critical - dark red
-  }
+  if (healthRatio > 0.65) color = "#6B4226";
+  else if (healthRatio > 0.3) color = "#C46A00";
+  else color = "#8B0000";
 
-  // Different shapes per type for visual variety
   const geometryArgs = {
     stone: [1.5, 2.2, 1.5],
     crate: [1.2, 1.2, 1.2],
@@ -34,9 +26,14 @@ function BreakableObject({ id, position, health, initialHealth, portfolioItemId,
 
   return (
     <RigidBody
-      type="fixed"
+      type="dynamic"
       colliders="cuboid"
       position={position}
+      mass={8}                // heavy enough to feel solid, light enough to push
+      linearDamping={3}       // stops sliding quickly after being hit
+      angularDamping={3}      // stops spinning quickly
+      restitution={0.1}
+      friction={0.9}
       userData={{ type: "breakable", id, portfolioItemId }}
     >
       <mesh castShadow receiveShadow>
@@ -48,7 +45,8 @@ function BreakableObject({ id, position, health, initialHealth, portfolioItemId,
           envMapIntensity={0.3}
         />
       </mesh>
-      {/* Crack overlay that becomes visible as health drops */}
+
+      {/* Crack overlay */}
       {healthRatio < 0.65 && (
         <mesh position={[0, 0, args[2] / 2 + 0.01]}>
           <planeGeometry args={[args[0], args[1]]} />
@@ -61,7 +59,8 @@ function BreakableObject({ id, position, health, initialHealth, portfolioItemId,
           />
         </mesh>
       )}
-      {/* Health indicator ring above object */}
+
+      {/* Health ring */}
       <mesh position={[0, args[1] / 2 + 0.5, 0]}>
         <torusGeometry args={[0.4, 0.07, 8, 16, Math.PI * 2 * healthRatio]} />
         <meshStandardMaterial

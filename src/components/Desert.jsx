@@ -1,28 +1,24 @@
 import React, { memo, useMemo } from "react";
 import { useTexture, Sky } from "@react-three/drei";
-import { RigidBody, CuboidCollider } from "@react-three/rapier";
+import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 import { terrainHeight } from "../utils/terrain";
 
 const TERRAIN_SIZE = 200;
-const VISUAL_SEGS = 60;
+const SEGMENTS = 30;  // 30×30 = stable for trimesh, looks good visually
 
 /**
- * Split approach:
- * - Physics: Flat CuboidCollider at y=0 (100% stable, no fall-through ever)
- * - Visuals: Heightmap mesh (beautiful rolling sand dunes, no physics)
- *
- * Objects are spawned at terrainHeight(x,z) + lift in App.jsx so they
- * appear grounded on the visual terrain.
+ * ONE mesh = visual terrain + physics collider.
+ * The mesh is VISIBLE — that's the key. Rapier can only extract
+ * geometry from visible meshes (visible={false} breaks trimesh).
  */
 const Desert = memo(() => {
   const [basecolor] = useTexture(["/textures/sand_basecolor.png"]);
   basecolor.wrapS = basecolor.wrapT = THREE.RepeatWrapping;
-  basecolor.repeat.set(30, 30);
+  basecolor.repeat.set(25, 25);
 
-  // High-res visual mesh — no physics attached
-  const visualGeo = useMemo(() => {
-    const g = new THREE.PlaneGeometry(TERRAIN_SIZE, TERRAIN_SIZE, VISUAL_SEGS, VISUAL_SEGS);
+  const terrainGeo = useMemo(() => {
+    const g = new THREE.PlaneGeometry(TERRAIN_SIZE, TERRAIN_SIZE, SEGMENTS, SEGMENTS);
     g.rotateX(-Math.PI / 2);
     const pos = g.attributes.position.array;
     for (let i = 0; i < pos.length / 3; i++) {
@@ -35,20 +31,18 @@ const Desert = memo(() => {
 
   return (
     <>
-      {/* ── Stable flat physics floor ── */}
-      {/* CuboidCollider is the most reliable ground collider in Rapier.
-          Half-extents [100, 0.5, 100] = 200×1×200 solid box.
-          Top face at y = 0, which is approx the average terrain height. */}
-      <RigidBody type="fixed" position={[0, -0.5, 0]}>
-        <CuboidCollider args={[100, 0.5, 100]} />
+      {/* Single visible mesh = physics + visuals */}
+      <RigidBody type="fixed" colliders="trimesh">
+        <mesh receiveShadow geometry={terrainGeo}>
+          <meshStandardMaterial
+            map={basecolor}
+            color="#c49a50"
+            roughness={1}
+            metalness={0}
+          />
+        </mesh>
       </RigidBody>
 
-      {/* ── Visual rolling terrain (purely decorative) ── */}
-      <mesh receiveShadow geometry={visualGeo}>
-        <meshStandardMaterial map={basecolor} color="#c49a50" roughness={1} metalness={0} />
-      </mesh>
-
-      {/* ── Sunset sky ── */}
       <Sky
         sunPosition={[80, 12, -60]}
         rayleigh={3}
