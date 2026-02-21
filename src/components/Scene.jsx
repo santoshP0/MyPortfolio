@@ -9,10 +9,16 @@ function Scene({ carRef, controlsRef }) {
   useFrame(() => {
     if (carRef.current && controlsRef.current) {
       const rigidBody = carRef.current;
-      if (rigidBody) {
-        const carPosition = rigidBody.translation();
-        controlsRef.current.target.lerp(carPosition, 0.1);
-        controlsRef.current.update();
+      // Ensure rigidBody and its translation method are available
+      if (rigidBody && typeof rigidBody.translation === "function") {
+        try {
+          const carPosition = rigidBody.translation();
+          controlsRef.current.target.lerp(carPosition, 0.1);
+          controlsRef.current.update();
+        } catch (error) {
+          // In case of any other error within translation()
+          console.error("Error getting car translation:", error);
+        }
       }
     }
 
