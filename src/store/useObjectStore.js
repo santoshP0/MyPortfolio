@@ -3,11 +3,11 @@ import { nanoid } from "nanoid";
 
 export const useObjectStore = create((set) => ({
   objects: [],
-  addObject: (position, args, health) =>
+  addObject: (position, args, health, id, portfolioItemId) =>
     set((state) => ({
       objects: [
         ...state.objects,
-        { id: nanoid(), position, args, health, initialHealth: health },
+        { id: id || nanoid(), position, args, health, initialHealth: health, portfolioItemId },
       ],
     })),
   removeObject: (id) =>

@@ -5,12 +5,15 @@ import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
 import Desert from "./components/Desert";
 import Bullet from "./components/Bullet";
-import BreakableObject from "./components/BreakableObject"; // Import BreakableObject
+import BreakableObject from "./components/BreakableObject";
+import PortfolioPanel from "./components/PortfolioPanel"; // Import PortfolioPanel
 import { useBulletStore } from "./store/useBulletStore";
-import { useObjectStore } from "./store/useObjectStore"; // Import useObjectStore
+import { useObjectStore } from "./store/useObjectStore";
+import { usePortfolioPanelStore } from "./store/usePortfolioPanelStore"; // Import usePortfolioPanelStore
+import { portfolioData } from "./data/portfolioData";
+import { nanoid } from "nanoid";
 import "./index.css";
 
-// Define the controls map
 export const Controls = {
   forward: "forward",
   backward: "backward",
@@ -28,13 +31,18 @@ function App() {
   const objects = useObjectStore((state) => state.objects);
   const addObject = useObjectStore((state) => state.addObject);
 
-  // Initialize some breakable objects
+  const activePortfolioItemId = usePortfolioPanelStore((state) => state.activePortfolioItemId);
+  const clearactivePortfolioItemId = usePortfolioPanelStore((state) => state.clearactivePortfolioItemId);
+
+  // Initialize some breakable objects with portfolio data
   useEffect(() => {
-    addObject([-5, 0, -10], [1, 1, 1], 3); // Example object 1
-    addObject([5, 0, -15], [1.5, 1.5, 1.5], 5); // Example object 2
+    // Adding objects to match ProjectReq.md categories
+    addObject([-5, 0, -10], [1, 1, 1], 3, nanoid(), "project1"); // Projects
+    addObject([5, 0, -15], [1.5, 1.5, 1.5], 5, nanoid(), "skill1"); // Skills
+    addObject([-10, 0, -5], [1, 2, 1], 4, nanoid(), "experience1"); // Experience
+    addObject([10, 0, -5], [0.8, 0.8, 0.8], 2, nanoid(), "contact"); // Contact
   }, [addObject]);
 
-  // Define the keyboard map for the controls
   const map = useMemo(() => [
     { name: Controls.forward, keys: ["ArrowUp", "w"] },
     { name: Controls.backward, keys: ["ArrowDown", "s"] },
@@ -53,13 +61,25 @@ function App() {
       }
     }
 
-    // Bullet lifecycle management
     bullets.forEach((bullet) => {
       if (Date.now() - bullet.timestamp > 3000) {
         removeBullet(bullet.id);
       }
     });
   });
+
+  const getPortfolioItemContent = (id) => {
+    if (!id) return null;
+    const allItems = {
+      ...portfolioData.contact,
+      ...portfolioData.projects.reduce((acc, item) => ({ ...acc, [item.id]: item }), {}),
+      ...portfolioData.skills.reduce((acc, item) => ({ ...acc, [item.id]: item }), {}),
+      ...portfolioData.experience.reduce((acc, item) => ({ ...acc, [item.id]: item }), {}),
+    };
+    return allItems[id];
+  };
+
+  const activeContent = getPortfolioItemContent(activePortfolioItemId);
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
@@ -73,7 +93,7 @@ function App() {
             {bullets.map((bullet) => (
               <Bullet
                 key={bullet.id}
-                id={bullet.id} // Pass the id prop
+                id={bullet.id}
                 position={bullet.position}
                 velocity={bullet.velocity}
               />
@@ -85,12 +105,14 @@ function App() {
                 position={object.position}
                 args={object.args}
                 health={object.health}
+                portfolioItemId={object.portfolioItemId}
               />
             ))}
           </RapierPhysics>
           <OrbitControls ref={controlsRef} />
         </Canvas>
       </KeyboardControls>
+      <PortfolioPanel content={activeContent} onClose={clearactivePortfolioItemId} />
     </div>
   );
 }

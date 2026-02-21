@@ -1,12 +1,14 @@
 import React, { useRef, useState } from "react";
 import { RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useObjectStore } from "../store/useObjectStore"; // Import useObjectStore
+import { useObjectStore } from "../store/useObjectStore";
+import { usePortfolioPanelStore } from "../store/usePortfolioPanelStore"; // Import usePortfolioPanelStore
 
-function BreakableObject({ id, position, args, health: initialHealth = 10, ...props }) {
+function BreakableObject({ id, position, args, health: initialHealth = 10, portfolioItemId, ...props }) {
   const rigidBodyRef = useRef();
   const updateObjectHealth = useObjectStore((state) => state.updateObjectHealth);
   const removeObject = useObjectStore((state) => state.removeObject);
+  const setactivePortfolioItemId = usePortfolioPanelStore((state) => state.setactivePortfolioItemId);
 
   const [currentHealth, setCurrentHealth] = useState(initialHealth);
 
@@ -15,31 +17,32 @@ function BreakableObject({ id, position, args, health: initialHealth = 10, ...pr
   });
 
   const handleCollisionEnter = ({ other }) => {
-    // Check if the collision is with a bullet
     if (other.rigidBodyObject && other.rigidBodyObject.userData && other.rigidBodyObject.userData.type === "bullet") {
       setCurrentHealth((prevHealth) => {
         const newHealth = prevHealth - 1;
-        updateObjectHealth(id, newHealth); // Update health in the store
+        updateObjectHealth(id, newHealth);
         console.log(`Object ${id} hit! Health: ${newHealth}`);
         if (newHealth <= 0) {
-          removeObject(id); // Remove object from store if health is 0
+          removeObject(id);
           console.log(`Object ${id} destroyed!`);
+          if (portfolioItemId) {
+            setactivePortfolioItemId(portfolioItemId); // Set active portfolio item
+          }
         }
         return newHealth;
       });
     }
   };
 
-  // Simple visual feedback: change color based on health
   const materialColor = currentHealth > initialHealth / 2 ? "green" : currentHealth > 0 ? "orange" : "black";
 
   return (
     <RigidBody
       ref={rigidBodyRef}
       colliders="cuboid"
-      type="fixed" // Set to "dynamic" if it needs to move
+      type="fixed"
       onCollisionEnter={handleCollisionEnter}
-      userData={{ id, type: "breakable" }} // Add id and type to userData
+      userData={{ id, type: "breakable", portfolioItemId }} // Add portfolioItemId to userData
       position={position}
       {...props}
     >
