@@ -1,17 +1,48 @@
 import { RigidBody, CapsuleCollider, useRapier } from "@react-three/rapier";
 import { useKeyboardControls } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 
 const JUMP_FORCE = 5;
 const MOVEMENT_SPEED = 5;
-const ROTATION_SPEED = 3;
+// const ROTATION_SPEED = 3; // Not used
 
-export function Player() {
+export function Player({ onShoot }) {
   const body = useRef();
   const [subscribe, get] = useKeyboardControls();
   const rapier = useRapier();
+  const { camera, scene } = useThree(); // Get camera and scene from useThree
+
+  // Raycaster for shooting
+  const raycaster = new THREE.Raycaster();
+
+  useEffect(() => {
+    const handleShoot = (event) => {
+      // Check if the primary mouse button was clicked
+      if (event.button === 0) {
+        // Set raycaster from camera
+        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+        const hits = rapier.world.castRay(
+          new rapier.Ray(raycaster.ray.origin, raycaster.ray.direction),
+          100 // Max distance for raycast
+        );
+
+        if (hits && hits.collider) {
+          // console.log("Hit:", hits.collider.userData);
+          onShoot(hits); // Pass the entire hit object
+        }
+      }
+    };
+
+    window.addEventListener("click", handleShoot);
+
+    return () => {
+      window.removeEventListener("click", handleShoot);
+    };
+  }, [camera, rapier.world, onShoot]);
+
 
   useFrame((state, delta) => {
     if (!body.current) return;
@@ -46,6 +77,9 @@ export function Player() {
       z: direction.z
     }, true);
 
+    // Update camera position to follow the player body
+    camera.position.copy(body.current.translation());
+    
   });
 
   return (
