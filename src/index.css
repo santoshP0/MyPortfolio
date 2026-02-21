@@ -6,9 +6,60 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 canvas {
   width: 100%;
   height: 100%;
+  cursor: crosshair !important;
+}
+
+/* ── Crosshair overlay ── */
+.crosshair-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.crosshair-overlay::before,
+.crosshair-overlay::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 200, 60, 0.85);
+  border-radius: 1px;
+}
+
+/* Horizontal line */
+.crosshair-overlay::before {
+  width: 24px;
+  height: 2px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Vertical line */
+.crosshair-overlay::after {
+  width: 2px;
+  height: 24px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Center dot */
+.crosshair-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ffcc00;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(255, 200, 0, 0.7);
 }

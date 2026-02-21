@@ -1,5 +1,5 @@
 import React, { useRef, forwardRef, useImperativeHandle, memo, Suspense, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import * as THREE from "three";
 import { useKeyboardControls, PositionalAudio, useGLTF } from "@react-three/drei";
@@ -12,16 +12,15 @@ useGLTF.preload("/models/car/car.glb");
 
 const CarModel = () => {
   const { scene } = useGLTF("/models/car/car.glb");
-  // shift model down so wheels sit at collider bottom on terrain
-  return <primitive object={scene} scale={[0.5, 0.5, 0.5]} rotation={[0, Math.PI, 0]} position={[0, -0.9, 0]} />;
+  return <primitive object={scene} scale={[0.5, 0.5, 0.5]} rotation={[0, Math.PI, 0]} />;
 };
 
 const ACCELERATION = 2.2;
 const BRAKE_FORCE = 3.5;
 const MAX_SPEED = 18;
 const TURN_SPEED = 2.5;
-const BULLET_SPEED = 60;
-const SHOOT_COOLDOWN = 250;
+const BULLET_SPEED = 70;
+const SHOOT_COOLDOWN = 200;
 const BOUNDARY = 44;
 
 const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
@@ -36,48 +35,39 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
   const engVol = useRef(0.15);
   const engRate = useRef(0.5);
 
-  // Orbit state for unlocked-cursor camera
-  const orbit = useRef({ theta: 0, phi: 0.35 });
-  const isDragging = useRef(false);
-  const lastMouse = useRef({ x: 0, y: 0 });
+  // Mouse aim state
+  const mouseNDC = useRef(new THREE.Vector2(0, 0));
+  const mouseDown = useRef(false);
+  const raycaster = useRef(new THREE.Raycaster());
+  const aimPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
+  const aimPoint = useRef(new THREE.Vector3());
+  const { camera } = useThree();
 
-  // Lock only X and Z rotation (car stays upright on slopes)
-  // Done imperatively — avoids possible prop-name issues across Rapier versions
+  // Lock X/Z rotation after mount
   useEffect(() => {
-    const tryLock = () => {
+    const id = requestAnimationFrame(() => {
       if (rigidBodyRef.current?.setEnabledRotations) {
         rigidBodyRef.current.setEnabledRotations(false, true, false, true);
       }
-    };
-    // Wait one frame for physics body to initialize
-    const id = requestAnimationFrame(tryLock);
+    });
     return () => cancelAnimationFrame(id);
   }, []);
 
-  // Mouse orbit for unlocked-cursor mode
+  // Mouse tracking — NO pointer lock. Cursor is always visible.
   useEffect(() => {
-    const onDown = (e) => {
-      if (e.button === 0 && !document.pointerLockElement) {
-        isDragging.current = true;
-        lastMouse.current = { x: e.clientX, y: e.clientY };
-      }
-    };
-    const onUp = () => { isDragging.current = false; };
     const onMove = (e) => {
-      if (!isDragging.current || document.pointerLockElement) return;
-      const dx = e.clientX - lastMouse.current.x;
-      const dy = e.clientY - lastMouse.current.y;
-      lastMouse.current = { x: e.clientX, y: e.clientY };
-      orbit.current.theta -= dx * 0.005;
-      orbit.current.phi = Math.max(-0.1, Math.min(1.1, orbit.current.phi - dy * 0.005));
+      mouseNDC.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseNDC.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("mouseup", onUp);
-    document.addEventListener("mousemove", onMove);
+    const onDown = (e) => { if (e.button === 0) mouseDown.current = true; };
+    const onUp = (e) => { if (e.button === 0) mouseDown.current = false; };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
     return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("mouseup", onUp);
-      document.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
     };
   }, []);
 
@@ -109,7 +99,7 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
 
     let nx = _velXZ.x, nz = _velXZ.z;
 
-    // Lateral grip
+    // Lateral grip / drift
     const isBraking = backward && isMovingFwd;
     const isTurning = left || right;
     const isDrifting = isBraking && isTurning && speed > 5;
@@ -133,7 +123,7 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
     if (spd2 > MAX_SPEED) { const s = MAX_SPEED / spd2; nx *= s; nz *= s; }
     rigidBodyRef.current.setLinvel({ x: nx, y: vel.y, z: nz }, true);
 
-    // Steering — inverts when reversing so left always = visual left
+    // Steering — inverts when reversing
     const speedBlend = Math.min(speed / MAX_SPEED, 1);
     const effectiveTurn = TURN_SPEED * (1.0 - speedBlend * 0.55);
     const isReversing = signedSpeed < -0.4;
@@ -158,48 +148,49 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
       }, true);
     }
 
-    // Shoot — auto-aim toward nearest target
+    // ── Shoot: LEFT CLICK or SPACE ─────────────────────────────────
+    const wantsShoot = shoot || mouseDown.current;
     const now = Date.now();
-    if (shoot && now - lastShotTime.current > SHOOT_COOLDOWN) {
+    if (wantsShoot && now - lastShotTime.current > SHOOT_COOLDOWN) {
       lastShotTime.current = now;
 
-      // Find nearest alive target
-      const objects = useObjectStore.getState().objects;
-      let aimDir = { x: _fwd.x, y: 0, z: _fwd.z };
+      let aimX = _fwd.x, aimY = 0, aimZ = _fwd.z;
 
-      let bestDist = 30; // max auto-aim range
-      let bestTarget = null;
-      for (const obj of objects) {
-        if (obj.health <= 0 || !obj.position) continue;
-        const dx = obj.position[0] - pos.x;
-        const dz = obj.position[2] - pos.z;
-        const dist = Math.sqrt(dx * dx + dz * dz);
-        if (dist < bestDist) {
-          bestDist = dist;
-          bestTarget = obj;
+      // If mouse is being used, raycast onto an invisible horizontal plane
+      // at the car's Y height to find the 3D aim point
+      if (mouseDown.current) {
+        raycaster.current.setFromCamera(mouseNDC.current, camera);
+        aimPlane.current.constant = -pos.y; // plane at car height
+        const hit = raycaster.current.ray.intersectPlane(aimPlane.current, aimPoint.current);
+        if (hit) {
+          const dx = hit.x - pos.x;
+          const dz = hit.z - pos.z;
+          const len = Math.sqrt(dx * dx + dz * dz) || 1;
+          aimX = dx / len; aimZ = dz / len;
+        }
+      } else {
+        // Space bar: auto-aim at nearest alive target
+        const objects = useObjectStore.getState().objects;
+        let bestDist = 60, bestTarget = null;
+        for (const obj of objects) {
+          if (obj.health <= 0 || !obj.position) continue;
+          const dx = obj.position[0] - pos.x;
+          const dz = obj.position[2] - pos.z;
+          const dist = Math.sqrt(dx * dx + dz * dz);
+          if (dist < bestDist) { bestDist = dist; bestTarget = obj; }
+        }
+        if (bestTarget) {
+          const dx = bestTarget.position[0] - pos.x;
+          const dy = (bestTarget.position[1] || 0) - pos.y;
+          const dz = bestTarget.position[2] - pos.z;
+          const len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+          aimX = dx / len; aimY = dy / len; aimZ = dz / len;
         }
       }
 
-      if (bestTarget) {
-        // Blend 65% toward target, 35% forward direction
-        const toTarget = {
-          x: bestTarget.position[0] - pos.x,
-          z: bestTarget.position[2] - pos.z,
-        };
-        const len = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z) || 1;
-        toTarget.x /= len;
-        toTarget.z /= len;
-        aimDir.x = _fwd.x * 0.35 + toTarget.x * 0.65;
-        aimDir.z = _fwd.z * 0.35 + toTarget.z * 0.65;
-        // Normalize
-        const aimLen = Math.sqrt(aimDir.x * aimDir.x + aimDir.z * aimDir.z) || 1;
-        aimDir.x /= aimLen;
-        aimDir.z /= aimLen;
-      }
-
       addBullet(
-        [pos.x + aimDir.x * 2.5, pos.y + 0.8, pos.z + aimDir.z * 2.5],
-        [aimDir.x * BULLET_SPEED, 0, aimDir.z * BULLET_SPEED]
+        [pos.x + aimX * 2.5, pos.y + 0.8 + aimY * 2.5, pos.z + aimZ * 2.5],
+        [aimX * BULLET_SPEED, aimY * BULLET_SPEED, aimZ * BULLET_SPEED]
       );
       if (shootRef.current) {
         const { shootVolume } = useAudioStore.getState();
@@ -230,33 +221,15 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
       carStateRef.current.speed = speed;
     }
 
-    // ── Camera ───────────────────────────────────────────────────
-    if (document.pointerLockElement) {
-      // Locked: normal follow camera
-      const camDist = isDrifting ? 16 : 13;
-      _camOffset.set(0, 5.5, camDist).applyQuaternion(_quat);
-      _camTarget.set(pos.x + _camOffset.x, pos.y + _camOffset.y, pos.z + _camOffset.z);
-      camPos.current.lerp(_camTarget, isDrifting ? 0.05 : 0.07);
-      state.camera.position.copy(camPos.current);
-      _lookTgt.set(pos.x - _fwd.x * 4, pos.y + 1.5, pos.z - _fwd.z * 4);
-      camLook.current.lerp(_lookTgt, 0.07);
-      state.camera.lookAt(camLook.current);
-      // Sync orbit angles so camera snaps back nicely when re-locking
-      const dx = camPos.current.x - pos.x;
-      const dz = camPos.current.z - pos.z;
-      orbit.current.theta = Math.atan2(dx, dz);
-      orbit.current.phi = 0.35;
-    } else {
-      // Unlocked: orbit camera around car using mouse drag
-      // WASD still moves the car since keyboard events work without pointer lock
-      const dist = 14;
-      const { theta, phi } = orbit.current;
-      const cx = pos.x + Math.sin(theta) * Math.cos(phi) * dist;
-      const cy = pos.y + Math.sin(phi) * dist + 2;
-      const cz = pos.z + Math.cos(theta) * Math.cos(phi) * dist;
-      state.camera.position.lerp({ x: cx, y: cy, z: cz }, 0.1);
-      state.camera.lookAt(pos.x, pos.y + 1.5, pos.z);
-    }
+    // ── Camera: third-person follow ────────────────────────────────
+    const camDist = isDrifting ? 16 : 13;
+    _camOffset.set(0, 5.5, camDist).applyQuaternion(_quat);
+    _camTarget.set(pos.x + _camOffset.x, pos.y + _camOffset.y, pos.z + _camOffset.z);
+    camPos.current.lerp(_camTarget, isDrifting ? 0.05 : 0.07);
+    state.camera.position.copy(camPos.current);
+    _lookTgt.set(pos.x - _fwd.x * 4, pos.y + 1.5, pos.z - _fwd.z * 4);
+    camLook.current.lerp(_lookTgt, 0.07);
+    state.camera.lookAt(camLook.current);
   });
 
   return (
@@ -270,8 +243,8 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
       friction={0.8}
       {...props}
     >
-      {/* Manual collider at wheel level so car sits on terrain, not above it */}
-      <CuboidCollider args={[0.8, 0.4, 1.5]} position={[0, -0.1, 0]} />
+      {/* Collider centered on the car body — bottom edge sits ON terrain */}
+      <CuboidCollider args={[0.8, 0.35, 1.5]} position={[0, 0.35, 0]} />
       <Suspense fallback={null}><CarModel /></Suspense>
       <PositionalAudio ref={engineRef} url="/audio/engine_loop.mp3" loop autoplay distance={12} />
       <PositionalAudio ref={shootRef} url="/audio/shoot.mp3" loop={false} distance={12} />

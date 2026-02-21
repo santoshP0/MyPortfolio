@@ -2,6 +2,8 @@ import React, { useRef, useMemo, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, Html } from "@react-three/drei";
 import { Physics as RapierPhysics } from "@react-three/rapier";
+import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
 
 import Car from "./components/Car";
@@ -29,10 +31,9 @@ export const Controls = {
   shoot: "shoot",
 };
 
-// Objects spawn slightly above terrain, gravity drops them to the surface
+// Objects spawn 3 units above terrain, gravity settles them
 const spawnY = (x, z) => terrainHeight(x, z) + 3;
 
-// Object spawn data [x, z, health, portfolioId]
 const OBJECT_SPAWNS = [
   [-8, -18, 4, "project1"],
   [8, -22, 4, "skill1"],
@@ -44,8 +45,6 @@ const OBJECT_SPAWNS = [
 
 function App() {
   const carRef = useRef();
-
-  // Plain JS ref written by Car.jsx each frame — read by SandTrail (safe, no Rapier calls)
   const carStateRef = useRef({
     position: new THREE.Vector3(),
     quaternion: new THREE.Quaternion(),
@@ -56,7 +55,6 @@ function App() {
   const objects = useObjectStore((s) => s.objects);
   const addObject = useObjectStore((s) => s.addObject);
 
-  // Spawn portfolio objects at the correct terrain height
   useEffect(() => {
     if (objects.length > 0) return;
     OBJECT_SPAWNS.forEach(([x, z, hp, pid]) => {
@@ -99,7 +97,7 @@ function App() {
           />
           <directionalLight position={[-20, 10, -20]} intensity={0.4} color="#aaccff" />
 
-          {/* Atmospheric fog makes boundary invisible */}
+          {/* Atmospheric fog */}
           <fog attach="fog" args={["#f0c060", 70, 220]} />
 
           <RapierPhysics gravity={[0, -20, 0]}>
@@ -110,32 +108,46 @@ function App() {
                 </div>
               </Html>
             }>
-              {/* Terrain with trimesh physics */}
               <Desert />
-
-              {/* Car spawns high — gravity drops it onto terrain */}
               <Car ref={carRef} carStateRef={carStateRef} />
-
-              {/* Bullets */}
               {bullets.map((b) => (
                 <Bullet key={b.id} id={b.id} position={b.position} velocity={b.velocity} />
               ))}
-
-              {/* Breakable targets */}
               <BreakableObjects />
-
-              {/* Permanent in-world panels for destroyed targets */}
               <RevealedPanels />
             </Suspense>
           </RapierPhysics>
 
-          {/* Sand trail particles (outside physics, reads carStateRef) */}
           <SandTrail carStateRef={carStateRef} />
           <Scene carRef={carRef} />
+
+          {/* ── Post-processing: subtle bloom + vignette ── */}
+          <EffectComposer>
+            <Bloom
+              intensity={0.4}
+              luminanceThreshold={0.85}
+              luminanceSmoothing={0.3}
+              mipmapBlur
+            />
+            <Vignette
+              offset={0.25}
+              darkness={0.55}
+              blendFunction={BlendFunction.NORMAL}
+            />
+            <ChromaticAberration
+              offset={new THREE.Vector2(0.0006, 0.0006)}
+              blendFunction={BlendFunction.NORMAL}
+            />
+          </EffectComposer>
         </Canvas>
       </KeyboardControls>
 
-      {/* 2D HUD overlays */}
+      {/* ── Crosshair overlay ── */}
+      <div className="crosshair-overlay">
+        <div className="crosshair-dot" />
+      </div>
+
+      {/* ── 2D HUD ── */}
       <PauseSystem />
       <IntroOverlay />
       <ControlsHUD />

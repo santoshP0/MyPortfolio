@@ -1,64 +1,90 @@
-import React from "react";
-import { createPortal } from "react-dom";
-
-const CONTROLS = [
-    { key: "W / ↑", action: "Accelerate" },
-    { key: "S / ↓", action: "Brake / Reverse" },
-    { key: "A / ←", action: "Turn Left" },
-    { key: "D / →", action: "Turn Right" },
-    { key: "Space", action: "Shoot" },
-    { key: "Esc", action: "Pause / Resume" },
-];
+import React, { memo } from "react";
 
 /**
- * Always-visible controls hint — top-right corner.
- * No toggle button (mouse is locked during gameplay).
+ * Always-visible controls overlay — top-right corner.
+ * pointerEvents: none so it never blocks mouse aim.
  */
-function ControlsHUD() {
-    return createPortal(
+const ControlsHUD = memo(() => {
+    return (
         <div
             style={{
                 position: "absolute",
-                top: 16,
-                right: 16,
-                background: "rgba(10, 5, 0, 0.72)",
-                backdropFilter: "blur(8px)",
-                border: "1px solid rgba(255,180,60,0.28)",
+                top: 10,
+                right: 10,
+                background: "rgba(18, 9, 0, 0.75)",
+                border: "1px solid rgba(255, 140, 30, 0.25)",
                 borderRadius: 10,
-                padding: "12px 16px",
-                minWidth: 210,
-                zIndex: 1500,
+                padding: "10px 14px",
                 fontFamily: "'Segoe UI', sans-serif",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
-                pointerEvents: "none", // doesn't block clicks on the game
+                pointerEvents: "none",
+                zIndex: 500,
+                backdropFilter: "blur(4px)",
+                minWidth: 140,
             }}
         >
-            <div style={{ color: "#ffcc66", fontSize: 11, fontWeight: 700, letterSpacing: 2, marginBottom: 8, textTransform: "uppercase" }}>
-                🎮 Controls
+            <div
+                style={{
+                    color: "#ffcc66",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: 2,
+                    textTransform: "uppercase",
+                    marginBottom: 7,
+                    borderBottom: "1px solid rgba(255,140,30,0.2)",
+                    paddingBottom: 4,
+                }}
+            >
+                Controls
             </div>
-            {CONTROLS.map(({ key, action }) => (
-                <div key={key} style={{ display: "flex", justifyContent: "space-between", gap: 16, marginBottom: 5 }}>
-                    <kbd style={{
-                        background: "rgba(255,200,80,0.15)",
-                        border: "1px solid rgba(255,200,80,0.4)",
-                        borderRadius: 4,
-                        padding: "2px 7px",
-                        color: "#ffdd88",
-                        fontSize: 11,
-                        fontFamily: "monospace",
-                        whiteSpace: "nowrap",
-                    }}>
+            {[
+                ["W / ↑", "Accelerate"],
+                ["S / ↓", "Brake / Reverse"],
+                ["A / ←", "Turn Left"],
+                ["D / →", "Turn Right"],
+                ["Left Click", "Shoot (aim)"],
+                ["Space", "Auto-aim Shot"],
+                ["Esc", "Pause / Resume"],
+            ].map(([key, label]) => (
+                <div
+                    key={key}
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: 3,
+                    }}
+                >
+                    <kbd
+                        style={{
+                            background: "rgba(255,255,255,0.08)",
+                            border: "1px solid rgba(255,255,255,0.12)",
+                            borderRadius: 3,
+                            padding: "1px 5px",
+                            color: "#ffcc88",
+                            fontSize: 10,
+                            fontFamily: "monospace",
+                            marginRight: 8,
+                        }}
+                    >
                         {key}
                     </kbd>
-                    <span style={{ color: "#ddd", fontSize: 11, textAlign: "right" }}>{action}</span>
+                    <span style={{ color: "#aaa", fontSize: 10 }}>{label}</span>
                 </div>
             ))}
-            <div style={{ marginTop: 10, borderTop: "1px solid rgba(255,180,60,0.15)", paddingTop: 8, color: "#aaa", fontSize: 10 }}>
-                🎯 Destroy objects to unlock portfolio sections
+            <div
+                style={{
+                    color: "#555",
+                    fontSize: 8.5,
+                    marginTop: 6,
+                    borderTop: "1px solid rgba(255,140,30,0.15)",
+                    paddingTop: 4,
+                    textAlign: "center",
+                }}
+            >
+                🎯 Destroy targets to unlock portfolio
             </div>
-        </div>,
-        document.body
+        </div>
     );
-}
+});
 
+ControlsHUD.displayName = "ControlsHUD";
 export default ControlsHUD;

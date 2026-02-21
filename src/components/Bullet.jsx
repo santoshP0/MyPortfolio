@@ -44,7 +44,7 @@ const Bullet = memo(({ id, position, velocity }) => {
       ref={rigidBodyRef}
       colliders="ball"
       type="dynamic"
-      gravityScale={0.2}
+      gravityScale={0}
       restitution={0.1}
       onCollisionEnter={handleCollisionEnter}
       userData={{ type: "bullet" }}
