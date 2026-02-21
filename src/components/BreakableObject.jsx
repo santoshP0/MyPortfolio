@@ -1,59 +1,75 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { RigidBody } from "@react-three/rapier";
-import { useFrame } from "@react-three/fiber";
-import { useObjectStore } from "../store/useObjectStore";
-import { usePortfolioPanelStore } from "../store/usePortfolioPanelStore"; // Import usePortfolioPanelStore
-import { PositionalAudio } from "@react-three/drei"; // Import PositionalAudio
+import * as THREE from "three";
 
-function BreakableObject({ id, position, args, health: initialHealth = 10, portfolioItemId, ...props }) {
-  const rigidBodyRef = useRef();
-  const updateObjectHealth = useObjectStore((state) => state.updateObjectHealth);
-  const removeObject = useObjectStore((state) => state.removeObject);
-  const setactivePortfolioItemId = usePortfolioPanelStore((state) => state.setactivePortfolioItemId);
+/**
+ * A single breakable object with its own RigidBody.
+ * Each object has health, changes color as it takes damage,
+ * and disappears (scales to 0) when destroyed.
+ */
+function BreakableObject({ id, position, health, initialHealth, portfolioItemId, type = "stone" }) {
+  // When health is 0, stop rendering this object (physics + mesh)
+  if (health <= 0) return null;
 
-  const [currentHealth, setCurrentHealth] = useState(initialHealth);
-  const explosionAudioRef = useRef(); // Ref for explosion audio
+  const healthRatio = health / initialHealth;
 
-  useFrame(() => {
-    // Optional: Add any animation or behavior for the object
-  });
+  // Color shifts from earthy brown -> cracked orange -> burning red
+  let color;
+  if (healthRatio > 0.65) {
+    color = "#6B4226"; // healthy - dark sandstone
+  } else if (healthRatio > 0.3) {
+    color = "#C46A00"; // cracked - orange
+  } else {
+    color = "#8B0000"; // critical - dark red
+  }
 
-  const handleCollisionEnter = ({ other }) => {
-    if (other.rigidBodyObject && other.rigidBodyObject.userData && other.rigidBodyObject.userData.type === "bullet") {
-      setCurrentHealth((prevHealth) => {
-        const newHealth = prevHealth - 1;
-        updateObjectHealth(id, newHealth);
-        console.log(`Object ${id} hit! Health: ${newHealth}`);
-        if (newHealth <= 0) {
-          removeObject(id);
-          console.log(`Object ${id} destroyed!`);
-          explosionAudioRef.current.play(); // Play explosion sound
-          if (portfolioItemId) {
-            setactivePortfolioItemId(portfolioItemId); // Set active portfolio item
-          }
-        }
-        return newHealth;
-      });
-    }
+  // Different shapes per type for visual variety
+  const geometryArgs = {
+    stone: [1.5, 2.2, 1.5],
+    crate: [1.2, 1.2, 1.2],
+    board: [2.5, 1.5, 0.3],
+    tower: [0.8, 3.5, 0.8],
   };
-
-  const materialColor = currentHealth > initialHealth / 2 ? "green" : currentHealth > 0 ? "orange" : "black";
+  const args = geometryArgs[type] || geometryArgs.stone;
 
   return (
     <RigidBody
-      ref={rigidBodyRef}
-      colliders="cuboid"
       type="fixed"
-      onCollisionEnter={handleCollisionEnter}
-      userData={{ id, type: "breakable", portfolioItemId }}
+      colliders="cuboid"
       position={position}
-      {...props}
+      userData={{ type: "breakable", id, portfolioItemId }}
     >
-      <mesh castShadow>
+      <mesh castShadow receiveShadow>
         <boxGeometry args={args} />
-        <meshStandardMaterial color={materialColor} />
+        <meshStandardMaterial
+          color={color}
+          roughness={0.95}
+          metalness={0.05}
+          envMapIntensity={0.3}
+        />
       </mesh>
-      <PositionalAudio ref={explosionAudioRef} url="/audio/explosion.mp3" /> {/* Explosion sound */}
+      {/* Crack overlay that becomes visible as health drops */}
+      {healthRatio < 0.65 && (
+        <mesh position={[0, 0, args[2] / 2 + 0.01]}>
+          <planeGeometry args={[args[0], args[1]]} />
+          <meshStandardMaterial
+            color="#1a0a00"
+            transparent
+            opacity={1 - healthRatio}
+            roughness={1}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+      {/* Health indicator ring above object */}
+      <mesh position={[0, args[1] / 2 + 0.5, 0]}>
+        <torusGeometry args={[0.4, 0.07, 8, 16, Math.PI * 2 * healthRatio]} />
+        <meshStandardMaterial
+          color={healthRatio > 0.5 ? "#00ff88" : healthRatio > 0.25 ? "#ffaa00" : "#ff2200"}
+          emissive={healthRatio > 0.5 ? "#00ff88" : healthRatio > 0.25 ? "#ffaa00" : "#ff2200"}
+          emissiveIntensity={0.8}
+        />
+      </mesh>
     </RigidBody>
   );
 }

@@ -1,11 +1,11 @@
 import React, { useRef, useMemo, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, KeyboardControls, PositionalAudio, Html } from "@react-three/drei";
-import { Physics as RapierPhysics } from "@react-three/rapier";
+import { KeyboardControls, PositionalAudio, Html, Environment } from "@react-three/drei";
+import { Physics as RapierPhysics, RigidBody } from "@react-three/rapier";
 import Car from "./components/Car";
 import Desert from "./components/Desert";
 import Bullet from "./components/Bullet";
-import InstancedBreakableObjects from "./components/InstancedBreakableObjects";
+import BreakableObjects from "./components/BreakableObjects";
 import PortfolioPanel from "./components/PortfolioPanel";
 import IntroOverlay from "./components/IntroOverlay";
 import HealthBarHUD from "./components/HealthBarHUD";
@@ -25,9 +25,31 @@ export const Controls = {
   shoot: "shoot",
 };
 
+// Invisible boundary walls at the edges of the 100x100 desert
+function BoundaryWalls() {
+  const wallDefs = [
+    // [position, size] — thin invisible cubes
+    { pos: [0, 3, -50], size: [100, 6, 1] },   // North
+    { pos: [0, 3, 50], size: [100, 6, 1] },   // South
+    { pos: [-50, 3, 0], size: [1, 6, 100] },   // West
+    { pos: [50, 3, 0], size: [1, 6, 100] },   // East
+  ];
+  return (
+    <>
+      {wallDefs.map((w, i) => (
+        <RigidBody key={i} type="fixed" colliders="cuboid" position={w.pos}>
+          <mesh visible={false}>
+            <boxGeometry args={w.size} />
+            <meshStandardMaterial />
+          </mesh>
+        </RigidBody>
+      ))}
+    </>
+  );
+}
+
 function App() {
   const carRef = useRef();
-  const controlsRef = useRef();
   const bullets = useBulletStore((state) => state.bullets);
 
   const objects = useObjectStore((state) => state.objects);
@@ -36,18 +58,22 @@ function App() {
   const activePortfolioItemId = usePortfolioPanelStore((state) => state.activePortfolioItemId);
   const clearactivePortfolioItemId = usePortfolioPanelStore((state) => state.clearactivePortfolioItemId);
 
+  // Spawn breakable portfolio objects with unique IDs
   useEffect(() => {
-    addObject([-5, 0, -10], [1, 1, 1], 3, nanoid(), "project1");
-    addObject([5, 0, -15], [1.5, 1.5, 1.5], 5, nanoid(), "skill1");
-    addObject([-10, 0, -5], [1, 2, 1], 4, nanoid(), "experience1");
-    addObject([10, 0, -5], [0.8, 0.8, 0.8], 2, nanoid(), "contact");
+    if (objects.length > 0) return; // prevent double-spawn on hot reload
+    addObject([-8, 0, -18], [1, 1, 1], 4, nanoid(), "project1");
+    addObject([8, 0, -22], [1, 1, 1], 4, nanoid(), "skill1");
+    addObject([-14, 0, -8], [1, 1, 1], 3, nanoid(), "experience1");
+    addObject([14, 0, -8], [1, 1, 1], 3, nanoid(), "contact");
+    addObject([0, 0, -30], [1, 1, 1], 5, nanoid(), "project2");
+    addObject([0, 0, -12], [1, 1, 1], 3, nanoid(), "skill2");
   }, [addObject]);
 
   const map = useMemo(() => [
-    { name: Controls.forward, keys: ["ArrowUp", "w"] },
-    { name: Controls.backward, keys: ["ArrowDown", "s"] },
-    { name: Controls.left, keys: ["ArrowLeft", "a"] },
-    { name: Controls.right, keys: ["ArrowRight", "d"] },
+    { name: Controls.forward, keys: ["ArrowUp", "KeyW"] },
+    { name: Controls.backward, keys: ["ArrowDown", "KeyS"] },
+    { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
+    { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
     { name: Controls.shoot, keys: ["Space"] },
   ], []);
 
@@ -63,20 +89,43 @@ function App() {
   }, [activePortfolioItemId]);
 
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
+    <div style={{ height: "100vh", width: "100vw", background: "#1a0a00" }}>
       <KeyboardControls map={map}>
-        <Canvas shadows camera={{ position: [0, 5, 10], fov: 75 }}>
-          <ambientLight intensity={0.5} />
+        <Canvas
+          shadows
+          gl={{ antialias: true, powerPreference: "high-performance" }}
+          camera={{ position: [0, 8, 18], fov: 70, near: 0.1, far: 500 }}
+          dpr={[1, 1.5]}
+        >
+          {/* Warm sunset ambient */}
+          <ambientLight intensity={0.55} color="#ffcc88" />
+
+          {/* Key directional light (sun) */}
           <directionalLight
-            position={[10, 10, 5]}
-            intensity={1}
+            position={[30, 25, 10]}
+            intensity={2.2}
+            color="#ffddaa"
             castShadow
-            shadow-mapSize-width={1024}
-            shadow-mapSize-height={1024}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            shadow-camera-near={0.5}
+            shadow-camera-far={120}
+            shadow-camera-left={-60}
+            shadow-camera-right={60}
+            shadow-camera-top={60}
+            shadow-camera-bottom={-60}
           />
-          <RapierPhysics>
-            <Suspense fallback={<Html><div>Loading...</div></Html>}>
-              <Desert position={[0, -0.5, 0]} />
+
+          {/* Fill light from opposite side */}
+          <directionalLight position={[-20, 10, -20]} intensity={0.4} color="#aaccff" />
+
+          {/* Atmospheric fog */}
+          <fog attach="fog" args={["#f0c060", 60, 200]} />
+
+          <RapierPhysics gravity={[0, -18, 0]}>
+            <Suspense fallback={<Html center><div style={{ color: "white", fontSize: 24 }}>Loading 3D Scene...</div></Html>}>
+              <Desert />
+              <BoundaryWalls />
               <Car ref={carRef} />
               {bullets.map((bullet) => (
                 <Bullet
@@ -86,10 +135,11 @@ function App() {
                   velocity={bullet.velocity}
                 />
               ))}
-              <InstancedBreakableObjects />
-              <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay />
+              <BreakableObjects />
+              <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay distance={100} />
             </Suspense>
           </RapierPhysics>
+
           <Scene carRef={carRef} />
         </Canvas>
       </KeyboardControls>

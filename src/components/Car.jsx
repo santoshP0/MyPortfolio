@@ -1,15 +1,24 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle, memo, Suspense } from "react";
-import { useFrame, useLoader } from "@react-three/fiber";
+import React, { useRef, forwardRef, useImperativeHandle, memo, Suspense } from "react";
+import { useFrame } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
-import { useKeyboardControls, PositionalAudio } from "@react-three/drei";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { useKeyboardControls, PositionalAudio, useGLTF } from "@react-three/drei";
 import { Controls } from "../App";
 import { useBulletStore } from "../store/useBulletStore";
 
+// Preload the car model
+useGLTF.preload("/models/car/car.glb");
+
 const CarModel = () => {
-  const gltf = useLoader(GLTFLoader, "/models/car/car.glb");
-  return <primitive object={gltf.scene} scale={[0.5, 0.5, 0.5]} />;
+  const { scene } = useGLTF("/models/car/car.glb");
+  return (
+    <primitive
+      object={scene}
+      scale={[0.5, 0.5, 0.5]}
+      // Many GLTF car models face +Z by default; rotate to face -Z (forward in Three.js)
+      rotation={[0, Math.PI, 0]}
+    />
+  );
 };
 
 const Car = memo(forwardRef((props, fwdRef) => {
@@ -19,103 +28,145 @@ const Car = memo(forwardRef((props, fwdRef) => {
   const [_, get] = useKeyboardControls();
   const addBullet = useBulletStore((state) => state.addBullet);
 
-  const forwardForce = 15;
-  const backwardForce = 10;
-  const turnTorque = 3;
-  const maxSpeed = 10;
-  const maxTurnSpeed = 2;
-  const bulletSpeed = 50;
+  // Physics constants
+  const ACCELERATION = 1.8;   // velocity added per frame
+  const BRAKE_FORCE = 1.5;    // velocity removed per frame when braking
+  const MAX_SPEED = 14;       // m/s max linear speed
+  const TURN_SPEED = 2.2;     // angular velocity when turning
+  const BULLET_SPEED = 60;    // bullet initial velocity
+  const GRAVITY_COMP = 9.8;   // keep car grounded
 
   const lastShotTime = useRef(0);
-  const shootCooldown = 200; // milliseconds
+  const SHOOT_COOLDOWN = 250; // ms
 
   const engineAudioRef = useRef();
-  const shootAudioRef = useRef(); // Ref for shoot audio
+  const shootAudioRef = useRef();
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const { forward, backward, left, right, shoot } = get();
 
     if (!rigidBodyRef.current) return;
 
-    const velocity = rigidBodyRef.current.linvel();
-    const rotation = rigidBodyRef.current.rotation();
-    const quaternion = new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-    const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
+    const vel = rigidBodyRef.current.linvel();
+    const rot = rigidBodyRef.current.rotation();
+    const quat = new THREE.Quaternion(rot.x, rot.y, rot.z, rot.w);
 
-    // Engine sound volume based on speed
-    if (engineAudioRef.current) {
-      const speed = new THREE.Vector3(velocity.x, 0, velocity.z).length();
-      engineAudioRef.current.setVolume(Math.min(speed / (maxSpeed / 2), 1));
-    }
+    // Car's forward direction in world space (-Z local → world)
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(quat);
 
-    // Movement logic
-    let newVelocity = new THREE.Vector3(velocity.x, velocity.y, velocity.z);
+    // ── Speed management ──────────────────────────────────────────
+    let speed = new THREE.Vector3(vel.x, 0, vel.z).length();
+
+    // Project current velocity onto car's forward to get signed speed
+    const velXZ = new THREE.Vector3(vel.x, 0, vel.z);
+    const signedSpeed = velXZ.dot(fwd); // positive = moving forward
+
+    let newVelXZ = velXZ.clone();
+
     if (forward) {
-      newVelocity.add(forwardVector.clone().multiplyScalar(forwardForce * 0.1));
-    }
-    if (backward) {
-      newVelocity.add(forwardVector.clone().multiplyScalar(-backwardForce * 0.1));
+      newVelXZ.add(fwd.clone().multiplyScalar(ACCELERATION));
+    } else if (backward) {
+      // Braking if moving forward, reversing if stopped
+      if (signedSpeed > 0.1) {
+        newVelXZ.add(fwd.clone().multiplyScalar(-BRAKE_FORCE)); // brake
+      } else {
+        newVelXZ.add(fwd.clone().multiplyScalar(-ACCELERATION * 0.6)); // reverse
+      }
+    } else {
+      // Natural drag on XZ plane only
+      newVelXZ.multiplyScalar(0.92);
     }
 
-    // Limit speed
-    if (newVelocity.length() > maxSpeed) {
-      newVelocity.normalize().multiplyScalar(maxSpeed);
+    // Clamp to max speed
+    if (newVelXZ.length() > MAX_SPEED) {
+      newVelXZ.normalize().multiplyScalar(MAX_SPEED);
     }
-    rigidBodyRef.current.setLinvel(newVelocity, true);
 
-    // Turning logic
-    if (left) {
-      rigidBodyRef.current.setAngvel({ x: 0, y: turnTorque, z: 0 }, true);
-    } else if (right) {
-      rigidBodyRef.current.setAngvel({ x: 0, y: -turnTorque, z: 0 }, true);
+    // Keep Y velocity (gravity falls through), only override XZ
+    rigidBodyRef.current.setLinvel(
+      { x: newVelXZ.x, y: vel.y, z: newVelXZ.z },
+      true
+    );
+
+    // ── Turning (only when moving) ────────────────────────────────
+    const isMoving = speed > 0.3;
+    if (isMoving) {
+      if (left) {
+        rigidBodyRef.current.setAngvel({ x: 0, y: TURN_SPEED, z: 0 }, true);
+      } else if (right) {
+        rigidBodyRef.current.setAngvel({ x: 0, y: -TURN_SPEED, z: 0 }, true);
+      } else {
+        rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      }
     } else {
       rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
     }
 
-    // Shooting logic
-    if (shoot && Date.now() - lastShotTime.current > shootCooldown) {
-      lastShotTime.current = Date.now();
-      const carPosition = rigidBodyRef.current.translation();
+    // ── Shooting ─────────────────────────────────────────────────
+    const now = Date.now();
+    if (shoot && now - lastShotTime.current > SHOOT_COOLDOWN) {
+      lastShotTime.current = now;
+      const pos = rigidBodyRef.current.translation();
 
-      const bulletPosition = new THREE.Vector3(
-        carPosition.x + forwardVector.x * 2,
-        carPosition.y + 1,
-        carPosition.z + forwardVector.z * 2
+      const bulletPos = new THREE.Vector3(
+        pos.x + fwd.x * 2.5,
+        pos.y + 0.8,
+        pos.z + fwd.z * 2.5
       );
+      const bulletVel = fwd.clone().multiplyScalar(BULLET_SPEED);
+      addBullet(bulletPos.toArray(), bulletVel.toArray());
 
-      const bulletVelocity = forwardVector.clone().multiplyScalar(bulletSpeed);
-      addBullet(bulletPosition.toArray(), bulletVelocity.toArray());
       if (shootAudioRef.current) shootAudioRef.current.play();
     }
 
-    // Camera follow
-    const carPosition = rigidBodyRef.current.translation();
-    const cameraOffset = new THREE.Vector3(0, 5, 10).applyQuaternion(quaternion);
-    const cameraPosition = new THREE.Vector3(
-      carPosition.x + cameraOffset.x,
-      carPosition.y + cameraOffset.y,
-      carPosition.z + cameraOffset.z
+    // ── Engine audio ──────────────────────────────────────────────
+    if (engineAudioRef.current) {
+      engineAudioRef.current.setVolume(0.2 + Math.min(speed / MAX_SPEED, 1) * 0.8);
+    }
+
+    // ── Third-person camera follow ────────────────────────────────
+    // Position camera behind and above, looking slightly in front of the car
+    const carPos = rigidBodyRef.current.translation();
+    const camOffset = new THREE.Vector3(0, 5.5, 13).applyQuaternion(quat);
+    const camTarget = new THREE.Vector3(
+      carPos.x + camOffset.x,
+      carPos.y + camOffset.y,
+      carPos.z + camOffset.z
     );
-    state.camera.position.lerp(cameraPosition, 0.1);
-    state.camera.lookAt(carPosition.x, carPosition.y + 1, carPosition.z);
+
+    // Smooth follow (lerp speed 0.07 = smooth, 0.15 = snappy)
+    state.camera.position.lerp(camTarget, 0.09);
+
+    // Look at a point slightly ahead of the car, not the car itself
+    const lookAt = new THREE.Vector3(
+      carPos.x - fwd.x * 3,
+      carPos.y + 1.2,
+      carPos.z - fwd.z * 3
+    );
+    state.camera.lookAt(lookAt);
   });
 
   return (
     <RigidBody
       ref={rigidBodyRef}
       colliders="cuboid"
-      position={[0, 2, 0]}
-      linearDamping={0.5}
-      angularDamping={0.5}
+      position={[0, 2, 8]}
+      linearDamping={0.4}
+      angularDamping={0.9}
+      restitution={0}
+      friction={0.7}
+      // Lock rotation on X and Z so the car stays upright
+      lockRotations={false}
       {...props}
     >
       <Suspense fallback={null}>
         <CarModel />
       </Suspense>
-      <PositionalAudio ref={engineAudioRef} url="/audio/engine_loop.mp3" loop autoplay />
-      <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" />
+      <PositionalAudio ref={engineAudioRef} url="/audio/engine_loop.mp3" loop autoplay distance={10} />
+      <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" distance={10} />
     </RigidBody>
   );
 }));
 
+Car.displayName = "Car";
 export default Car;
