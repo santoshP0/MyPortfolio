@@ -2,6 +2,7 @@ import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls } from "@react-three/drei";
 import Scene from "./game/Scene";
+import ProjectModal from "./components/game/ui/ProjectModal"; // Import ProjectModal
 import Footer from "./components/Footer";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -23,6 +24,7 @@ function App() {
         </Canvas>
       </KeyboardControls>
       <div className="crosshair">+</div>
+      <ProjectModal /> {/* Render ProjectModal here */}
       <Footer />
     </div>
   );
