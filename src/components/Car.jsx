@@ -6,13 +6,14 @@ import { useKeyboardControls, PositionalAudio, useGLTF } from "@react-three/drei
 import { Controls } from "../App";
 import { useBulletStore } from "../store/useBulletStore";
 import { useAudioStore } from "../store/useAudioStore";
+import { useObjectStore } from "../store/useObjectStore";
 
 useGLTF.preload("/models/car/car.glb");
 
 const CarModel = () => {
   const { scene } = useGLTF("/models/car/car.glb");
-  // shift model down 0.5 so wheels sit at the collider bottom
-  return <primitive object={scene} scale={[0.5, 0.5, 0.5]} rotation={[0, Math.PI, 0]} position={[0, -0.5, 0]} />;
+  // shift model down so wheels sit at collider bottom on terrain
+  return <primitive object={scene} scale={[0.5, 0.5, 0.5]} rotation={[0, Math.PI, 0]} position={[0, -0.9, 0]} />;
 };
 
 const ACCELERATION = 2.2;
@@ -157,13 +158,48 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
       }, true);
     }
 
-    // Shoot
+    // Shoot — auto-aim toward nearest target
     const now = Date.now();
     if (shoot && now - lastShotTime.current > SHOOT_COOLDOWN) {
       lastShotTime.current = now;
+
+      // Find nearest alive target
+      const objects = useObjectStore.getState().objects;
+      let aimDir = { x: _fwd.x, y: 0, z: _fwd.z };
+
+      let bestDist = 30; // max auto-aim range
+      let bestTarget = null;
+      for (const obj of objects) {
+        if (obj.health <= 0 || !obj.position) continue;
+        const dx = obj.position[0] - pos.x;
+        const dz = obj.position[2] - pos.z;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestTarget = obj;
+        }
+      }
+
+      if (bestTarget) {
+        // Blend 65% toward target, 35% forward direction
+        const toTarget = {
+          x: bestTarget.position[0] - pos.x,
+          z: bestTarget.position[2] - pos.z,
+        };
+        const len = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z) || 1;
+        toTarget.x /= len;
+        toTarget.z /= len;
+        aimDir.x = _fwd.x * 0.35 + toTarget.x * 0.65;
+        aimDir.z = _fwd.z * 0.35 + toTarget.z * 0.65;
+        // Normalize
+        const aimLen = Math.sqrt(aimDir.x * aimDir.x + aimDir.z * aimDir.z) || 1;
+        aimDir.x /= aimLen;
+        aimDir.z /= aimLen;
+      }
+
       addBullet(
-        [pos.x + _fwd.x * 2.5, pos.y + 0.8, pos.z + _fwd.z * 2.5],
-        [_fwd.x * BULLET_SPEED, 0, _fwd.z * BULLET_SPEED]
+        [pos.x + aimDir.x * 2.5, pos.y + 0.8, pos.z + aimDir.z * 2.5],
+        [aimDir.x * BULLET_SPEED, 0, aimDir.z * BULLET_SPEED]
       );
       if (shootRef.current) {
         const { shootVolume } = useAudioStore.getState();

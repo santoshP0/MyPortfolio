@@ -12,7 +12,6 @@ import SandTrail from "./components/SandTrail";
 import RevealedPanels from "./components/RevealedPanels";
 import PauseSystem from "./components/PauseSystem";
 import IntroOverlay from "./components/IntroOverlay";
-import HealthBarHUD from "./components/HealthBarHUD";
 import ControlsHUD from "./components/ControlsHUD";
 import Scene from "./components/Scene";
 
@@ -139,7 +138,6 @@ function App() {
       {/* 2D HUD overlays */}
       <PauseSystem />
       <IntroOverlay />
-      <HealthBarHUD />
       <ControlsHUD />
     </div>
   );
