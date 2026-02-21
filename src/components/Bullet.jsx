@@ -3,12 +3,14 @@ import { RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useBulletStore } from "../store/useBulletStore";
 import { useObjectStore } from "../store/useObjectStore";
+import { useTargetedObjectStore } from "../store/useTargetedObjectStore"; // Import useTargetedObjectStore
 
 const Bullet = memo((props) => {
   const rigidBodyRef = useRef();
   const removeBullet = useBulletStore((state) => state.removeBullet);
   const updateObjectHealth = useObjectStore((state) => state.updateObjectHealth);
   const removeObject = useObjectStore((state) => state.removeObject);
+  const setTargetedObject = useTargetedObjectStore((state) => state.setTargetedObject);
 
   useEffect(() => {
     if (rigidBodyRef.current && props.velocity) {
@@ -27,6 +29,7 @@ const Bullet = memo((props) => {
         if (currentObject) {
           const newHealth = currentObject.health - 1;
           updateObjectHealth(targetObjectId, newHealth);
+          setTargetedObject(targetObjectId, newHealth, currentObject.initialHealth); // Set targeted object
           if (newHealth <= 0) {
             removeObject(targetObjectId);
           }

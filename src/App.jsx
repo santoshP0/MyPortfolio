@@ -7,7 +7,8 @@ import Desert from "./components/Desert";
 import Bullet from "./components/Bullet";
 import InstancedBreakableObjects from "./components/InstancedBreakableObjects";
 import PortfolioPanel from "./components/PortfolioPanel";
-import IntroOverlay from "./components/IntroOverlay"; // Import IntroOverlay
+import IntroOverlay from "./components/IntroOverlay";
+import HealthBarHUD from "./components/HealthBarHUD"; // Import HealthBarHUD
 import { useBulletStore } from "./store/useBulletStore";
 import { useObjectStore } from "./store/useObjectStore";
 import { usePortfolioPanelStore } from "./store/usePortfolioPanelStore";
@@ -116,7 +117,8 @@ function App() {
         </Canvas>
       </KeyboardControls>
       <PortfolioPanel content={activeContent} onClose={clearactivePortfolioItemId} />
-      <IntroOverlay /> {/* Render the IntroOverlay */}
+      <IntroOverlay />
+      <HealthBarHUD /> {/* Render the HealthBarHUD */}
     </div>
   );
 }
