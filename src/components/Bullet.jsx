@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useBulletStore } from "../store/useBulletStore";
-import { useObjectStore } from "../store/useObjectStore"; // Import useObjectStore
+import { useObjectStore } from "../store/useObjectStore";
 
 function Bullet(props) {
   const rigidBodyRef = useRef();
@@ -17,18 +17,22 @@ function Bullet(props) {
   }, [props.velocity]);
 
   const handleCollisionEnter = ({ other }) => {
-    console.log("Bullet collided with:", other.rigidBodyObject.userData);
+    // console.log("Bullet collided with:", other);
 
-    if (other.rigidBodyObject && other.rigidBodyObject.userData && other.rigidBodyObject.userData.type === "breakable") {
-      const objectId = other.rigidBodyObject.userData.id;
-      const currentObject = useObjectStore.getState().objects.find(obj => obj.id === objectId);
+    if (other.rigidBody && other.rigidBody.userData && other.rigidBody.userData.type === "breakable") {
+      const targetObjectId = other.rigidBody.userData.id;
 
-      if (currentObject) {
-        const newHealth = currentObject.health - 1;
-        updateObjectHealth(objectId, newHealth);
-        if (newHealth <= 0) {
-          removeObject(objectId);
+      if (targetObjectId) {
+        const currentObject = useObjectStore.getState().objects.find(obj => obj.id === targetObjectId);
+        if (currentObject) {
+          const newHealth = currentObject.health - 1;
+          updateObjectHealth(targetObjectId, newHealth);
+          if (newHealth <= 0) {
+            removeObject(targetObjectId);
+          }
         }
+      } else {
+          console.warn("Could not identify breakable object in collision:", other);
       }
     }
     // Always remove the bullet after any collision

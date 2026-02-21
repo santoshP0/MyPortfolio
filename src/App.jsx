@@ -5,7 +5,7 @@ import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
 import Desert from "./components/Desert";
 import Bullet from "./components/Bullet";
-import BreakableObject from "./components/BreakableObject";
+import InstancedBreakableObjects from "./components/InstancedBreakableObjects"; // Import InstancedBreakableObjects
 import PortfolioPanel from "./components/PortfolioPanel";
 import { useBulletStore } from "./store/useBulletStore";
 import { useObjectStore } from "./store/useObjectStore";
@@ -34,12 +34,18 @@ function App() {
   const activePortfolioItemId = usePortfolioPanelStore((state) => state.activePortfolioItemId);
   const clearactivePortfolioItemId = usePortfolioPanelStore((state) => state.clearactivePortfolioItemId);
 
+  // Initialize some breakable objects with portfolio data - moved to InstancedBreakableObjects
   useEffect(() => {
+    // This useEffect will now be responsible for initial setup or
+    // any logic that creates the initial set of objects for the instanced component.
+    // For demonstration, I will keep the addObject calls here, but ideally they
+    // would be handled within InstancedBreakableObjects or a separate setup function.
     addObject([-5, 0, -10], [1, 1, 1], 3, nanoid(), "project1");
     addObject([5, 0, -15], [1.5, 1.5, 1.5], 5, nanoid(), "skill1");
     addObject([-10, 0, -5], [1, 2, 1], 4, nanoid(), "experience1");
     addObject([10, 0, -5], [0.8, 0.8, 0.8], 2, nanoid(), "contact");
   }, [addObject]);
+
 
   const map = useMemo(() => [
     { name: Controls.forward, keys: ["ArrowUp", "w"] },
@@ -96,16 +102,8 @@ function App() {
                 velocity={bullet.velocity}
               />
             ))}
-            {objects.map((object) => (
-              <BreakableObject
-                key={object.id}
-                id={object.id}
-                position={object.position}
-                args={object.args}
-                health={object.health}
-                portfolioItemId={object.portfolioItemId}
-              />
-            ))}
+            {/* Render InstancedBreakableObjects instead of individual BreakableObject components */}
+            <InstancedBreakableObjects />
             {/* Ambient desert wind audio */}
             <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay />
           </RapierPhysics>
