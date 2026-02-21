@@ -71,7 +71,12 @@ function App() {
             <Desert position={[0, -0.5, 0]} />
             <Car ref={carRef} />
             {bullets.map((bullet) => (
-              <Bullet key={bullet.id} position={bullet.position} velocity={bullet.velocity} />
+              <Bullet
+                key={bullet.id}
+                id={bullet.id} // Pass the id prop
+                position={bullet.position}
+                velocity={bullet.velocity}
+              />
             ))}
             {objects.map((object) => (
               <BreakableObject
