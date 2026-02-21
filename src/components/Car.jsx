@@ -12,8 +12,11 @@ const Car = forwardRef((props, fwdRef) => {
   const [_, get] = useKeyboardControls();
   const { scene } = useGLTF("/models/car/car.glb");
 
-  const speed = 10;
-  const rotationSpeed = 1;
+  const forwardForce = 15;
+  const backwardForce = 10;
+  const turnTorque = 3;
+  const maxSpeed = 10;
+  const maxTurnSpeed = 2;
 
   useFrame(() => {
     const { forward, backward, left, right } = get();
@@ -31,21 +34,38 @@ const Car = forwardRef((props, fwdRef) => {
       currentRotation.w
     );
 
+    const currentVelocity = rigidBodyRef.current.linvel();
+    const currentAngularVelocity = rigidBodyRef.current.angvel();
+
     if (forward) {
       const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
-      impulse.x += forwardVector.x * speed;
-      impulse.z += forwardVector.z * speed;
+      impulse.x += forwardVector.x * forwardForce;
+      impulse.z += forwardVector.z * forwardForce;
     }
     if (backward) {
       const backwardVector = new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion);
-      impulse.x += backwardVector.x * speed;
-      impulse.z += backwardVector.z * speed;
+      impulse.x += backwardVector.x * backwardForce;
+      impulse.z += backwardVector.z * backwardForce;
     }
     if (left) {
-      torque.y += rotationSpeed;
+      torque.y += turnTorque;
     }
     if (right) {
-      torque.y -= rotationSpeed;
+      torque.y -= turnTorque;
+    }
+
+    // Limit linear velocity
+    const linvel = new THREE.Vector3(currentVelocity.x, currentVelocity.y, currentVelocity.z);
+    if (linvel.length() > maxSpeed) {
+      linvel.normalize().multiplyScalar(maxSpeed);
+      rigidBodyRef.current.setLinvel({ x: linvel.x, y: linvel.y, z: linvel.z }, true);
+    }
+
+    // Limit angular velocity
+    const angvel = new THREE.Vector3(currentAngularVelocity.x, currentAngularVelocity.y, currentAngularVelocity.z);
+    if (angvel.length() > maxTurnSpeed) {
+      angvel.normalize().multiplyScalar(maxTurnSpeed);
+      rigidBodyRef.current.setAngvel({ x: angvel.x, y: angvel.y, z: angvel.z }, true);
     }
 
     rigidBodyRef.current.applyImpulse(impulse, true);
@@ -53,7 +73,13 @@ const Car = forwardRef((props, fwdRef) => {
   });
 
   return (
-    <RigidBody ref={rigidBodyRef} colliders="cuboid" {...props}>
+    <RigidBody
+      ref={rigidBodyRef}
+      colliders="cuboid"
+      linearDamping={0.5}
+      angularDamping={0.5}
+      {...props}
+    >
       <primitive object={scene} scale={[0.5, 0.5, 0.5]} />
     </RigidBody>
   );
