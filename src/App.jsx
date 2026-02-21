@@ -1,8 +1,9 @@
 import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, KeyboardControls } from "@react-three/drei";
-import { Physics as RapierPhysics, usePlane } from "@react-three/rapier";
+import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
+import Desert from "./components/Desert"; // Import the Desert component
 import "./index.css";
 
 // Define the controls map
@@ -13,16 +14,6 @@ export const Controls = {
   right: "right",
   shoot: "shoot",
 };
-
-function Plane(props) {
-  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }));
-  return (
-    <mesh ref={ref} receiveShadow>
-      <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial color="#81A88D" />
-    </mesh>
-  );
-}
 
 function App() {
   const carRef = useRef();
@@ -39,8 +30,8 @@ function App() {
 
   useFrame(() => {
     if (carRef.current && controlsRef.current) {
-      // Get the Rapiers rigid body instance
-      const rigidBody = carRef.current.current;
+      // Access the Rapiers rigid body instance directly
+      const rigidBody = carRef.current;
       if (rigidBody) {
         const carPosition = rigidBody.translation(); // Get Rapier's translation
         controlsRef.current.target.lerp(carPosition, 0.1);
@@ -56,7 +47,7 @@ function App() {
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
           <RapierPhysics>
-            <Plane position={[0, -0.5, 0]} />
+            <Desert position={[0, -0.5, 0]} /> {/* Use the Desert component */}
             <Car ref={carRef} />
           </RapierPhysics>
           <OrbitControls ref={controlsRef} />

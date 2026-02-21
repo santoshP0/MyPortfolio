@@ -14,7 +14,6 @@ Technical Requirements:
 - State: Zustand
 - Animations: Drei helpers + GSAP if needed
 - Build Tool: Vite
-- Deployment target: Vercel
 - Version control: Git (strict phase commits)
 
 2. Environment
