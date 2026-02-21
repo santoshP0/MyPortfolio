@@ -1,6 +1,6 @@
 import React, { useRef, forwardRef, useImperativeHandle, memo, Suspense, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
+import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import * as THREE from "three";
 import { useKeyboardControls, PositionalAudio, useGLTF } from "@react-three/drei";
 import { Controls } from "../App";
@@ -11,7 +11,8 @@ useGLTF.preload("/models/car/car.glb");
 
 const CarModel = () => {
   const { scene } = useGLTF("/models/car/car.glb");
-  return <primitive object={scene} scale={[0.5, 0.5, 0.5]} rotation={[0, Math.PI, 0]} />;
+  // shift model down 0.5 so wheels sit at the collider bottom
+  return <primitive object={scene} scale={[0.5, 0.5, 0.5]} rotation={[0, Math.PI, 0]} position={[0, -0.5, 0]} />;
 };
 
 const ACCELERATION = 2.2;
@@ -225,7 +226,7 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
   return (
     <RigidBody
       ref={rigidBodyRef}
-      colliders="cuboid"
+      colliders={false}
       position={[0, 8, 8]}
       linearDamping={0.3}
       angularDamping={0.9}
@@ -233,6 +234,8 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
       friction={0.8}
       {...props}
     >
+      {/* Manual collider at wheel level so car sits on terrain, not above it */}
+      <CuboidCollider args={[0.8, 0.4, 1.5]} position={[0, -0.1, 0]} />
       <Suspense fallback={null}><CarModel /></Suspense>
       <PositionalAudio ref={engineRef} url="/audio/engine_loop.mp3" loop autoplay distance={12} />
       <PositionalAudio ref={shootRef} url="/audio/shoot.mp3" loop={false} distance={12} />
