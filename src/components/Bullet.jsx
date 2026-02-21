@@ -1,10 +1,10 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, memo } from "react";
 import { RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useBulletStore } from "../store/useBulletStore";
 import { useObjectStore } from "../store/useObjectStore";
 
-function Bullet(props) {
+const Bullet = memo((props) => {
   const rigidBodyRef = useRef();
   const removeBullet = useBulletStore((state) => state.removeBullet);
   const updateObjectHealth = useObjectStore((state) => state.updateObjectHealth);
@@ -51,6 +51,6 @@ function Bullet(props) {
       </mesh>
     </RigidBody>
   );
-}
+});
 
 export default Bullet;

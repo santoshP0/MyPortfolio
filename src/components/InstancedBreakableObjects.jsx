@@ -1,9 +1,9 @@
-import React, { useRef, useMemo, useEffect } from "react";
+import React, { useRef, useMemo, useEffect, memo } from "react";
 import { InstancedRigidBodies } from "@react-three/rapier";
 import * as THREE from "three";
 import { useObjectStore } from "../store/useObjectStore";
 
-function InstancedBreakableObjects() {
+const InstancedBreakableObjects = memo(() => {
   const rigidBodiesRef = useRef(); // Ref for InstancedRigidBodies
   const meshRef = useRef(); // Ref for instancedMesh
   const objects = useObjectStore((state) => state.objects);
@@ -53,6 +53,6 @@ function InstancedBreakableObjects() {
       </instancedMesh>
     </InstancedRigidBodies>
   );
-}
+});
 
 export default InstancedBreakableObjects;

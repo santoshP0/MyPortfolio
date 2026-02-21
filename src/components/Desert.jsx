@@ -1,9 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { useTexture, Sky } from "@react-three/drei";
 import { usePlane } from "@react-three/rapier";
 import * as THREE from "three";
 
-function Desert(props) {
+const Desert = memo((props) => {
   const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }));
   
   const [basecolor, normalMap, heightMap] = useTexture([
@@ -33,6 +33,6 @@ function Desert(props) {
       <Sky sunPosition={[100, 20, 100]} />
     </>
   );
-}
+});
 
 export default Desert;

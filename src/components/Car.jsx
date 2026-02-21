@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, memo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
@@ -6,7 +6,7 @@ import { useKeyboardControls, useGLTF, PositionalAudio } from "@react-three/drei
 import { Controls } from "../App";
 import { useBulletStore } from "../store/useBulletStore";
 
-const Car = forwardRef((props, fwdRef) => {
+const Car = memo(forwardRef((props, fwdRef) => {
   const rigidBodyRef = useRef();
   useImperativeHandle(fwdRef, () => rigidBodyRef.current);
 
@@ -123,6 +123,6 @@ const Car = forwardRef((props, fwdRef) => {
       <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" /> {/* Shooting sound */}
     </RigidBody>
   );
-});
+}));
 
 export default Car;
