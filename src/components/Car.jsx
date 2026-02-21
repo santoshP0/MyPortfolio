@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useKeyboardControls, PositionalAudio, useGLTF } from "@react-three/drei";
 import { Controls } from "../App";
 import { useBulletStore } from "../store/useBulletStore";
+import { useAudioStore } from "../store/useAudioStore";
 
 useGLTF.preload("/models/car/car.glb");
 
@@ -108,6 +109,9 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
       );
       if (shootAudioRef.current) {
         if (shootAudioRef.current.isPlaying) shootAudioRef.current.stop();
+        // Apply user-controlled shoot volume multiplier
+        const shootMult = shootAudioRef.current._shootVolMult ?? 1;
+        shootAudioRef.current.setVolume(shootMult);
         shootAudioRef.current.play();
       }
     }
@@ -115,22 +119,24 @@ const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
     // ── Engine audio ─────────────────────────────────────────────
     // Engine ALWAYS plays — idle hum at rest, revs up with speed
     if (engineAudioRef.current?.context) {
+      const { engineVolume, shootVolume } = useAudioStore.getState();
       const isAccel = forward || backward;
       const t = Math.min(speed / MAX_SPEED, 1);
 
-      // Idle pitch 0.5, full-speed pitch 1.45
-      // Pressing accelerator at any speed raises pitch slightly ("rev" feel)
       const revBoost = isAccel ? 0.08 : 0;
       const targetRate = 0.5 + t * 0.95 + revBoost;
+      // Apply user-controlled engine volume multiplier
+      const targetVol = (0.15 + t * 0.85) * engineVolume;
 
-      // Idle volume 0.15 (always audible), climbs to 1.0 at max speed
-      const targetVol = 0.15 + t * 0.85;
-
-      // Smooth the transitions so it doesn't snap instantly
       const curRate = engineAudioRef.current.playbackRate ?? targetRate;
       const curVol = engineAudioRef.current.getVolume?.() ?? targetVol;
       engineAudioRef.current.setPlaybackRate(curRate + (targetRate - curRate) * 0.12);
       engineAudioRef.current.setVolume(curVol + (targetVol - curVol) * 0.12);
+
+      // Store shoot volume so it can be applied when firing
+      if (shootAudioRef.current) {
+        shootAudioRef.current._shootVolMult = shootVolume;
+      }
     }
 
     // ── Write carState for SandTrail (plain JS — no Rapier after here) ──

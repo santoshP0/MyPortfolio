@@ -1,25 +1,55 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { useAudioStore } from "../store/useAudioStore";
 
-/**
- * Handles Escape key to pause/resume pointer lock.
- * Shows a semi-transparent pause overlay with a "Resume" button.
- * The game itself continues running (physics, etc.) — only pointer is released.
- */
+const SLIDER_STYLE = {
+    width: "100%",
+    accentColor: "#ff8800",
+    cursor: "pointer",
+    height: 4,
+    marginTop: 6,
+};
+
+function VolumeRow({ label, icon, value, onChange }) {
+    return (
+        <div style={{ marginBottom: 18 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <span style={{ color: "#ffcc88", fontSize: 13, fontWeight: 600 }}>
+                    {icon} {label}
+                </span>
+                <span style={{ color: "#aaa", fontSize: 12, fontFamily: "monospace" }}>
+                    {Math.round(value * 100)}%
+                </span>
+            </div>
+            <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={value}
+                onChange={(e) => onChange(parseFloat(e.target.value))}
+                style={SLIDER_STYLE}
+            />
+        </div>
+    );
+}
+
 function PauseSystem() {
     const [paused, setPaused] = useState(false);
 
-    // Called whenever pointer lock state changes (including Escape releasing it)
+    const engineVolume = useAudioStore((s) => s.engineVolume);
+    const shootVolume = useAudioStore((s) => s.shootVolume);
+    const setEngineVolume = useAudioStore((s) => s.setEngineVolume);
+    const setShootVolume = useAudioStore((s) => s.setShootVolume);
+
+    // Track pointer lock state
     useEffect(() => {
-        const onLockChange = () => {
-            const locked = !!document.pointerLockElement;
-            setPaused(!locked);
-        };
+        const onLockChange = () => setPaused(!document.pointerLockElement);
         document.addEventListener("pointerlockchange", onLockChange);
         return () => document.removeEventListener("pointerlockchange", onLockChange);
     }, []);
 
-    // Explicit Escape handler to release pointer lock
+    // Escape key releases pointer lock
     useEffect(() => {
         const onKeyDown = (e) => {
             if (e.key === "Escape" && document.pointerLockElement) {
@@ -39,47 +69,114 @@ function PauseSystem() {
 
     return createPortal(
         <div
-            onClick={handleResume}
             style={{
                 position: "absolute",
                 inset: 0,
-                background: "rgba(0,0,0,0.55)",
-                backdropFilter: "blur(6px)",
+                background: "rgba(0, 0, 0, 0.6)",
+                backdropFilter: "blur(8px)",
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 3000,
-                cursor: "pointer",
-                userSelect: "none",
+                fontFamily: "'Segoe UI', sans-serif",
             }}
         >
-            <div style={{ color: "#fff", fontSize: "2.5rem", fontWeight: 700, letterSpacing: 4, marginBottom: 16 }}>
-                ⏸ PAUSED
-            </div>
-            <div style={{ color: "#ffcc88", fontSize: "1.1rem", opacity: 0.85 }}>
-                Click anywhere or press Enter to resume
-            </div>
-            <button
-                onClick={handleResume}
+            <div
                 style={{
-                    marginTop: 24,
-                    padding: "12px 36px",
-                    fontSize: "1rem",
-                    background: "linear-gradient(135deg, #ff8800, #ff4400)",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 8,
-                    cursor: "pointer",
-                    fontWeight: 600,
-                    letterSpacing: 1,
-                    boxShadow: "0 4px 24px rgba(255,100,0,0.4)",
+                    background: "rgba(12, 6, 0, 0.92)",
+                    border: "1px solid rgba(255, 160, 50, 0.3)",
+                    borderRadius: 14,
+                    padding: "32px 36px",
+                    width: 340,
+                    boxShadow: "0 8px 40px rgba(0,0,0,0.7)",
                 }}
             >
-                ▶ Resume
-            </button>
-            <div style={{ color: "#aaa", fontSize: "0.8rem", marginTop: 12 }}>
-                Press <kbd style={{ background: "#333", padding: "2px 6px", borderRadius: 3 }}>Esc</kbd> to pause anytime
+                {/* Title */}
+                <div style={{ textAlign: "center", marginBottom: 28 }}>
+                    <div style={{ color: "#fff", fontSize: "1.8rem", fontWeight: 700, letterSpacing: 3 }}>
+                        ⏸ PAUSED
+                    </div>
+                    <div style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>
+                        Click Resume or press Enter to continue
+                    </div>
+                </div>
+
+                {/* Volume section */}
+                <div
+                    style={{
+                        background: "rgba(255,140,30,0.06)",
+                        border: "1px solid rgba(255,140,30,0.18)",
+                        borderRadius: 8,
+                        padding: "16px 18px",
+                        marginBottom: 24,
+                    }}
+                >
+                    <div style={{ color: "#ffcc66", fontSize: 11, fontWeight: 700, letterSpacing: 2, marginBottom: 16, textTransform: "uppercase" }}>
+                        🔊 Audio Settings
+                    </div>
+
+                    <VolumeRow
+                        label="Engine Sound"
+                        icon="🚗"
+                        value={engineVolume}
+                        onChange={setEngineVolume}
+                    />
+                    <VolumeRow
+                        label="Bullet Sound"
+                        icon="💥"
+                        value={shootVolume}
+                        onChange={setShootVolume}
+                    />
+
+                    {/* Mute All shortcut */}
+                    <button
+                        onClick={() => {
+                            const allMuted = engineVolume === 0 && shootVolume === 0;
+                            setEngineVolume(allMuted ? 0.8 : 0);
+                            setShootVolume(allMuted ? 0.8 : 0);
+                        }}
+                        style={{
+                            marginTop: 4,
+                            width: "100%",
+                            padding: "7px 0",
+                            background: engineVolume === 0 && shootVolume === 0
+                                ? "rgba(255,80,0,0.25)"
+                                : "rgba(255,255,255,0.05)",
+                            border: "1px solid rgba(255,140,30,0.25)",
+                            borderRadius: 6,
+                            color: "#ccc",
+                            fontSize: 12,
+                            cursor: "pointer",
+                            letterSpacing: 0.5,
+                        }}
+                    >
+                        {engineVolume === 0 && shootVolume === 0 ? "🔇 Unmute All" : "🔇 Mute All"}
+                    </button>
+                </div>
+
+                {/* Resume button */}
+                <button
+                    onClick={handleResume}
+                    style={{
+                        width: "100%",
+                        padding: "13px 0",
+                        fontSize: "1rem",
+                        background: "linear-gradient(135deg, #ff8800, #ff4400)",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 8,
+                        cursor: "pointer",
+                        fontWeight: 700,
+                        letterSpacing: 1,
+                        boxShadow: "0 4px 24px rgba(255,100,0,0.35)",
+                    }}
+                >
+                    ▶ Resume
+                </button>
+
+                <div style={{ color: "#666", fontSize: 10, textAlign: "center", marginTop: 12 }}>
+                    Press <kbd style={{ background: "#222", padding: "1px 5px", borderRadius: 3, color: "#aaa" }}>Esc</kbd> anytime to pause
+                </div>
             </div>
         </div>,
         document.body
