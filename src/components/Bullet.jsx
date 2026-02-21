@@ -19,26 +19,26 @@ const Bullet = memo((props) => {
   }, [props.velocity]);
 
   const handleCollisionEnter = ({ other }) => {
-    // console.log("Bullet collided with:", other);
-
-    if (other.rigidBody && other.rigidBody.userData && other.rigidBody.userData.type === "breakable") {
-      const targetObjectId = other.rigidBody.userData.id;
+    if (other.rigidBodyObject && other.rigidBodyObject.userData && other.rigidBodyObject.userData.type === "breakable") {
+      const targetObjectId = other.rigidBodyObject.userData.id;
+      const portfolioItemId = other.rigidBodyObject.userData.portfolioItemId;
 
       if (targetObjectId) {
         const currentObject = useObjectStore.getState().objects.find(obj => obj.id === targetObjectId);
-        if (currentObject) {
+        if (currentObject && currentObject.health > 0) {
           const newHealth = currentObject.health - 1;
           updateObjectHealth(targetObjectId, newHealth);
-          setTargetedObject(targetObjectId, newHealth, currentObject.initialHealth); // Set targeted object
+          setTargetedObject(targetObjectId, newHealth, currentObject.initialHealth);
+
           if (newHealth <= 0) {
-            removeObject(targetObjectId);
+            // Reveal portfolio content
+            if (portfolioItemId) {
+              usePortfolioPanelStore.getState().setActivePortfolioItemId(portfolioItemId);
+            }
           }
         }
-      } else {
-          console.warn("Could not identify breakable object in collision:", other);
       }
     }
-    // Always remove the bullet after any collision
     removeBullet(props.id);
   };
 

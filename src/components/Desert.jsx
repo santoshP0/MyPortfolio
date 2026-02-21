@@ -15,7 +15,7 @@ const Desert = memo((props) => {
   return (
     <>
       <RigidBody type="fixed" colliders="cuboid" {...props}>
-        <mesh receiveShadow>
+        <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[100, 100]} />
           <meshStandardMaterial
             map={basecolor}

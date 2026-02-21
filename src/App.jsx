@@ -51,23 +51,21 @@ function App() {
     { name: Controls.shoot, keys: ["Space"] },
   ], []);
 
-  const getPortfolioItemContent = (id) => {
-    if (!id) return null;
+  const activeContent = useMemo(() => {
+    if (!activePortfolioItemId) return null;
     const allItems = {
-      ...portfolioData.contact,
+      contact: portfolioData.contact,
       ...portfolioData.projects.reduce((acc, item) => ({ ...acc, [item.id]: item }), {}),
       ...portfolioData.skills.reduce((acc, item) => ({ ...acc, [item.id]: item }), {}),
       ...portfolioData.experience.reduce((acc, item) => ({ ...acc, [item.id]: item }), {}),
     };
-    return allItems[id];
-  };
-
-  const activeContent = getPortfolioItemContent(activePortfolioItemId);
+    return allItems[activePortfolioItemId];
+  }, [activePortfolioItemId]);
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
       <KeyboardControls map={map}>
-        <Canvas shadows>
+        <Canvas shadows camera={{ position: [0, 5, 10], fov: 75 }}>
           <ambientLight intensity={0.5} />
           <directionalLight
             position={[10, 10, 5]}
@@ -75,12 +73,6 @@ function App() {
             castShadow
             shadow-mapSize-width={1024}
             shadow-mapSize-height={1024}
-            shadow-camera-near={1}
-            shadow-camera-far={50}
-            shadow-camera-left={-20}
-            shadow-camera-right={20}
-            shadow-camera-top={20}
-            shadow-camera-bottom={-20}
           />
           <RapierPhysics>
             <Suspense fallback={<Html><div>Loading...</div></Html>}>
@@ -98,8 +90,7 @@ function App() {
               <PositionalAudio url="/audio/desert_wind_loop.mp3" loop autoplay />
             </Suspense>
           </RapierPhysics>
-          <OrbitControls ref={controlsRef} />
-          <Scene carRef={carRef} controlsRef={controlsRef} />
+          <Scene carRef={carRef} />
         </Canvas>
       </KeyboardControls>
       <PortfolioPanel content={activeContent} onClose={clearactivePortfolioItemId} />

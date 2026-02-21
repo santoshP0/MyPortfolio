@@ -32,93 +32,79 @@ const Car = memo(forwardRef((props, fwdRef) => {
   const engineAudioRef = useRef();
   const shootAudioRef = useRef(); // Ref for shoot audio
 
-  useFrame(() => {
+  useFrame((state) => {
     const { forward, backward, left, right, shoot } = get();
 
     if (!rigidBodyRef.current) return;
 
-    const impulse = { x: 0, y: 0, z: 0 };
-    const torque = { x: 0, y: 0, z: 0 };
-
-    const currentRotation = rigidBodyRef.current.rotation();
-    const quaternion = new THREE.Quaternion(
-      currentRotation.x,
-      currentRotation.y,
-      currentRotation.z,
-      currentRotation.w
-    );
-
-    const currentVelocity = rigidBodyRef.current.linvel();
-    const currentAngularVelocity = rigidBodyRef.current.angvel();
+    const velocity = rigidBodyRef.current.linvel();
+    const rotation = rigidBodyRef.current.rotation();
+    const quaternion = new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+    const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
 
     // Engine sound volume based on speed
     if (engineAudioRef.current) {
-      const speed = new THREE.Vector3(currentVelocity.x, 0, currentVelocity.z).length();
+      const speed = new THREE.Vector3(velocity.x, 0, velocity.z).length();
       engineAudioRef.current.setVolume(Math.min(speed / (maxSpeed / 2), 1));
     }
 
-
+    // Movement logic
+    let newVelocity = new THREE.Vector3(velocity.x, velocity.y, velocity.z);
     if (forward) {
-      const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
-      impulse.x += forwardVector.x * forwardForce;
-      impulse.z += forwardVector.z * forwardForce;
+      newVelocity.add(forwardVector.clone().multiplyScalar(forwardForce * 0.1));
     }
     if (backward) {
-      const backwardVector = new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion);
-      impulse.x += backwardVector.x * backwardForce;
-      impulse.z += backwardVector.z * backwardForce;
+      newVelocity.add(forwardVector.clone().multiplyScalar(-backwardForce * 0.1));
     }
+
+    // Limit speed
+    if (newVelocity.length() > maxSpeed) {
+      newVelocity.normalize().multiplyScalar(maxSpeed);
+    }
+    rigidBodyRef.current.setLinvel(newVelocity, true);
+
+    // Turning logic
     if (left) {
-      torque.y += turnTorque;
-    }
-    if (right) {
-      torque.y -= turnTorque;
+      rigidBodyRef.current.setAngvel({ x: 0, y: turnTorque, z: 0 }, true);
+    } else if (right) {
+      rigidBodyRef.current.setAngvel({ x: 0, y: -turnTorque, z: 0 }, true);
+    } else {
+      rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
     }
 
     // Shooting logic
     if (shoot && Date.now() - lastShotTime.current > shootCooldown) {
       lastShotTime.current = Date.now();
       const carPosition = rigidBodyRef.current.translation();
-      const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
-      
+
       const bulletPosition = new THREE.Vector3(
-        carPosition.x + forwardVector.x * 1.5, // Spawn slightly in front of the car
-        carPosition.y + 0.5, // Slightly above the car
-        carPosition.z + forwardVector.z * 1.5
+        carPosition.x + forwardVector.x * 2,
+        carPosition.y + 1,
+        carPosition.z + forwardVector.z * 2
       );
 
-      const bulletVelocity = new THREE.Vector3(
-        forwardVector.x * bulletSpeed,
-        forwardVector.y * bulletSpeed,
-        forwardVector.z * bulletSpeed
-      );
-
+      const bulletVelocity = forwardVector.clone().multiplyScalar(bulletSpeed);
       addBullet(bulletPosition.toArray(), bulletVelocity.toArray());
-      shootAudioRef.current.play(); // Play shooting sound
+      if (shootAudioRef.current) shootAudioRef.current.play();
     }
 
-    // Limit linear velocity
-    const linvel = new THREE.Vector3(currentVelocity.x, currentVelocity.y, currentVelocity.z);
-    if (linvel.length() > maxSpeed) {
-      linvel.normalize().multiplyScalar(maxSpeed);
-      rigidBodyRef.current.setLinvel({ x: linvel.x, y: linvel.y, z: linvel.z }, true);
-    }
-
-    // Limit angular velocity
-    const angvel = new THREE.Vector3(currentAngularVelocity.x, currentAngularVelocity.y, currentAngularVelocity.z);
-    if (angvel.length() > maxTurnSpeed) {
-      angvel.normalize().multiplyScalar(maxTurnSpeed);
-      rigidBodyRef.current.setAngvel({ x: angvel.x, y: angvel.y, z: angvel.z }, true);
-    }
-
-    rigidBodyRef.current.applyImpulse(impulse, true);
-    rigidBodyRef.current.applyTorqueImpulse(torque, true);
+    // Camera follow
+    const carPosition = rigidBodyRef.current.translation();
+    const cameraOffset = new THREE.Vector3(0, 5, 10).applyQuaternion(quaternion);
+    const cameraPosition = new THREE.Vector3(
+      carPosition.x + cameraOffset.x,
+      carPosition.y + cameraOffset.y,
+      carPosition.z + cameraOffset.z
+    );
+    state.camera.position.lerp(cameraPosition, 0.1);
+    state.camera.lookAt(carPosition.x, carPosition.y + 1, carPosition.z);
   });
 
   return (
     <RigidBody
       ref={rigidBodyRef}
       colliders="cuboid"
+      position={[0, 2, 0]}
       linearDamping={0.5}
       angularDamping={0.5}
       {...props}
@@ -127,7 +113,7 @@ const Car = memo(forwardRef((props, fwdRef) => {
         <CarModel />
       </Suspense>
       <PositionalAudio ref={engineAudioRef} url="/audio/engine_loop.mp3" loop autoplay />
-      <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" /> {/* Shooting sound */}
+      <PositionalAudio ref={shootAudioRef} url="/audio/shoot.mp3" />
     </RigidBody>
   );
 }));
