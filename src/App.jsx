@@ -50,8 +50,16 @@ function BoundaryWalls() {
   );
 }
 
+import * as THREE from "three";
+
 function App() {
   const carRef = useRef();
+  // Plain JS ref written by Car.jsx each frame — read by SandTrail (no Rapier calls)
+  const carStateRef = useRef({
+    position: new THREE.Vector3(),
+    quaternion: new THREE.Quaternion(),
+    speed: 0,
+  });
   const bullets = useBulletStore((state) => state.bullets);
 
   const objects = useObjectStore((state) => state.objects);
@@ -128,7 +136,7 @@ function App() {
             <Suspense fallback={<Html center><div style={{ color: "white", fontSize: 24 }}>Loading 3D Scene...</div></Html>}>
               <Desert />
               <BoundaryWalls />
-              <Car ref={carRef} />
+              <Car ref={carRef} carStateRef={carStateRef} />
               {bullets.map((bullet) => (
                 <Bullet
                   key={bullet.id}
@@ -142,7 +150,7 @@ function App() {
             </Suspense>
           </RapierPhysics>
 
-          <SandTrail carRef={carRef} />
+          <SandTrail carStateRef={carStateRef} />
           <Scene carRef={carRef} />
         </Canvas>
       </KeyboardControls>
