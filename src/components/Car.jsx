@@ -4,6 +4,7 @@ import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import { Controls } from "../App";
+import { useBulletStore } from "../store/useBulletStore"; // Import the bullet store
 
 const Car = forwardRef((props, fwdRef) => {
   const rigidBodyRef = useRef();
@@ -11,15 +12,20 @@ const Car = forwardRef((props, fwdRef) => {
 
   const [_, get] = useKeyboardControls();
   const { scene } = useGLTF("/models/car/car.glb");
+  const addBullet = useBulletStore((state) => state.addBullet);
 
   const forwardForce = 15;
   const backwardForce = 10;
   const turnTorque = 3;
   const maxSpeed = 10;
   const maxTurnSpeed = 2;
+  const bulletSpeed = 50;
+
+  const lastShotTime = useRef(0);
+  const shootCooldown = 200; // milliseconds
 
   useFrame(() => {
-    const { forward, backward, left, right } = get();
+    const { forward, backward, left, right, shoot } = get();
 
     if (!rigidBodyRef.current) return;
 
@@ -52,6 +58,27 @@ const Car = forwardRef((props, fwdRef) => {
     }
     if (right) {
       torque.y -= turnTorque;
+    }
+
+    // Shooting logic
+    if (shoot && Date.now() - lastShotTime.current > shootCooldown) {
+      lastShotTime.current = Date.now();
+      const carPosition = rigidBodyRef.current.translation();
+      const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
+      
+      const bulletPosition = new THREE.Vector3(
+        carPosition.x + forwardVector.x * 1.5, // Spawn slightly in front of the car
+        carPosition.y + 0.5, // Slightly above the car
+        carPosition.z + forwardVector.z * 1.5
+      );
+
+      const bulletVelocity = new THREE.Vector3(
+        forwardVector.x * bulletSpeed,
+        forwardVector.y * bulletSpeed,
+        forwardVector.z * bulletSpeed
+      );
+
+      addBullet(bulletPosition.toArray(), bulletVelocity.toArray());
     }
 
     // Limit linear velocity

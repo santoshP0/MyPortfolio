@@ -10,6 +10,7 @@
     "@react-three/fiber": "^9.5.0",
     "@react-three/rapier": "^2.2.0",
     "http-proxy-middleware": "^3.0.5",
+    "nanoid": "^5.1.6",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",
