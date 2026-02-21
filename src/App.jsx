@@ -1,11 +1,13 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, KeyboardControls } from "@react-three/drei";
 import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
-import Desert from "./components/Desert"; // Import the Desert component
-import Bullet from "./components/Bullet"; // Import the Bullet component
-import { useBulletStore } from "./store/useBulletStore"; // Import the bullet store
+import Desert from "./components/Desert";
+import Bullet from "./components/Bullet";
+import BreakableObject from "./components/BreakableObject"; // Import BreakableObject
+import { useBulletStore } from "./store/useBulletStore";
+import { useObjectStore } from "./store/useObjectStore"; // Import useObjectStore
 import "./index.css";
 
 // Define the controls map
@@ -22,6 +24,15 @@ function App() {
   const controlsRef = useRef();
   const bullets = useBulletStore((state) => state.bullets);
   const removeBullet = useBulletStore((state) => state.removeBullet);
+
+  const objects = useObjectStore((state) => state.objects);
+  const addObject = useObjectStore((state) => state.addObject);
+
+  // Initialize some breakable objects
+  useEffect(() => {
+    addObject([-5, 0, -10], [1, 1, 1], 3); // Example object 1
+    addObject([5, 0, -15], [1.5, 1.5, 1.5], 5); // Example object 2
+  }, [addObject]);
 
   // Define the keyboard map for the controls
   const map = useMemo(() => [
@@ -45,7 +56,6 @@ function App() {
     // Bullet lifecycle management
     bullets.forEach((bullet) => {
       if (Date.now() - bullet.timestamp > 3000) {
-        // Remove bullet after 3 seconds
         removeBullet(bullet.id);
       }
     });
@@ -62,6 +72,15 @@ function App() {
             <Car ref={carRef} />
             {bullets.map((bullet) => (
               <Bullet key={bullet.id} position={bullet.position} velocity={bullet.velocity} />
+            ))}
+            {objects.map((object) => (
+              <BreakableObject
+                key={object.id}
+                id={object.id}
+                position={object.position}
+                args={object.args}
+                health={object.health}
+              />
             ))}
           </RapierPhysics>
           <OrbitControls ref={controlsRef} />
