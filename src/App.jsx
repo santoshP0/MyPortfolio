@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PositionalAudio, Html } from "@react-three/drei";
-import { Physics as RapierPhysics, RigidBody } from "@react-three/rapier";
+import { Physics as RapierPhysics } from "@react-three/rapier";
 import Car from "./components/Car";
 import Desert from "./components/Desert";
 import Bullet from "./components/Bullet";
@@ -27,29 +27,6 @@ export const Controls = {
   right: "right",
   shoot: "shoot",
 };
-
-// Invisible boundary walls at the edges of the 100x100 desert
-function BoundaryWalls() {
-  const wallDefs = [
-    // [position, size] — thin invisible cubes
-    { pos: [0, 3, -50], size: [100, 6, 1] },   // North
-    { pos: [0, 3, 50], size: [100, 6, 1] },   // South
-    { pos: [-50, 3, 0], size: [1, 6, 100] },   // West
-    { pos: [50, 3, 0], size: [1, 6, 100] },   // East
-  ];
-  return (
-    <>
-      {wallDefs.map((w, i) => (
-        <RigidBody key={i} type="fixed" colliders="cuboid" position={w.pos}>
-          <mesh visible={false}>
-            <boxGeometry args={w.size} />
-            <meshStandardMaterial />
-          </mesh>
-        </RigidBody>
-      ))}
-    </>
-  );
-}
 
 import * as THREE from "three";
 
@@ -136,7 +113,7 @@ function App() {
           <RapierPhysics gravity={[0, -18, 0]}>
             <Suspense fallback={<Html center><div style={{ color: "white", fontSize: 24 }}>Loading 3D Scene...</div></Html>}>
               <Desert />
-              <BoundaryWalls />
+
               <Car ref={carRef} carStateRef={carStateRef} />
               {bullets.map((bullet) => (
                 <Bullet

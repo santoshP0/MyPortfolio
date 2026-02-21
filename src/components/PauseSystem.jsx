@@ -49,15 +49,23 @@ function PauseSystem() {
         return () => document.removeEventListener("pointerlockchange", onLockChange);
     }, []);
 
-    // Escape key releases pointer lock
+    // Escape key + Middle mouse button toggle pointer lock
     useEffect(() => {
         const onKeyDown = (e) => {
-            if (e.key === "Escape" && document.pointerLockElement) {
-                document.exitPointerLock();
-            }
+            if (e.key === "Escape" && document.pointerLockElement) document.exitPointerLock();
+        };
+        const onMouseDown = (e) => {
+            if (e.button !== 1) return;
+            e.preventDefault();
+            if (document.pointerLockElement) document.exitPointerLock();
+            else { const c = document.querySelector("canvas"); if (c) c.requestPointerLock(); }
         };
         document.addEventListener("keydown", onKeyDown);
-        return () => document.removeEventListener("keydown", onKeyDown);
+        document.addEventListener("mousedown", onMouseDown);
+        return () => {
+            document.removeEventListener("keydown", onKeyDown);
+            document.removeEventListener("mousedown", onMouseDown);
+        };
     }, []);
 
     const handleResume = useCallback(() => {
