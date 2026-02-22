@@ -103,9 +103,9 @@ const SandTrail = memo(({ carStateRef }) => {
             </bufferGeometry>
             <pointsMaterial
                 vertexColors
-                size={0.3}
+                size={0.45} // Increased from 0.3
                 transparent
-                opacity={0.72}
+                opacity={0.85} // Increased from 0.72
                 depthWrite={false}
                 sizeAttenuation
             />

@@ -1,65 +1,35 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  background: #1a0a00;
 }
 
 canvas {
   width: 100%;
   height: 100%;
-  cursor: crosshair !important;
+  cursor: grab;
 }
 
-/* ── Crosshair overlay ── */
-.crosshair-overlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+canvas:active {
+  cursor: grabbing;
+}
+
+/* ─── Premium Discovery UI ─── */
+.discovery-label {
   pointer-events: none;
-  z-index: 1000;
-}
-
-.crosshair-overlay::before,
-.crosshair-overlay::after {
-  content: '';
-  position: absolute;
-  background: rgba(255, 200, 60, 0.85);
-  border-radius: 1px;
-}
-
-/* Horizontal line */
-.crosshair-overlay::before {
-  width: 24px;
-  height: 2px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Vertical line */
-.crosshair-overlay::after {
-  width: 2px;
-  height: 24px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Center dot */
-.crosshair-dot {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #ffcc00;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 6px rgba(255, 200, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 6px 16px;
+  border-radius: 30px;
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }

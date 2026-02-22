@@ -1,86 +1,93 @@
 import React, { memo } from "react";
+import { useDiscoveryStore } from "../store/useDiscoveryStore";
 
 /**
- * Always-visible controls overlay — top-right corner.
- * pointerEvents: none so it never blocks mouse aim.
+ * Exploration HUD — top-right corner.
+ * Shows driving controls and the new discovery mechanic.
  */
 const ControlsHUD = memo(() => {
+    const gameStarted = useDiscoveryStore((s) => s.gameStarted);
+    if (!gameStarted) return null;
+
     return (
         <div
             style={{
                 position: "absolute",
-                top: 10,
-                right: 10,
-                background: "rgba(18, 9, 0, 0.75)",
-                border: "1px solid rgba(255, 140, 30, 0.25)",
-                borderRadius: 10,
-                padding: "10px 14px",
-                fontFamily: "'Segoe UI', sans-serif",
+                top: 20,
+                right: 20,
+                background: "rgba(10, 5, 0, 0.85)",
+                border: "1px solid rgba(212, 163, 115, 0.3)",
+                borderRadius: "12px",
+                padding: "16px 20px",
+                fontFamily: "'Inter', sans-serif",
                 pointerEvents: "none",
                 zIndex: 500,
-                backdropFilter: "blur(4px)",
-                minWidth: 140,
+                backdropFilter: "blur(12px)",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+                minWidth: 180,
             }}
         >
             <div
                 style={{
-                    color: "#ffcc66",
+                    color: "#d4a373",
                     fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: 2,
+                    fontWeight: 800,
+                    letterSpacing: 3,
                     textTransform: "uppercase",
-                    marginBottom: 7,
-                    borderBottom: "1px solid rgba(255,140,30,0.2)",
-                    paddingBottom: 4,
+                    marginBottom: 12,
+                    borderBottom: "1px solid rgba(212, 163, 115, 0.2)",
+                    paddingBottom: 6,
                 }}
             >
-                Controls
+                Explorer Guide
             </div>
             {[
-                ["W / ↑", "Accelerate"],
-                ["S / ↓", "Brake / Reverse"],
-                ["A / ←", "Turn Left"],
-                ["D / →", "Turn Right"],
-                ["Left Click", "Shoot (aim)"],
-                ["Space", "Auto-aim Shot"],
-                ["Esc", "Pause / Resume"],
+                ["W / S", "Drive / Reverse"],
+                ["A / D", "Steer"],
+                ["Mouse", "Look Around"],
+                ["E", "Interact with Stone"],
+                ["Esc", "Pause / Back"],
             ].map(([key, label]) => (
                 <div
                     key={key}
                     style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        marginBottom: 3,
+                        alignItems: "center",
+                        marginBottom: 6,
                     }}
                 >
                     <kbd
                         style={{
-                            background: "rgba(255,255,255,0.08)",
-                            border: "1px solid rgba(255,255,255,0.12)",
-                            borderRadius: 3,
-                            padding: "1px 5px",
-                            color: "#ffcc88",
-                            fontSize: 10,
+                            background: "rgba(255,255,255,0.05)",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            borderRadius: "4px",
+                            padding: "2px 8px",
+                            color: "#fff",
+                            fontSize: 11,
+                            fontWeight: 700,
                             fontFamily: "monospace",
-                            marginRight: 8,
+                            marginRight: 10,
                         }}
                     >
                         {key}
                     </kbd>
-                    <span style={{ color: "#aaa", fontSize: 10 }}>{label}</span>
+                    <span style={{ color: "#888", fontSize: 11, fontWeight: 500 }}>{label}</span>
                 </div>
             ))}
             <div
                 style={{
-                    color: "#555",
-                    fontSize: 8.5,
-                    marginTop: 6,
-                    borderTop: "1px solid rgba(255,140,30,0.15)",
-                    paddingTop: 4,
+                    color: "#d4a373",
+                    fontSize: 10,
+                    marginTop: 12,
+                    borderTop: "1px solid rgba(212, 163, 115, 0.15)",
+                    paddingTop: 8,
                     textAlign: "center",
+                    fontWeight: 600,
+                    lineHeight: 1.4,
                 }}
             >
-                🎯 Destroy targets to unlock portfolio
+                ✨ Park inside beacons to reveal projects
             </div>
         </div>
     );

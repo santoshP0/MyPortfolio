@@ -1,25 +1,20 @@
-import React, { useRef, useMemo, useEffect, Suspense } from "react";
+import React, { useRef, useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, Html } from "@react-three/drei";
 import { Physics as RapierPhysics } from "@react-three/rapier";
-import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
 
 import Car from "./components/Car";
 import Desert from "./components/Desert";
-import Bullet from "./components/Bullet";
-import BreakableObjects from "./components/BreakableObjects";
 import SandTrail from "./components/SandTrail";
-import RevealedPanels from "./components/RevealedPanels";
+import DiscoveryZone from "./components/DiscoveryZone";
 import PauseSystem from "./components/PauseSystem";
 import IntroOverlay from "./components/IntroOverlay";
 import ControlsHUD from "./components/ControlsHUD";
 import Scene from "./components/Scene";
 
-import { useBulletStore } from "./store/useBulletStore";
-import { useObjectStore } from "./store/useObjectStore";
-import { nanoid } from "nanoid";
 import { terrainHeight } from "./utils/terrain";
 import "./index.css";
 
@@ -28,19 +23,17 @@ export const Controls = {
   backward: "backward",
   left: "left",
   right: "right",
-  shoot: "shoot",
 };
 
-// Objects spawn 3 units above terrain, gravity settles them
-const spawnY = (x, z) => terrainHeight(x, z) + 3;
-
-const OBJECT_SPAWNS = [
-  [-8, -18, 4, "project1"],
-  [8, -22, 4, "skill1"],
-  [-14, -8, 3, "experience1"],
-  [14, -8, 3, "contact"],
-  [0, -30, 5, "project2"],
-  [0, -12, 3, "skill2"],
+// Discovery zone positions [x, z, portfolioId]
+const ZONE_DATA = [
+  [-10, -20, "project1"],
+  [12, -25, "skill1"],
+  [-18, -6, "experience1"],
+  [18, -6, "contact"],
+  [0, -35, "project2"],
+  [3, -12, "skill2"],
+  [-10, -35, "experience2"],
 ];
 
 function App() {
@@ -51,23 +44,19 @@ function App() {
     speed: 0,
   });
 
-  const bullets = useBulletStore((s) => s.bullets);
-  const objects = useObjectStore((s) => s.objects);
-  const addObject = useObjectStore((s) => s.addObject);
-
-  useEffect(() => {
-    if (objects.length > 0) return;
-    OBJECT_SPAWNS.forEach(([x, z, hp, pid]) => {
-      addObject([x, spawnY(x, z), z], [1, 1, 1], hp, nanoid(), pid);
-    });
-  }, [addObject]);
+  // Zone positions on the terrain surface
+  const zones = useMemo(() =>
+    ZONE_DATA.map(([x, z, id]) => ({
+      id,
+      position: [x, terrainHeight(x, z) + 0.1, z],
+    }))
+    , []);
 
   const controlMap = useMemo(() => [
     { name: Controls.forward, keys: ["ArrowUp", "KeyW"] },
     { name: Controls.backward, keys: ["ArrowDown", "KeyS"] },
     { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
     { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
-    { name: Controls.shoot, keys: ["Space"] },
   ], []);
 
   return (
@@ -79,25 +68,9 @@ function App() {
           camera={{ position: [0, 10, 20], fov: 70, near: 0.1, far: 600 }}
           dpr={[1, 1.5]}
         >
-          {/* Lighting */}
-          <ambientLight intensity={0.55} color="#ffcc88" />
-          <directionalLight
-            position={[30, 25, 10]}
-            intensity={2.2}
-            color="#ffddaa"
-            castShadow
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            shadow-camera-near={0.5}
-            shadow-camera-far={150}
-            shadow-camera-left={-70}
-            shadow-camera-right={70}
-            shadow-camera-top={70}
-            shadow-camera-bottom={-70}
-          />
-          <directionalLight position={[-20, 10, -20]} intensity={0.4} color="#aaccff" />
+          {/* Lighting (Fill) */}
+          <ambientLight intensity={0.4} color="#ffcc88" />
 
-          {/* Atmospheric fog */}
           <fog attach="fog" args={["#f0c060", 70, 220]} />
 
           <RapierPhysics gravity={[0, -20, 0]}>
@@ -110,18 +83,23 @@ function App() {
             }>
               <Desert />
               <Car ref={carRef} carStateRef={carStateRef} />
-              {bullets.map((b) => (
-                <Bullet key={b.id} id={b.id} position={b.position} velocity={b.velocity} />
+
+              {/* Discovery zones — park nearby to reveal portfolio */}
+              {zones.map((z) => (
+                <DiscoveryZone
+                  key={z.id}
+                  id={z.id}
+                  position={z.position}
+                  carStateRef={carStateRef}
+                />
               ))}
-              <BreakableObjects />
-              <RevealedPanels />
             </Suspense>
           </RapierPhysics>
 
           <SandTrail carStateRef={carStateRef} />
           <Scene carRef={carRef} />
 
-          {/* ── Post-processing: subtle bloom + vignette ── */}
+          {/* Post-processing */}
           <EffectComposer>
             <Bloom
               intensity={0.4}
@@ -134,20 +112,11 @@ function App() {
               darkness={0.55}
               blendFunction={BlendFunction.NORMAL}
             />
-            <ChromaticAberration
-              offset={new THREE.Vector2(0.0006, 0.0006)}
-              blendFunction={BlendFunction.NORMAL}
-            />
           </EffectComposer>
         </Canvas>
       </KeyboardControls>
 
-      {/* ── Crosshair overlay ── */}
-      <div className="crosshair-overlay">
-        <div className="crosshair-dot" />
-      </div>
-
-      {/* ── 2D HUD ── */}
+      {/* 2D HUD */}
       <PauseSystem />
       <IntroOverlay />
       <ControlsHUD />

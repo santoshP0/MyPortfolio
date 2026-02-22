@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useAudioStore } from "../store/useAudioStore";
+import { useDiscoveryStore } from "../store/useDiscoveryStore";
 
 const SLIDER_STYLE = {
     width: "100%",
@@ -27,26 +28,24 @@ function VolumeRow({ label, icon, value, onChange }) {
 }
 
 function PauseSystem() {
-    const [paused, setPaused] = useState(false);
+    const paused = useDiscoveryStore((s) => s.paused);
+    const setPaused = useDiscoveryStore((s) => s.setPaused);
 
     const engineVolume = useAudioStore((s) => s.engineVolume);
-    const shootVolume = useAudioStore((s) => s.shootVolume);
     const setEngineVolume = useAudioStore((s) => s.setEngineVolume);
-    const setShootVolume = useAudioStore((s) => s.setShootVolume);
+    const interacting = useDiscoveryStore((s) => s.interacting);
 
     // ── ONLY Escape pauses the game. Nothing else. ────────────────────
     useEffect(() => {
         const onKeyDown = (e) => {
-            if (e.key !== "Escape") return;
-            setPaused((prev) => {
-                const next = !prev;
-                if (next && document.pointerLockElement) document.exitPointerLock();
-                return next;
-            });
+            if (e.key !== "Escape" || interacting) return;
+            const next = !paused;
+            setPaused(next);
+            if (next && document.pointerLockElement) document.exitPointerLock();
         };
         document.addEventListener("keydown", onKeyDown);
         return () => document.removeEventListener("keydown", onKeyDown);
-    }, []);
+    }, [paused, interacting, setPaused]);
 
     // ── Middle mouse toggles pointer lock WITHOUT pausing ─────────────
     useEffect(() => {
@@ -87,7 +86,6 @@ function PauseSystem() {
                     <div style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>Press Esc or click Resume to continue</div>
                 </div>
 
-                {/* Volume */}
                 <div style={{
                     background: "rgba(255,140,30,0.06)", border: "1px solid rgba(255,140,30,0.18)",
                     borderRadius: 8, padding: "16px 18px", marginBottom: 24,
@@ -95,21 +93,20 @@ function PauseSystem() {
                     <div style={{ color: "#ffcc66", fontSize: 11, fontWeight: 700, letterSpacing: 2, marginBottom: 16, textTransform: "uppercase" }}>
                         🔊 Audio Settings
                     </div>
-                    <VolumeRow label="Engine Sound" icon="🚗" value={engineVolume} onChange={setEngineVolume} />
-                    <VolumeRow label="Bullet Sound" icon="💥" value={shootVolume} onChange={setShootVolume} />
+                    <VolumeRow label="Exploration Volume" icon="🚗" value={engineVolume} onChange={setEngineVolume} />
                     <button
                         onClick={() => {
-                            const muted = engineVolume === 0 && shootVolume === 0;
-                            setEngineVolume(muted ? 0.8 : 0); setShootVolume(muted ? 0.8 : 0);
+                            // If volume is very low, set to 0.8, else mute to 0
+                            setEngineVolume(engineVolume < 0.05 ? 0.8 : 0);
                         }}
                         style={{
                             marginTop: 4, width: "100%", padding: "7px 0",
-                            background: engineVolume === 0 && shootVolume === 0 ? "rgba(255,80,0,0.25)" : "rgba(255,255,255,0.05)",
+                            background: engineVolume < 0.05 ? "rgba(255,80,0,0.25)" : "rgba(255,255,255,0.05)",
                             border: "1px solid rgba(255,140,30,0.25)", borderRadius: 6,
                             color: "#ccc", fontSize: 12, cursor: "pointer", letterSpacing: 0.5,
                         }}
                     >
-                        {engineVolume === 0 && shootVolume === 0 ? "🔇 Unmute All" : "🔇 Mute All"}
+                        {engineVolume < 0.05 ? "🔇 Unmute All" : "🔇 Mute All"}
                     </button>
                 </div>
 
