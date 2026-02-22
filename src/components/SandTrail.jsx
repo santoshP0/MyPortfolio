@@ -61,9 +61,9 @@ const SandTrail = memo(({ carStateRef }) => {
                 nextSlot.current++;
                 const idx = i * 3;
 
-                // Position atom each wheel
+                // Position at ground level (subtract GROUND_Y_OFF from car center)
                 positions[idx] = position.x + right.x * off.x + back.x * off.z + (Math.random() - 0.5) * 0.3;
-                positions[idx + 1] = position.y + 0.01;
+                positions[idx + 1] = position.y - 0.78 + 0.01; // Subtract 0.78 (GROUND_Y_OFF) to hit terrain
                 positions[idx + 2] = position.z + right.z * off.x + back.z * off.z + (Math.random() - 0.5) * 0.3;
 
                 const driftSpread = isDrifting ? 3.0 : 1.2;

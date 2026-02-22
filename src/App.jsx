@@ -14,6 +14,8 @@ import PauseSystem from "./components/PauseSystem";
 import IntroOverlay from "./components/IntroOverlay";
 import ControlsHUD from "./components/ControlsHUD";
 import Scene from "./components/Scene";
+import BreakableObjects from "./components/BreakableObjects";
+import RevealedPanels from "./components/RevealedPanels";
 
 import { terrainHeight } from "./utils/terrain";
 import "./index.css";
@@ -87,6 +89,8 @@ function App() {
             }>
               <Desert />
               <Car ref={carRef} carStateRef={carStateRef} />
+              <BreakableObjects />
+              <RevealedPanels />
 
               {/* Discovery zones — park nearby to reveal portfolio */}
               {zones.map((z) => (

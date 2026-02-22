@@ -4,6 +4,7 @@ import { Html, Sparkles, useGLTF } from "@react-three/drei";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import * as THREE from "three";
 import { useDiscoveryStore } from "../store/useDiscoveryStore";
+import { useObjectStore } from "../store/useObjectStore";
 import { portfolioData } from "../data/portfolioData";
 
 /* ─── Content Lookup ─────────────────────────────────────────── */
@@ -321,7 +322,17 @@ function DiscoveryZone({ id, position, carStateRef }) {
             timerRef.current += dt;
             const p = Math.min(timerRef.current / PARK_TIME, 1);
             setProgress(p);
-            if (p >= 1) reveal(id);
+            if (p >= 1) {
+                reveal(id);
+                // When revealed, spawn a breakable object at this location
+                useObjectStore.getState().addObject(
+                    [position[0], position[1] + 1, position[2]],
+                    [2, 3, 2],
+                    10,
+                    `obj-${id}`,
+                    id
+                );
+            }
         } else {
             if (timerRef.current > 0) {
                 timerRef.current = Math.max(0, timerRef.current - dt * 2.0);

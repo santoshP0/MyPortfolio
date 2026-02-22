@@ -17,10 +17,10 @@ useGLTF.preload("/models/car/ferrari.glb");
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TURN_SPEED = 2.5;
-const GROUND_Y_OFF = 0.58;  // Raised more to prevent sand clipping and "buried" look
+const GROUND_Y_OFF = 0.78;  // Raised to match model's -0.75 offset + small buffer
 const COAST_DECAY = 0.96;
 const WHEEL_KEYS = ["wheel", "tire", "rim"];
-const EXCLUDE_KEYS = ["steering", "seat", "dashboard", "brake", "interior", "cockpit", "engine", "chassis", "body", "frame", "mirror", "caliper", "disc", "suspension", "hub", "bolt", "support"];
+const EXCLUDE_KEYS = ["steering", "seat", "dashboard", "brake", "interior", "cockpit", "engine", "chassis", "body", "frame", "mirror", "caliper", "disc", "suspension", "hub", "bolt", "support", "axle", "rod", "joint", "arm", "bar", "link", "spring"];
 const WHEEL_SPIN = -12.0;    // Negative now (Ferrari wheels rotate forward)
 const WHEEL_STEER = 0.5;
 const PITCH_GAIN = 0.15;     // Smoother slope follow
