@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { KeyboardControls, Html } from "@react-three/drei";
+import { KeyboardControls, Html, Environment, ContactShadows } from "@react-three/drei";
 import { Physics as RapierPhysics } from "@react-three/rapier";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
@@ -23,6 +23,7 @@ export const Controls = {
   backward: "backward",
   left: "left",
   right: "right",
+  drift: "drift",
 };
 
 // Discovery zone positions [x, z, portfolioId]
@@ -42,6 +43,7 @@ function App() {
     position: new THREE.Vector3(),
     quaternion: new THREE.Quaternion(),
     speed: 0,
+    drifting: false,
   });
 
   // Zone positions on the terrain surface
@@ -57,6 +59,7 @@ function App() {
     { name: Controls.backward, keys: ["ArrowDown", "KeyS"] },
     { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
     { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
+    { name: Controls.drift, keys: ["Space"] },
   ], []);
 
   return (
@@ -70,6 +73,7 @@ function App() {
         >
           {/* Lighting (Fill) */}
           <ambientLight intensity={0.4} color="#ffcc88" />
+          <Environment preset="sunset" />
 
           <fog attach="fog" args={["#f0c060", 70, 220]} />
 
@@ -93,6 +97,8 @@ function App() {
                   carStateRef={carStateRef}
                 />
               ))}
+
+
             </Suspense>
           </RapierPhysics>
 

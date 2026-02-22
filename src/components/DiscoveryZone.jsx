@@ -148,7 +148,7 @@ const Monument = memo(({ position, content, isInteractable }) => {
                         <Html
                             center
                             distanceFactor={4}
-                            position={[0, 2.8, 1.15]}
+                            position={[0, 2.8, 1.3]}
                             style={{ pointerEvents: interacting ? "auto" : "none" }}
                             transform
                             occlude={true} // Hard occlusion (cannot see through stone)
@@ -252,8 +252,9 @@ const Monument = memo(({ position, content, isInteractable }) => {
                             </div>
                         </Html>
                     )}
-                    {!paused && interacting && (
-                        <Html center position={[0, -1, 2.0]} occlude={true} scale={0.3}>
+                    {/* Exit prompt — only shown on the ACTIVE inspected stone, right above the inscription */}
+                    {!paused && interacting && content?.id === activeZoneId && (
+                        <Html center position={[0, 5.0, 1.15]} occlude={true} scale={0.3}>
                             <div style={{
                                 background: "rgba(211, 163, 115, 0.95)",
                                 color: "#000",

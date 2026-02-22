@@ -1,253 +1,317 @@
 import React, { useRef, forwardRef, useImperativeHandle, memo, Suspense, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody, CuboidCollider, useRapier } from "@react-three/rapier";
+import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import * as THREE from "three";
 import { useKeyboardControls, PositionalAudio, useGLTF } from "@react-three/drei";
 import { Controls } from "../App";
 import { useAudioStore } from "../store/useAudioStore";
 import { useDiscoveryStore } from "../store/useDiscoveryStore";
 import { terrainHeight } from "../utils/terrain";
+import {
+  CAM_DEFAULT_DISTANCE, CAM_DEFAULT_FOV, CAM_DEFAULT_PITCH,
+  INSPECT_DISTANCE, INSPECT_FOV, INSPECT_CAM_Y_OFFSET,
+  CAR_MAX_SPEED, CAR_ACCELERATION, CAR_BRAKE_FORCE,
+} from "../constants/gameConfig";
 
-useGLTF.preload("/models/car/car.glb");
+useGLTF.preload("/models/car/ferrari.glb");
 
-const CarModel = () => {
-  const { scene } = useGLTF("/models/car/car.glb");
+// ── Constants ─────────────────────────────────────────────────────────────────
+const TURN_SPEED = 2.5;
+const GROUND_Y_OFF = 0.58;  // Raised more to prevent sand clipping and "buried" look
+const COAST_DECAY = 0.96;
+const WHEEL_KEYS = ["wheel", "tire", "rim"];
+const EXCLUDE_KEYS = ["steering", "seat", "dashboard", "brake", "interior", "cockpit", "engine", "chassis", "body", "frame", "mirror", "caliper", "disc", "suspension", "hub", "bolt", "support"];
+const WHEEL_SPIN = -12.0;    // Negative now (Ferrari wheels rotate forward)
+const WHEEL_STEER = 0.5;
+const PITCH_GAIN = 0.15;     // Smoother slope follow
 
+// ── GLB ───────────────────────────────────────────────────────────────────────
+const _wp = new THREE.Vector3();
+const CarModel = memo(({ wheelRefs }) => {
+  const { scene } = useGLTF("/models/car/ferrari.glb");
   useEffect(() => {
-    scene.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
+    const w = [];
+    scene.traverse((c) => {
+      if (c.isMesh) {
+        c.castShadow = true;
+        c.receiveShadow = true;
+
+        if (c.material) {
+          c.material.envMapIntensity = 3.5;
+          // Look for body parts to make them shiny
+          const matName = c.material.name.toLowerCase();
+          if (matName.includes("body") || matName.includes("paint") || matName.includes("car")) {
+            c.material.roughness = 0.05;
+            c.material.metalness = 1.0;
+            c.material.color.set("#ff1111"); // Bright Ferrari red
+          }
+        }
+
+        const name = c.name.toLowerCase();
+        const isWheel = WHEEL_KEYS.some((k) => name.includes(k));
+        const isExcluded = EXCLUDE_KEYS.some((k) => name.includes(k));
+
+        if (isWheel && !isExcluded) {
+          // Store initial rotation to avoid "bending" when overriding
+          if (!c.userData.origRot) c.userData.origRot = c.rotation.clone();
+          w.push(c);
+        }
       }
     });
-  }, [scene]);
+    wheelRefs.current = w;
+  }, [scene, wheelRefs]);
+  return <primitive object={scene} scale={[0.75, 0.75, 0.75]} rotation={[0, Math.PI, 0]} position={[0, -0.75, 0]} />;
+});
 
-  // Lifted from -0.6 to -0.4 to sit higher on wheels
-  return <primitive object={scene} scale={[0.5, 0.5, 0.5]} rotation={[0, Math.PI, 0]} position={[0, -0.4, 0]} />;
-};
+// ── Scratch (never allocate inside useFrame) ─────────────────────────────────
+const _fwd = new THREE.Vector3();
+const _camOff = new THREE.Vector3();
+const _camTgt = new THREE.Vector3();
+const _look = new THREE.Vector3();
+const _euler = new THREE.Euler();
+const _qRot = new THREE.Quaternion();
 
-const ACCELERATION = 2.5;
-const BRAKE_FORCE = 4.0;
-const MAX_SPEED = 20;
-const TURN_SPEED = 3.0;
-const BOUNDARY = 44;
-
+// ── Car ───────────────────────────────────────────────────────────────────────
 const Car = memo(forwardRef(({ carStateRef, ...props }, fwdRef) => {
-  const rigidBodyRef = useRef();
-  useImperativeHandle(fwdRef, () => rigidBodyRef.current);
+  const rbRef = useRef();
+  useImperativeHandle(fwdRef, () => rbRef.current);
 
-  const [_s, get] = useKeyboardControls();
+  const [_s, getKeys] = useKeyboardControls();
   const engineRef = useRef();
   const engineVolume = useAudioStore((s) => s.engineVolume);
   const gameStarted = useDiscoveryStore((s) => s.gameStarted);
-
-  const orbitAngle = useRef(0);
-  const orbitPitch = useRef(0.4);
-  const zoomOffset = useRef(0);
-  const lastMouseTime = useRef(0);
-
   const interacting = useDiscoveryStore((s) => s.interacting);
   const paused = useDiscoveryStore((s) => s.paused);
-  const setInteracting = useDiscoveryStore((s) => s.setInteracting);
-  const activeZonePosition = useDiscoveryStore((s) => s.activeZonePosition);
+  const activeZonePos = useDiscoveryStore((s) => s.activeZonePosition);
 
-  // Pointer lock handling
+  const yaw = useRef(Math.PI); // Start facing opposite direction
+  const spd = useRef(0);       // current speed
+  const rollDist = useRef(0);       // wheel visual rotation
+
+  // Camera
+  const orbAng = useRef(0);
+  const orbPit = useRef(CAM_DEFAULT_PITCH);
+  const zoomOff = useRef(0);
+  const lastM = useRef(0);
+  const camP = useRef(new THREE.Vector3(0, 12, 20));
+  const camL = useRef(new THREE.Vector3());
+
+  // Wheels
+  const wR = useRef([]);
+
+  // ── Audio ──────────────────────────────────────────────────────────────────
   useEffect(() => {
-    const onMouseMove = (e) => {
+    if (!engineRef.current) return;
+    if (gameStarted) { if (!engineRef.current.isPlaying) engineRef.current.play(); }
+    else { if (engineRef.current.isPlaying) engineRef.current.setVolume(0); }
+  }, [gameStarted]);
+
+  // ── Mouse ──────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const onMove = (e) => {
       if (interacting || paused) return;
-      lastMouseTime.current = Date.now();
-      orbitAngle.current -= (e.movementX || 0) * 0.003;
-      orbitPitch.current = Math.max(0.1, Math.min(1.2, orbitPitch.current + (e.movementY || 0) * 0.002));
+      lastM.current = Date.now();
+      orbAng.current -= e.movementX * 0.003;
+      orbPit.current = THREE.MathUtils.clamp(orbPit.current + e.movementY * 0.002, 0.1, 1.2);
     };
-
-    const onMouseDown = () => {
-      const canvas = document.querySelector("canvas");
-      if (canvas && gameStarted && !interacting && !paused) canvas.requestPointerLock();
+    const onDown = () => {
+      const c = document.querySelector("canvas");
+      if (c && gameStarted && !interacting && !paused) c.requestPointerLock();
     };
-
     const onWheel = (e) => {
       if (paused) return;
-      // Reversed: Scroll up (negative deltaY) zooms IN (subtract from distance)
-      zoomOffset.current = THREE.MathUtils.lerp(zoomOffset.current, Math.max(-10, Math.min(25, zoomOffset.current + e.deltaY * 0.015)), 0.5);
+      zoomOff.current = THREE.MathUtils.clamp(zoomOff.current + e.deltaY * 0.015, -10, 25);
     };
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousedown", onDown);
     window.addEventListener("wheel", onWheel);
     return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
       window.removeEventListener("wheel", onWheel);
     };
   }, [interacting, paused, gameStarted]);
 
-  useEffect(() => {
-    if (interacting || paused) {
-      document.exitPointerLock();
-    }
-  }, [interacting, paused]);
+  useEffect(() => { if (interacting || paused) document.exitPointerLock(); }, [interacting, paused]);
 
-  // Enable all rotations for slanting/tilting
+  // ── Physics lock: only Y rotation allowed ──────────────────────────────────
   useEffect(() => {
-    if (rigidBodyRef.current?.setEnabledRotations) {
-      rigidBodyRef.current.setEnabledRotations(true, true, true, true);
-    }
+    const t = setTimeout(() => {
+      if (rbRef.current) {
+        rbRef.current.setEnabledRotations(false, true, false, true);
+      }
+    }, 200);
+    return () => clearTimeout(t);
   }, []);
 
-  // Reused vectors
-  const _quat = useRef(new THREE.Quaternion()).current;
-  const _fwd = useRef(new THREE.Vector3()).current;
-  const _lat = useRef(new THREE.Vector3()).current;
-  const _up = useRef(new THREE.Vector3(0, 1, 0)).current;
-  const _velXZ = useRef(new THREE.Vector3()).current;
-  const _camOffset = useRef(new THREE.Vector3()).current;
-  const _camTarget = useRef(new THREE.Vector3()).current;
-  const _lookTgt = useRef(new THREE.Vector3()).current;
-  const camPos = useRef(new THREE.Vector3(0, 10, 20));
-  const camLook = useRef(new THREE.Vector3(0, 1.5, 0));
-
+  // ── Frame ──────────────────────────────────────────────────────────────────
   useFrame((state, dt) => {
-    if (!rigidBodyRef.current) return;
-    const { forward, backward, left, right } = get();
+    const rb = rbRef.current;
+    if (!rb) return;
 
-    const vel = rigidBodyRef.current.linvel();
-    const rot = rigidBodyRef.current.rotation();
-    const pos = rigidBodyRef.current.translation();
+    const { forward, backward, left, right } = getKeys();
+    const pos = rb.translation();
+    const rv = rb.linvel();
+    const canMove = !interacting && !paused;
 
-    _quat.set(rot.x, rot.y, rot.z, rot.w);
-    _fwd.set(0, 0, -1).applyQuaternion(_quat);
-    _lat.set(1, 0, 0).applyQuaternion(_quat);
+    // 1. STEERING — manual yaw, no torque
+    const { drift } = getKeys();
+    const isDrifting = canMove && drift && Math.abs(spd.current) > 4;
+    const currentTurnSpeed = isDrifting ? TURN_SPEED * 1.8 : TURN_SPEED;
 
-    _velXZ.set(vel.x, 0, vel.z);
-    const speed = _velXZ.length();
-    const signedSpeed = _velXZ.dot(_fwd);
-    const isMovingFwd = signedSpeed > 0.5;
+    if (canMove && Math.abs(spd.current) > 0.3) {
+      const dir = left ? 1 : right ? -1 : 0;
+      const steerFactor = spd.current < 0 ? -1 : 1; // Invert steering when reversing
+      yaw.current += dir * currentTurnSpeed * dt * steerFactor;
+    }
 
-    // Driving logic (W/S)
-    let nx = vel.x, nz = vel.z;
-    if (!interacting && !paused) {
+    // 2. FORCE ROTATION — yaw only, X=0, Z=0 every frame
+    rb.setAngvel({ x: 0, y: 0, z: 0 }, true);
+    _euler.set(0, yaw.current, 0);
+    _qRot.setFromEuler(_euler);
+    rb.setRotation({ x: _qRot.x, y: _qRot.y, z: _qRot.z, w: _qRot.w }, true);
+
+    // 3. SPEED — accelerate / brake / coast
+    if (canMove) {
       if (forward) {
-        nx += _fwd.x * ACCELERATION;
-        nz += _fwd.z * ACCELERATION;
+        spd.current = Math.min(spd.current + CAR_ACCELERATION * dt * 4, CAR_MAX_SPEED);
       } else if (backward) {
-        const f = isMovingFwd ? -BRAKE_FORCE : -ACCELERATION * 0.7;
-        nx += _fwd.x * f;
-        nz += _fwd.z * f;
+        spd.current = Math.max(spd.current - CAR_BRAKE_FORCE * dt * 4, -CAR_MAX_SPEED * 0.35);
       } else {
-        nx *= 0.95; nz *= 0.95;
+        spd.current *= COAST_DECAY;
+        if (Math.abs(spd.current) < 0.05) spd.current = 0;
       }
-
-      const spd = Math.sqrt(nx * nx + nz * nz);
-      if (spd > MAX_SPEED) { nx *= MAX_SPEED / spd; nz *= MAX_SPEED / spd; }
     } else {
-      nx *= 0.9; nz *= 0.9; // Stop car if interacting
+      spd.current *= 0.9;
     }
 
-    // Steering logic (A/D)
-    const isReversing = signedSpeed < -0.4;
-    const turnSign = isReversing ? -1 : 1;
-    let ay = 0;
-    if (!interacting && !paused && speed > 0.2) {
-      ay = left ? TURN_SPEED * turnSign : right ? -TURN_SPEED * turnSign : 0;
+    // 4. FORWARD VECTOR — derived from yaw (flat on XZ)
+    _fwd.set(Math.sin(yaw.current), 0, Math.cos(yaw.current));
+
+    // 5. SET VELOCITY — XZ from car direction, Y from gravity
+    const vy = rv.y;
+    rb.setLinvel({ x: _fwd.x * spd.current, y: vy, z: _fwd.z * spd.current }, true);
+
+    // 6. TERRAIN STICK & PITCH (Multi-point for stability)
+    const frontPos = pos.x + _fwd.x * 1.8;
+    const frontZ = pos.z + _fwd.z * 1.8;
+    const backPos = pos.x - _fwd.x * 1.8;
+    const backZ = pos.z - _fwd.z * 1.8;
+
+    const hFront = terrainHeight(frontPos, frontZ);
+    const hBack = terrainHeight(backPos, backZ);
+    const avgH = (hFront + hBack) / 2;
+    const groundY = avgH + GROUND_Y_OFF;
+
+    // Force snap Y for toy-car feel
+    rb.setTranslation({ x: pos.x, y: groundY, z: pos.z }, true);
+
+    // Calculate slope pitch based on front/back difference
+    const targetPitch = Math.atan2(hBack - hFront, 3.6);
+    _euler.setFromQuaternion(_qRot, "YXZ");
+    const nextP = THREE.MathUtils.lerp(_euler.x, targetPitch, 0.2); // Faster response
+    _euler.set(nextP, yaw.current, 0);
+    _qRot.setFromEuler(_euler);
+    rb.setRotation({ x: _qRot.x, y: _qRot.y, z: _qRot.z, w: _qRot.w }, true);
+
+    // Reset vertical velocity since we're snapped
+    rb.setLinvel({ x: _fwd.x * spd.current, y: 0, z: _fwd.z * spd.current }, true);
+
+    // 7. WHEELS — spin + front steer
+    const absSpd = Math.abs(spd.current);
+    rollDist.current += spd.current * dt * WHEEL_SPIN;
+    const steerDir = left ? 1 : right ? -1 : 0;
+    const currentSteerLimit = isDrifting ? WHEEL_STEER * 1.4 : WHEEL_STEER;
+
+    if (wR.current) {
+      wR.current.forEach((w) => {
+        const orig = w.userData.origRot;
+        if (!orig) return;
+
+        // For steering, find wheels in front half
+        w.getWorldPosition(_wp);
+        const localZ = _wp.sub(new THREE.Vector3(pos.x, pos.y, pos.z)).applyQuaternion(_qRot.clone().invert()).z;
+
+        // Calculate target angles
+        const spin = orig.x + rollDist.current;
+        let steer = orig.y;
+        if (localZ > 0.2) { // Front wheels
+          const targetSteer = orig.y + steerDir * currentSteerLimit;
+          // Smoothly lerp the steering for better visuals
+          w.userData.steerAmt = THREE.MathUtils.lerp(w.userData.steerAmt || 0, steerDir * currentSteerLimit, 0.15);
+          steer = orig.y + w.userData.steerAmt;
+        }
+
+        // Apply rotation with specific order to avoid axes interference ("shifting")
+        w.rotation.set(spin, steer, orig.z, "YXZ");
+      });
     }
 
-    rigidBodyRef.current.setLinvel({ x: nx, y: vel.y, z: nz }, true);
-    rigidBodyRef.current.setAngvel({ x: 0, y: ay, z: 0 }, true);
-
-    // ── Terrain Normal Alignment (Tilt) ──
-    const hCenter = terrainHeight(pos.x, pos.z);
-    const step = 0.6;
-    const hFwd = terrainHeight(pos.x + _fwd.x * step, pos.z + _fwd.z * step);
-    const hRight = terrainHeight(pos.x + _lat.x * step, pos.z + _lat.z * step);
-
-    // Dynamic tilt correction torque
-    const pitch = (hCenter - hFwd) / step;
-    const roll = (hCenter - hRight) / step;
-
-    // Low torque to follow terrain without flipping
-    rigidBodyRef.current.applyTorqueImpulse({
-      x: (pitch * _lat.x + roll * _fwd.x) * 1.5,
-      y: 0,
-      z: (pitch * _lat.z + roll * _fwd.z) * 1.5
-    }, true);
-
-    // Update carState
+    // 8. SHARED STATE — for discovery zones
     if (carStateRef?.current) {
       carStateRef.current.position.set(pos.x, pos.y, pos.z);
-      carStateRef.current.quaternion.copy(_quat);
-      carStateRef.current.speed = speed;
+      carStateRef.current.quaternion.copy(_qRot);
+      carStateRef.current.speed = absSpd;
+      carStateRef.current.drifting = isDrifting;
     }
 
-    // Apply volume/pitch from store + dynamic revving
-    // Steady Engine Hum modulation
-    if (gameStarted && engineRef.current) {
-      const isMoving = speed > 0.5;
-      const revving = Math.min(speed / MAX_SPEED, 1);
-
-      // Minimal pitch variation (steady hum)
-      // Idle: 0.6, Max Speed: 0.8
-      engineRef.current.setPlaybackRate(0.6 + revving * 0.2);
-
-      // Volume follows movement: low at idle, steady when driving
-      const volFactor = isMoving ? 0.8 + (revving * 0.2) : 0.5;
-      engineRef.current.setVolume(engineVolume * 0.35 * volFactor);
+    // 9. AUDIO
+    if (gameStarted && engineRef.current?.isPlaying) {
+      const rev = Math.min(absSpd / CAR_MAX_SPEED, 1);
+      engineRef.current.setPlaybackRate(0.85 + rev * 0.25); // Slighly higher base, narrower range
+      engineRef.current.setVolume(engineVolume * (absSpd > 0.5 ? 0.15 + rev * 0.05 : 0.08)); // Even lower volume
     }
 
-    // Dynamic zoom based on interaction + manual scroll
-    const baseDist = 14 + zoomOffset.current;
-    const targetDist = interacting ? 3.0 : baseDist; // Ultra zoom (3m)
-    const targetFov = interacting ? 30 : 70; // High detail FOV (30)
-    state.camera.fov = THREE.MathUtils.lerp(state.camera.fov, targetFov, 0.1);
+    // 10. CAMERA
+    const baseDist = CAM_DEFAULT_DISTANCE + zoomOff.current;
+    state.camera.fov = THREE.MathUtils.lerp(
+      state.camera.fov, interacting ? INSPECT_FOV : CAM_DEFAULT_FOV, 0.1);
     state.camera.updateProjectionMatrix();
 
-    // Smoother lerp for the actual camera distance
-    const currentDist = THREE.MathUtils.lerp(baseDist, targetDist, interacting ? 0.15 : 0.08);
-
-    const now = Date.now();
-    if (!interacting && now - lastMouseTime.current > 1200 && speed > 2) {
-      orbitAngle.current = THREE.MathUtils.lerp(orbitAngle.current, 0, 0.05);
-      orbitPitch.current = THREE.MathUtils.lerp(orbitPitch.current, 0.4, 0.03);
-    }
-
-    const carAngle = Math.atan2(_fwd.x, _fwd.z);
-    const targetAngle = carAngle + Math.PI + orbitAngle.current;
-
-    _camOffset.set(
-      Math.sin(targetAngle) * currentDist * Math.cos(orbitPitch.current),
-      Math.sin(orbitPitch.current) * currentDist,
-      Math.cos(targetAngle) * currentDist * Math.cos(orbitPitch.current)
-    );
-
-    _camTarget.set(pos.x + _camOffset.x, pos.y + _camOffset.y, pos.z + _camOffset.z);
-    camPos.current.lerp(_camTarget, interacting ? 0.08 : 0.12);
-    state.camera.position.copy(camPos.current);
-
-    const verticalOffset = interacting ? 2.5 : 1.2;
-    if (interacting && activeZonePosition) {
-      // Look directly at the monument text area (approx 5.7 units above ground for closer center)
-      _lookTgt.set(activeZonePosition[0], activeZonePosition[1] + 5.7, activeZonePosition[2]);
+    if (interacting && activeZonePos) {
+      const fz = activeZonePos[2] - 0.35;
+      const fy = activeZonePos[1] + 5.7;
+      _camTgt.set(activeZonePos[0], fy + INSPECT_CAM_Y_OFFSET, fz + INSPECT_DISTANCE);
+      camP.current.lerp(_camTgt, 0.07);
+      state.camera.position.copy(camP.current);
+      _look.set(activeZonePos[0], fy, fz);
+      camL.current.lerp(_look, 0.12);
+      state.camera.lookAt(camL.current);
     } else {
-      // Look at the car
-      _lookTgt.set(pos.x, pos.y + verticalOffset, pos.z);
+      if (Date.now() - lastM.current > 1200 && absSpd > 2) {
+        orbAng.current = THREE.MathUtils.lerp(orbAng.current, 0, 0.05);
+        orbPit.current = THREE.MathUtils.lerp(orbPit.current, CAM_DEFAULT_PITCH, 0.03);
+      }
+      const behind = yaw.current + Math.PI + orbAng.current;
+      _camOff.set(
+        Math.sin(behind) * baseDist * Math.cos(orbPit.current),
+        Math.sin(orbPit.current) * baseDist,
+        Math.cos(behind) * baseDist * Math.cos(orbPit.current),
+      );
+      _camTgt.set(pos.x + _camOff.x, pos.y + _camOff.y, pos.z + _camOff.z);
+      camP.current.lerp(_camTgt, 0.1);
+      state.camera.position.copy(camP.current);
+      _look.set(pos.x, pos.y + 1.2, pos.z);
+      camL.current.lerp(_look, 0.15);
+      state.camera.lookAt(camL.current);
     }
-
-    camLook.current.lerp(_lookTgt, 0.18);
-    state.camera.lookAt(camLook.current);
   });
 
   return (
     <RigidBody
-      ref={rigidBodyRef}
+      ref={rbRef}
       colliders={false}
-      position={[0, 8, 8]}
-      linearDamping={0.4}
-      angularDamping={2.5} // High to prevent flipping
+      position={[0, 5, 8]}
+      mass={1}
+      linearDamping={4}
+      angularDamping={6}
       restitution={0}
-      friction={1.5}
+      friction={2}
+      canSleep={false}
       {...props}
     >
-      <CuboidCollider args={[0.7, 0.45, 1.4]} position={[0, 0.45, 0]} />
-      <Suspense fallback={null}><CarModel /></Suspense>
+      <CuboidCollider args={[1.2, 0.7, 2.3]} position={[0, 0.7, 0]} />
+      <Suspense fallback={null}><CarModel wheelRefs={wR} /></Suspense>
       <PositionalAudio ref={engineRef} url="/audio/engine_loop.mp3" loop autoplay distance={15} />
     </RigidBody>
   );
