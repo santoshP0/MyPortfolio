@@ -63,7 +63,7 @@ a {
 .pf-sidebar {
   position: fixed;
   top: 0;
-  left: 120px;
+  left: 24px;
   width: var(--sidebar-w);
   height: 100vh;
   z-index: 200;
@@ -99,6 +99,9 @@ a {
   font-weight: 800;
   color: var(--text-h);
   letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pf-sidebar-brand-role {
@@ -154,8 +157,8 @@ a {
 
 /* ── Main content ── */
 .pf-main {
-  margin-left: calc(120px + var(--sidebar-w));
-  width: calc(100% - 120px - var(--sidebar-w));
+  margin-left: calc(24px + var(--sidebar-w));
+  width: calc(100% - 24px - var(--sidebar-w));
   min-height: 100vh;
   padding: clamp(36px, 4vw, 60px) clamp(32px, 5vw, 72px) 80px;
   box-sizing: border-box;
@@ -629,7 +632,7 @@ a {
 ───────────────────────────────────────── */
 .pf-contact-wrapper {
   display: grid;
-  grid-template-columns: minmax(220px, 300px) 1fr;
+  grid-template-columns: minmax(160px, 200px) 1fr;
   gap: clamp(16px, 3vw, 32px);
 }
 
@@ -779,14 +782,28 @@ a {
    Sidebar collapses to icon-only strip
 ───────────────────────────────────────── */
 @media (max-width: 1023px) and (min-width: 768px) {
+  /* Tablet → bottom tab bar (same as mobile) */
   .pf-sidebar {
-    width: var(--sidebar-tab);
-    padding: 20px 8px;
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    padding: 0;
+    align-items: flex-end;
+    justify-content: stretch;
   }
 
   .pf-sidebar-inner {
-    border-radius: 20px;
-    padding: 16px 8px;
+    flex-direction: row;
+    border-radius: 0;
+    padding: 8px 12px calc(env(safe-area-inset-bottom, 0px) + 8px);
+    justify-content: space-around;
+    width: 100%;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    gap: 2px;
     align-items: center;
   }
 
@@ -795,47 +812,33 @@ a {
   }
 
   .pf-nav-pill {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    padding: 12px;
-    font-size: 0;
-    /* hide label text */
-    gap: 0;
-    position: relative;
+    padding: 8px 4px;
+    gap: 3px;
+    font-size: 10px;
+    text-align: center;
+    border-radius: 10px;
+    position: static;
   }
 
-  /* Show tooltip on hover */
   .pf-nav-pill::after {
-    content: attr(data-label);
-    position: absolute;
-    left: calc(100% + 10px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--bg);
-    box-shadow: var(--nm-raised-sm);
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-b);
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    z-index: 300;
-  }
-
-  .pf-nav-pill:hover::after {
-    opacity: 1;
+    display: none;
   }
 
   .pf-nav-icon {
     font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .pf-main {
-    margin-left: var(--sidebar-tab);
-    width: calc(100% - var(--sidebar-tab));
-    padding: clamp(24px, 3vw, 44px) clamp(20px, 4vw, 40px) 80px;
+    margin-left: 0;
+    width: 100%;
+    padding: clamp(24px, 3vw, 44px) clamp(20px, 4vw, 40px) calc(var(--bottombar-h) + 20px);
   }
 
   .pf-hero-wrapper {
@@ -1043,7 +1046,7 @@ a {
    SHORT SCREENS (landscape phone / small laptop)
    Sidebar inner becomes scrollable so nav never clips content
 ───────────────────────────────────────── */
-@media (max-height: 680px) and (min-width: 768px) {
+@media (max-height: 680px) and (min-width: 1024px) {
   .pf-sidebar-inner {
     overflow-y: auto;
     max-height: calc(100vh - 40px);
