@@ -3,7 +3,9 @@ import "../styles/portfolio.css";
 import {
   SiJavascript, SiTypescript, SiReact, SiNodedotjs, SiPython,
   SiMongodb, SiFirebase, SiAmazon, SiKotlin, SiSwift,
-  SiGit, SiAndroid, SiApple
+  SiGit, SiAndroid, SiApple,
+  SiVscodium, SiPostman, SiAndroidstudio, SiXcode,
+  SiFigma, SiGithub, SiJira
 } from "react-icons/si";
 import { FaReacteurope } from "react-icons/fa";
 import {
@@ -30,8 +32,13 @@ const NAV = [
 const EXPERIENCE = [
   {
     role: "Senior Software Developer",
-    company: "Hexagon's Capability Center India",
+    company: "Hexagon's Capability Center India (HCCI)",
     time: "2022 – Present",
+  },
+  {
+    role: "Software Developer",
+    company: "Botzop",
+    time: "2019 – 2021",
   },
   {
     role: "B.Tech · Computer Science Engineering",
@@ -54,30 +61,6 @@ const PROJECTS = [
     img: oncallImg,
     android: "https://play.google.com/store/apps/details?id=com.hexagon.oncallmobile&hl=en",
     ios: "https://apps.apple.com/us/app/hxgn-oncall-mobile/id1502277906",
-  },
-  {
-    title: "Modern Push Notifications",
-    desc: "Taming Notifee for cinematic push notifications with rich media, deep links, and custom actions.",
-    img: notiImg,
-    link: "https://medium.com/@santosh.pk/implementing-modern-push-notifications-in-react-native-android-notifee-72de60ee2712",
-  },
-  {
-    title: "Custom Android Widgets",
-    desc: "Reimagining React Native widgets to keep users locked into core flows from the home screen.",
-    img: widgetImg,
-    link: "https://medium.com/@santosh.pk/implementation-of-react-native-widget-for-android-14fe648a9b06",
-  },
-  {
-    title: "Deno vs Node.js",
-    desc: "Performance, security, and DX trade-offs across REST, WebSocket, and GraphQL builds.",
-    img: denoImg,
-    link: "https://medium.com/@santosh.pk/building-a-rest-api-websocket-and-graphql-server-in-deno-25616c95c5a6",
-  },
-  {
-    title: "React Native Best Practices",
-    desc: "Key systems that keep React Native apps fast, stable, and ready for scale.",
-    img: rnImg,
-    link: "http://blog.zenof.ai/8-best-practices-for-your-react-native-app/",
   },
 ];
 
@@ -135,6 +118,16 @@ const BLOGS = [
     img: rnImg,
     link: "http://blog.zenof.ai/building-react-native-object-detection-app-using-tensorflow-with-react-hooks/",
   },
+];
+
+const TOOLS = [
+  { name: "VS Code", icon: <SiVscodium /> },
+  { name: "Android Studio", icon: <SiAndroidstudio /> },
+  { name: "Xcode", icon: <SiXcode /> },
+  { name: "Postman", icon: <SiPostman /> },
+  { name: "Figma", icon: <SiFigma /> },
+  { name: "GitHub", icon: <SiGithub /> },
+  { name: "Jira", icon: <SiJira /> },
 ];
 
 export default function Portfolio() {
@@ -234,8 +227,13 @@ export default function Portfolio() {
         <section id="experience" ref={refFor("experience")} className="pf-section">
           <h2 className="pf-title">Experience</h2>
           <div className="pf-timeline">
+            <div className="pf-timeline-line" />
             {EXPERIENCE.map((e, i) => (
-              <div key={i} className="pf-timeline-item">
+              <div
+                key={i}
+                className={`pf-timeline-item ${i % 2 === 0 ? "pf-timeline-item--left" : "pf-timeline-item--right"}`}
+              >
+                <div className="pf-timeline-dot" />
                 <div className="pf-timeline-card">
                   <p className="pf-timeline-role">{e.role}</p>
                   <p className="pf-timeline-company">{e.company}</p>
@@ -255,25 +253,27 @@ export default function Portfolio() {
                 <div className="pf-project-thumb">
                   <img src={p.img} alt={p.title} loading="lazy" />
                 </div>
-                <p className="pf-project-title">{p.title}</p>
-                <p className="pf-project-desc">{p.desc}</p>
-                <div className="pf-project-actions">
-                  {p.android && (
-                    <a href={p.android} target="_blank" rel="noopener noreferrer" className="pf-btn">Android</a>
-                  )}
-                  {p.ios && (
-                    <a href={p.ios} target="_blank" rel="noopener noreferrer" className="pf-btn">iOS</a>
-                  )}
-                  {p.link && (
-                    <a href={p.link} target="_blank" rel="noopener noreferrer" className="pf-btn">Read More</a>
-                  )}
+                <div className="pf-project-content">
+                  <p className="pf-project-title">{p.title}</p>
+                  <p className="pf-project-desc">{p.desc}</p>
+                  <div className="pf-project-actions">
+                    {p.android && (
+                      <a href={p.android} target="_blank" rel="noopener noreferrer" className="pf-btn">Android</a>
+                    )}
+                    {p.ios && (
+                      <a href={p.ios} target="_blank" rel="noopener noreferrer" className="pf-btn">iOS</a>
+                    )}
+                    {p.link && (
+                      <a href={p.link} target="_blank" rel="noopener noreferrer" className="pf-btn">Read More</a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Skills */}
+        {/* Skills & Tools */}
         <section id="skills" ref={refFor("skills")} className="pf-section">
           <h2 className="pf-title">Skills</h2>
           <div className="pf-skills-grid">
@@ -281,6 +281,16 @@ export default function Portfolio() {
               <div key={i} className="pf-skill-tile">
                 <span className="pf-skill-icon">{s.icon}</span>
                 <span className="pf-skill-name">{s.name}</span>
+              </div>
+            ))}
+          </div>
+
+          <h2 className="pf-title pf-tools-title">Tools</h2>
+          <div className="pf-skills-grid">
+            {TOOLS.map((t, i) => (
+              <div key={i} className="pf-skill-tile">
+                <span className="pf-skill-icon">{t.icon}</span>
+                <span className="pf-skill-name">{t.name}</span>
               </div>
             ))}
           </div>
