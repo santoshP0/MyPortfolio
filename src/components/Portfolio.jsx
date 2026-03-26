@@ -1,133 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/portfolio.css";
-import {
-  SiJavascript, SiTypescript, SiReact, SiNodedotjs, SiPython,
-  SiMongodb, SiFirebase, SiAmazon, SiKotlin, SiSwift,
-  SiGit, SiAndroid, SiApple,
-  SiVscodium, SiPostman, SiAndroidstudio, SiXcode,
-  SiFigma, SiGithub, SiJira, SiLinkedin
-} from "react-icons/si";
-import { FaReacteurope } from "react-icons/fa";
-import {
-  MdHome, MdWork, MdApps, MdBuild, MdArticle, MdMail, MdLocationOn
-} from "react-icons/md";
-
-import mrImg from "../Assets/Projects/MR.webp";
-import oncallImg from "../Assets/Projects/oncallMobile.webp";
-import denoImg from "../Assets/Projects/Deno.webp";
-import widgetImg from "../Assets/Projects/androidWidget.jpg";
-import notiImg from "../Assets/Projects/modernNoti.webp";
-import rnImg from "../Assets/Projects/ReactNative.png";
-import twilioImg from "../Assets/Projects/twilio.png";
+import { SiLinkedin } from "react-icons/si";
+import { MdHome, MdWork, MdApps, MdBuild, MdArticle, MdMail, MdLocationOn } from "react-icons/md";
+import { PROFILE, EXPERIENCE, PROJECTS, SKILLS, TOOLS, BLOGS, CONTACT } from "../data/portfolioData.jsx";
 
 const NAV = [
-  { id: "home", label: "Home", icon: <MdHome /> },
-  { id: "experience", label: "Experience", icon: <MdWork /> },
-  { id: "projects", label: "Projects", icon: <MdApps /> },
-  { id: "skills", label: "Skills", icon: <MdBuild /> },
-  { id: "blogs", label: "Blogs", icon: <MdArticle /> },
-  { id: "contact", label: "Contact", icon: <MdMail /> },
-];
-
-const EXPERIENCE = [
-  {
-    role: "Senior Software Developer",
-    company: "Hexagon's Capability Center India (HCCI)",
-    time: "2022 – Present",
-  },
-  {
-    role: "Software Developer",
-    company: "Botzop",
-    time: "2019 – 2021",
-  },
-  {
-    role: "B.Tech · Computer Science Engineering",
-    company: "Mahaveer Institute of Science and Technology",
-    time: "2015 – 2019",
-  },
-];
-
-const PROJECTS = [
-  {
-    title: "Intergraph Mobile Responder",
-    desc: "Extends I/CAD capabilities to always-connected responders with native performance, secure messaging, GPS, and camera integrations.",
-    img: mrImg,
-    android: "https://play.google.com/store/apps/details?id=com.hexagon.mobileresponder&hl=en",
-    ios: "https://apps.apple.com/us/app/intergraph-mobile-responder-rn/id6474117198",
-  },
-  {
-    title: "OnCall Mobile",
-    desc: "Empowers field units with dispatch intelligence, real-time updates, and frictionless coordination directly on handheld devices.",
-    img: oncallImg,
-    android: "https://play.google.com/store/apps/details?id=com.hexagon.oncallmobile&hl=en",
-    ios: "https://apps.apple.com/us/app/hxgn-oncall-mobile/id1502277906",
-  },
-];
-
-const SKILLS = [
-  { name: "React Native", icon: <FaReacteurope /> },
-  { name: "React.js", icon: <SiReact /> },
-  { name: "TypeScript", icon: <SiTypescript /> },
-  { name: "JavaScript", icon: <SiJavascript /> },
-  { name: "Node.js", icon: <SiNodedotjs /> },
-  { name: "Python", icon: <SiPython /> },
-  { name: "Kotlin", icon: <SiKotlin /> },
-  { name: "Swift", icon: <SiSwift /> },
-  { name: "AWS", icon: <SiAmazon /> },
-  { name: "Firebase", icon: <SiFirebase /> },
-  { name: "MongoDB", icon: <SiMongodb /> },
-  { name: "Android", icon: <SiAndroid /> },
-  { name: "iOS", icon: <SiApple /> },
-  { name: "Git", icon: <SiGit /> },
-];
-
-const BLOGS = [
-  {
-    title: "Deno vs Node.js",
-    desc: "Performance, security, and DX trade-offs across REST, WebSocket, and GraphQL builds.",
-    img: denoImg,
-    link: "https://medium.com/@santosh.pk/building-a-rest-api-websocket-and-graphql-server-in-deno-25616c95c5a6",
-  },
-  {
-    title: "Custom Android Widgets",
-    desc: "Reimagining React Native widgets to keep users locked into core flows from the home screen.",
-    img: widgetImg,
-    link: "https://medium.com/@santosh.pk/implementation-of-react-native-widget-for-android-14fe648a9b06",
-  },
-  {
-    title: "Modern Notifications",
-    desc: "Taming Notifee for cinematic push notifications with rich media, deep links, and custom actions.",
-    img: notiImg,
-    link: "https://medium.com/@santosh.pk/implementing-modern-push-notifications-in-react-native-android-notifee-72de60ee2712",
-  },
-  {
-    title: "React Native Best Practices",
-    desc: "Key systems that keep React Native apps fast, stable, and ready for scale.",
-    img: rnImg,
-    link: "http://blog.zenof.ai/8-best-practices-for-your-react-native-app/",
-  },
-  {
-    title: "Video Calling with Twilio",
-    desc: "Building production-ready Twilio video experiences with call controls and polished UX.",
-    img: twilioImg,
-    link: "http://blog.zenof.ai/create-a-react-native-video-calling-app-using-twilio/",
-  },
-  {
-    title: "Object Detection in RN",
-    desc: "Deploying TensorFlow-powered recognition in React Native for real-time scene awareness.",
-    img: rnImg,
-    link: "http://blog.zenof.ai/building-react-native-object-detection-app-using-tensorflow-with-react-hooks/",
-  },
-];
-
-const TOOLS = [
-  { name: "VS Code", icon: <SiVscodium /> },
-  { name: "Android Studio", icon: <SiAndroidstudio /> },
-  { name: "Xcode", icon: <SiXcode /> },
-  { name: "Postman", icon: <SiPostman /> },
-  { name: "Figma", icon: <SiFigma /> },
-  { name: "GitHub", icon: <SiGithub /> },
-  { name: "Jira", icon: <SiJira /> },
+  { id: "home",       label: "Home",       icon: <MdHome />    },
+  { id: "experience", label: "Experience", icon: <MdWork />    },
+  { id: "projects",   label: "Projects",   icon: <MdApps />    },
+  { id: "skills",     label: "Skills",     icon: <MdBuild />   },
+  { id: "blogs",      label: "Blogs",      icon: <MdArticle /> },
+  { id: "contact",    label: "Contact",    icon: <MdMail />    },
 ];
 
 export default function Portfolio() {
@@ -179,8 +62,8 @@ export default function Portfolio() {
       <aside className="pf-sidebar">
         <div className="pf-sidebar-inner">
           <div className="pf-sidebar-brand">
-            <div className="pf-sidebar-brand-name">Santosh</div>
-            <div className="pf-sidebar-brand-role">Mobile Dev</div>
+            <div className="pf-sidebar-brand-name">{PROFILE.name}</div>
+            <div className="pf-sidebar-brand-role">{PROFILE.role}</div>
           </div>
           {NAV.map(({ id, label, icon }) => (
             <button
@@ -206,13 +89,9 @@ export default function Portfolio() {
             <div className="pf-hero-main">
               <div className="pf-card pf-hero-card">
                 <div className="pf-hero-inner">
-                  <span className="pf-hero-badge">Mobile App Developer</span>
-                  <h1 className="pf-hero-name">Santosh</h1>
-                  <p className="pf-hero-tagline">
-                    Building high-performance mobile applications with React Native,
-                    TypeScript &amp; modern tech stack. 5+ years of experience
-                    delivering production-ready apps.
-                  </p>
+                  <span className="pf-hero-badge">{PROFILE.badge}</span>
+                  <h1 className="pf-hero-name">{PROFILE.name}</h1>
+                  <p className="pf-hero-tagline">{PROFILE.tagline}</p>
                   <div className="pf-hero-cta">
                     <button className="pf-btn pf-btn-primary" onClick={() => scrollTo("projects")}>
                       View Projects
@@ -225,18 +104,12 @@ export default function Portfolio() {
               </div>
             </div>
             <div className="pf-hero-stats">
-              <div className="pf-stat-card">
-                <span className="pf-stat-value">5+</span>
-                <span className="pf-stat-label">Years Exp.</span>
-              </div>
-              <div className="pf-stat-card">
-                <span className="pf-stat-value">4+</span>
-                <span className="pf-stat-label">Apps Released</span>
-              </div>
-              <div className="pf-stat-card">
-                <span className="pf-stat-value">100%</span>
-                <span className="pf-stat-label">Delivery</span>
-              </div>
+              {PROFILE.stats.map((s, i) => (
+                <div key={i} className="pf-stat-card">
+                  <span className="pf-stat-value">{s.value}</span>
+                  <span className="pf-stat-label">{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -344,8 +217,8 @@ export default function Portfolio() {
                   <MdMail className="pf-contact-type-icon" />
                   <span className="pf-contact-label">Email</span>
                 </div>
-                <a href="mailto:santoshpk.mdev@gmail.com" className="pf-contact-value">
-                  santoshpk.mdev@gmail.com
+                <a href={`mailto:${CONTACT.email}`} className="pf-contact-value">
+                  {CONTACT.email}
                 </a>
               </div>
               <div className="pf-contact-card-mini pf-scroll-animate" style={{ transitionDelay: "80ms" }}>
@@ -353,7 +226,7 @@ export default function Portfolio() {
                   <MdLocationOn className="pf-contact-type-icon" />
                   <span className="pf-contact-label">Location</span>
                 </div>
-                <span className="pf-contact-value">Telangana, India</span>
+                <span className="pf-contact-value">{CONTACT.location}</span>
               </div>
               <div className="pf-contact-card-mini pf-scroll-animate" style={{ transitionDelay: "160ms" }}>
                 <div className="pf-contact-label-row">
@@ -361,12 +234,12 @@ export default function Portfolio() {
                   <span className="pf-contact-label">LinkedIn</span>
                 </div>
                 <a
-                  href="https://www.linkedin.com/in/santosh-kumar-649928265"
+                  href={CONTACT.linkedin.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pf-contact-value"
                 >
-                  santosh-kumar
+                  {CONTACT.linkedin.label}
                 </a>
               </div>
             </div>
