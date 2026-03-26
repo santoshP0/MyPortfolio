@@ -63,7 +63,7 @@ a {
 .pf-sidebar {
   position: fixed;
   top: 0;
-  left: 0;
+  left: 120px;
   width: var(--sidebar-w);
   height: 100vh;
   z-index: 200;
@@ -340,46 +340,86 @@ a {
 }
 
 /* ─────────────────────────────────────────
-   EXPERIENCE TIMELINE — single column, no lines
+   EXPERIENCE TIMELINE — center line, zigzag cards
 ───────────────────────────────────────── */
 .pf-timeline {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 800px;
+  gap: 28px;
+  max-width: 900px;
 }
 
-/* Hide both the decorative line div and any ::before line */
+/* Center vertical line */
+.pf-timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--shadow-d) 8%,
+    var(--shadow-d) 92%,
+    transparent
+  );
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 .pf-timeline-line {
   display: none;
 }
 
-/* Both left & right items use the same full-width row layout */
+/* Each item is a 3-column grid: [card zone] [dot zone] [card zone] */
 .pf-timeline-item {
   display: grid;
-  grid-template-columns: 16px 1fr;
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: 1fr 32px 1fr;
+  gap: 0 20px;
+  align-items: center;
   position: relative;
 }
 
-.pf-timeline-item--left,
-.pf-timeline-item--right {
-  width: 100%;
-  left: 0;
-  text-align: left;
-  padding: 0;
-}
-
+/* Dot always snaps to the center column */
 .pf-timeline-dot {
-  width: 14px;
-  height: 14px;
+  grid-column: 2;
+  grid-row: 1;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--shadow-d);
   box-shadow: var(--nm-raised-sm);
-  margin-top: 20px;
+  justify-self: center;
+  align-self: center;
   flex-shrink: 0;
+  margin-top: 0;
+  border: 2px solid var(--bg);
+}
+
+/* LEFT item — card occupies column 1, column 3 stays empty */
+.pf-timeline-item--left .pf-timeline-dot {
+  order: 2;
+}
+.pf-timeline-item--left .pf-timeline-card {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: right;
+  border-left: none;
+  border-right: 3px solid rgba(200, 208, 224, 0.6);
+}
+
+/* RIGHT item — col 1 stays empty, card occupies column 3 */
+.pf-timeline-item--right .pf-timeline-dot {
+  grid-column: 2;
+  grid-row: 1;
+}
+.pf-timeline-item--right .pf-timeline-card {
+  grid-column: 3;
+  grid-row: 1;
+  text-align: left;
+  border-left: 3px solid rgba(200, 208, 224, 0.6);
 }
 
 .pf-timeline-card {
@@ -388,8 +428,6 @@ a {
   border-radius: var(--radius-md);
   padding: clamp(18px, 2vw, 24px);
   transition: transform 0.3s ease;
-  border-left: 3px solid rgba(200, 208, 224, 0.6);
-  width: 100%;
 }
 
 .pf-timeline-card:hover {
@@ -808,6 +846,35 @@ a {
   .pf-form-row {
     grid-template-columns: 1fr;
   }
+
+  /* Collapse zigzag timeline to single column on tablet */
+  .pf-timeline::before {
+    display: none;
+  }
+
+  .pf-timeline-item {
+    grid-template-columns: 16px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .pf-timeline-item--left .pf-timeline-dot,
+  .pf-timeline-item--right .pf-timeline-dot {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    align-self: start;
+    margin-top: 20px;
+  }
+
+  .pf-timeline-item--left .pf-timeline-card,
+  .pf-timeline-item--right .pf-timeline-card {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: left;
+    border-left: 3px solid rgba(200, 208, 224, 0.6);
+    border-right: none;
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -910,6 +977,35 @@ a {
 
   .pf-skills-grid {
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  /* Collapse zigzag timeline to single column on mobile */
+  .pf-timeline::before {
+    display: none;
+  }
+
+  .pf-timeline-item {
+    grid-template-columns: 16px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .pf-timeline-item--left .pf-timeline-dot,
+  .pf-timeline-item--right .pf-timeline-dot {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    align-self: start;
+    margin-top: 20px;
+  }
+
+  .pf-timeline-item--left .pf-timeline-card,
+  .pf-timeline-item--right .pf-timeline-card {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: left;
+    border-left: 3px solid rgba(200, 208, 224, 0.6);
+    border-right: none;
   }
 }
 
