@@ -63,14 +63,14 @@ a {
 .pf-sidebar {
   position: fixed;
   top: 0;
-  left: 180px;
+  left: 0;
   width: var(--sidebar-w);
   height: 100vh;
   z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 24px 16px;
 }
 
 .pf-sidebar-inner {
@@ -143,12 +143,21 @@ a {
   font-weight: 700;
 }
 
+/* ── Nav icon base size ── */
+.pf-nav-icon {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 /* ── Main content ── */
 .pf-main {
-  margin-left: calc(var(--sidebar-w) + 40px);
-  width: calc(100% - var(--sidebar-w) - 80px);
+  margin-left: var(--sidebar-w);
+  width: calc(100% - var(--sidebar-w));
   min-height: 100vh;
-  padding: clamp(32px, 4vw, 56px) clamp(20px, 4vw, 40px);
+  padding: clamp(36px, 4vw, 60px) clamp(32px, 5vw, 72px) 80px;
   box-sizing: border-box;
 }
 
@@ -331,92 +340,60 @@ a {
 }
 
 /* ─────────────────────────────────────────
-   EXPERIENCE TIMELINE
+   EXPERIENCE TIMELINE — single column, no lines
 ───────────────────────────────────────── */
 .pf-timeline {
   position: relative;
-  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
 }
 
-.pf-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, var(--shadow-d), var(--bg));
-  border-radius: 2px;
-}
-
-.pf-timeline {
-  position: relative;
-  max-width: 1000px;
-  margin: 40px auto 0;
-  padding: 40px 0;
-}
-
+/* Hide both the decorative line div and any ::before line */
 .pf-timeline-line {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: rgba(200, 208, 224, 0.5);
-  transform: translateX(-50%);
-  display: block;
+  display: none;
 }
 
+/* Both left & right items use the same full-width row layout */
 .pf-timeline-item {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 20px;
+  align-items: start;
   position: relative;
-  width: 50%;
-  padding: 10px 40px;
-  box-sizing: border-box;
-  margin-bottom: 20px;
 }
 
-.pf-timeline-item--left {
-  left: 0;
-  text-align: right;
-}
-
+.pf-timeline-item--left,
 .pf-timeline-item--right {
-  left: 50%;
+  width: 100%;
+  left: 0;
   text-align: left;
+  padding: 0;
 }
 
 .pf-timeline-dot {
-  position: absolute;
-  top: 25px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--bg);
+  background: var(--shadow-d);
   box-shadow: var(--nm-raised-sm);
-  z-index: 2;
-}
-
-.pf-timeline-item--left .pf-timeline-dot {
-  right: -7px;
-}
-
-.pf-timeline-item--right .pf-timeline-dot {
-  left: -7px;
+  margin-top: 20px;
+  flex-shrink: 0;
 }
 
 .pf-timeline-card {
   background: var(--bg);
   box-shadow: var(--nm-raised-sm);
   border-radius: var(--radius-md);
-  padding: clamp(20px, 2vw, 24px);
+  padding: clamp(18px, 2vw, 24px);
   transition: transform 0.3s ease;
-  display: inline-block;
-  min-width: 300px;
-  max-width: 100%;
+  border-left: 3px solid rgba(200, 208, 224, 0.6);
+  width: 100%;
 }
 
 .pf-timeline-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
 }
 
 .pf-timeline-role {
@@ -799,43 +776,13 @@ a {
   }
 
   .pf-nav-icon {
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 22px;
   }
 
   .pf-main {
-    margin-left: calc(var(--sidebar-tab) + 20px);
-    width: calc(100% - var(--sidebar-tab) - 30px);
-    padding: clamp(20px, 3vw, 40px) clamp(16px, 4vw, 32px);
-  }
-
-  /* Stack timeline on tablet too */
-  .pf-timeline {
-    padding: 20px 0;
-  }
-
-  .pf-timeline-line {
-    left: 20px;
-    transform: none;
-  }
-
-  .pf-timeline-item {
-    width: 100%;
-    padding: 10px 0 10px 45px;
-    text-align: left;
-    left: 0 !important;
-  }
-
-  .pf-timeline-dot {
-    left: 13px !important;
-    right: auto !important;
-  }
-
-  .pf-timeline-card {
-    min-width: 0;
-    width: 100%;
+    margin-left: var(--sidebar-tab);
+    width: calc(100% - var(--sidebar-tab));
+    padding: clamp(24px, 3vw, 44px) clamp(20px, 4vw, 40px) 80px;
   }
 
   .pf-hero-wrapper {
@@ -959,31 +906,6 @@ a {
 
   .pf-form-row {
     grid-template-columns: 1fr;
-  }
-
-  .pf-timeline {
-    padding: 20px 0;
-  }
-
-  .pf-timeline-line {
-    left: 20px;
-  }
-
-  .pf-timeline-item {
-    width: 100%;
-    padding: 10px 0 10px 45px;
-    text-align: left;
-    left: 0 !important;
-  }
-
-  .pf-timeline-dot {
-    left: 13px !important;
-    right: auto !important;
-  }
-
-  .pf-timeline-card {
-    min-width: 0;
-    width: 100%;
   }
 
   .pf-skills-grid {
