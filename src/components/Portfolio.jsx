@@ -6,6 +6,9 @@ import {
   SiGit, SiAndroid, SiApple
 } from "react-icons/si";
 import { FaReacteurope } from "react-icons/fa";
+import {
+  MdHome, MdWork, MdApps, MdBuild, MdArticle, MdMail
+} from "react-icons/md";
 
 import mrImg from "../Assets/Projects/MR.webp";
 import oncallImg from "../Assets/Projects/oncallMobile.webp";
@@ -15,7 +18,14 @@ import notiImg from "../Assets/Projects/modernNoti.webp";
 import rnImg from "../Assets/Projects/ReactNative.png";
 import twilioImg from "../Assets/Projects/twilio.png";
 
-const NAV = ["home", "experience", "projects", "skills", "blogs", "contact"];
+const NAV = [
+  { id: "home", label: "Home", icon: <MdHome /> },
+  { id: "experience", label: "Experience", icon: <MdWork /> },
+  { id: "projects", label: "Projects", icon: <MdApps /> },
+  { id: "skills", label: "Skills", icon: <MdBuild /> },
+  { id: "blogs", label: "Blogs", icon: <MdArticle /> },
+  { id: "contact", label: "Contact", icon: <MdMail /> },
+];
 
 const EXPERIENCE = [
   {
@@ -131,15 +141,13 @@ export default function Portfolio() {
   const [active, setActive] = useState("home");
   const sectionRefs = useRef({});
 
-  const refFor = (id) => (el) => {
-    sectionRefs.current[id] = el;
-  };
+  const refFor = (id) => (el) => { sectionRefs.current[id] = el; };
 
   useEffect(() => {
     const onScroll = () => {
       const pos = window.scrollY + window.innerHeight / 3;
       let current = "home";
-      NAV.forEach((id) => {
+      NAV.forEach(({ id }) => {
         const el = sectionRefs.current[id];
         if (el && el.offsetTop <= pos) current = id;
       });
@@ -156,201 +164,194 @@ export default function Portfolio() {
 
   return (
     <div className="pf-root">
-      {/* Sidebar - outside grid */}
+      {/* ── Sidebar ── */}
       <aside className="pf-sidebar">
         <div className="pf-sidebar-inner">
-          {NAV.map((id) => (
+          <div className="pf-sidebar-brand">
+            <div className="pf-sidebar-brand-name">Santosh</div>
+            <div className="pf-sidebar-brand-role">Mobile Dev</div>
+          </div>
+          {NAV.map(({ id, label, icon }) => (
             <button
               key={id}
               onClick={() => scrollTo(id)}
+              data-label={label}
               className={`pf-nav-pill${active === id ? " pf-nav-pill--active" : ""}`}
+              aria-label={label}
             >
-              {id}
+              <span className="pf-nav-icon">{icon}</span>
+              {label}
             </button>
           ))}
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* ── Main Content ── */}
       <main className="pf-main">
 
-          {/* Home */}
-          <section id="home" ref={refFor("home")} className="pf-section">
-            <div className="pf-hero-wrapper">
-              <div className="pf-hero-main">
-                <div className="pf-card pf-hero-card">
-                  <div className="pf-hero-inner">
-                    <span className="pf-hero-badge">Mobile App Developer</span>
-                    <h1 className="pf-hero-name">Santosh</h1>
-                    <p className="pf-hero-role">Pottabattini Santosh Kumar</p>
-                    <p className="pf-hero-tagline">Building high-performance mobile applications with React Native, TypeScript & modern tech stack. 5+ years of experience delivering production-ready apps.</p>
-                    <div className="pf-hero-cta">
-                      <button className="pf-btn pf-btn-primary" onClick={() => scrollTo("projects")}>View Projects</button>
-                      <button className="pf-btn" onClick={() => scrollTo("contact")}>Contact Me</button>
-                    </div>
+        {/* Home */}
+        <section id="home" ref={refFor("home")} className="pf-section">
+          <div className="pf-hero-wrapper">
+            <div className="pf-hero-main">
+              <div className="pf-card pf-hero-card">
+                <div className="pf-hero-inner">
+                  <span className="pf-hero-badge">Mobile App Developer</span>
+                  <h1 className="pf-hero-name">Santosh</h1>
+                  <p className="pf-hero-tagline">
+                    Building high-performance mobile applications with React Native,
+                    TypeScript &amp; modern tech stack. 5+ years of experience
+                    delivering production-ready apps.
+                  </p>
+                  <div className="pf-hero-cta">
+                    <button className="pf-btn pf-btn-primary" onClick={() => scrollTo("projects")}>
+                      View Projects
+                    </button>
+                    <button className="pf-btn" onClick={() => scrollTo("contact")}>
+                      Contact Me
+                    </button>
                   </div>
                 </div>
               </div>
-              <div className="pf-hero-stats">
-                <div className="pf-card pf-stat-card">
-                  <span className="pf-stat-value">5+</span>
-                  <span className="pf-stat-label">Years Exp.</span>
-                </div>
-                <div className="pf-card pf-stat-card">
-                  <span className="pf-stat-value">4+</span>
-                  <span className="pf-stat-label">Apps Released</span>
-                </div>
-                <div className="pf-card pf-stat-card">
-                  <span className="pf-stat-value">100%</span>
-                  <span className="pf-stat-label">Delivery</span>
-                </div>
+            </div>
+            <div className="pf-hero-stats">
+              <div className="pf-stat-card">
+                <span className="pf-stat-value">5+</span>
+                <span className="pf-stat-label">Years Exp.</span>
+              </div>
+              <div className="pf-stat-card">
+                <span className="pf-stat-value">4+</span>
+                <span className="pf-stat-label">Apps Released</span>
+              </div>
+              <div className="pf-stat-card">
+                <span className="pf-stat-value">100%</span>
+                <span className="pf-stat-label">Delivery</span>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Experience */}
-          <section id="experience" ref={refFor("experience")} className="pf-section">
-            <h2 className="pf-title">Experience</h2>
-            <div className="pf-timeline">
-              {EXPERIENCE.map((e, i) => (
-                <div key={i} className="pf-timeline-row">
-                  {i % 2 === 0 ? (
-                    <>
-                      <div className="pf-timeline-card">
-                        <p className="pf-timeline-role">{e.role}</p>
-                        <p className="pf-timeline-company">{e.company}</p>
-                        <p className="pf-timeline-time">{e.time}</p>
-                      </div>
-                      <div />
-                    </>
-                  ) : (
-                    <>
-                      <div />
-                      <div className="pf-timeline-card">
-                        <p className="pf-timeline-role">{e.role}</p>
-                        <p className="pf-timeline-company">{e.company}</p>
-                        <p className="pf-timeline-time">{e.time}</p>
-                      </div>
-                    </>
+        {/* Experience */}
+        <section id="experience" ref={refFor("experience")} className="pf-section">
+          <h2 className="pf-title">Experience</h2>
+          <div className="pf-timeline">
+            {EXPERIENCE.map((e, i) => (
+              <div key={i} className="pf-timeline-item">
+                <div className="pf-timeline-card">
+                  <p className="pf-timeline-role">{e.role}</p>
+                  <p className="pf-timeline-company">{e.company}</p>
+                  <p className="pf-timeline-time">{e.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Projects */}
+        <section id="projects" ref={refFor("projects")} className="pf-section">
+          <h2 className="pf-title">Projects</h2>
+          <div className="pf-projects">
+            {PROJECTS.map((p, i) => (
+              <div key={i} className="pf-card">
+                <div className="pf-project-thumb">
+                  <img src={p.img} alt={p.title} loading="lazy" />
+                </div>
+                <p className="pf-project-title">{p.title}</p>
+                <p className="pf-project-desc">{p.desc}</p>
+                <div className="pf-project-actions">
+                  {p.android && (
+                    <a href={p.android} target="_blank" rel="noopener noreferrer" className="pf-btn">Android</a>
+                  )}
+                  {p.ios && (
+                    <a href={p.ios} target="_blank" rel="noopener noreferrer" className="pf-btn">iOS</a>
+                  )}
+                  {p.link && (
+                    <a href={p.link} target="_blank" rel="noopener noreferrer" className="pf-btn">Read More</a>
                   )}
                 </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Projects */}
-          <section id="projects" ref={refFor("projects")} className="pf-section">
-            <h2 className="pf-title">Projects</h2>
-            <div className="pf-projects">
-              {PROJECTS.map((p, i) => (
-                <div key={i} className="pf-card">
-                  <div className="pf-project-thumb">
-                    <img src={p.img} alt={p.title} />
-                  </div>
-                  <p className="pf-project-title">{p.title}</p>
-                  <p className="pf-project-desc">{p.desc}</p>
-                  <div className="pf-project-actions">
-                    {p.android && (
-                      <a href={p.android} target="_blank" rel="noopener noreferrer" className="pf-btn">
-                        Android
-                      </a>
-                    )}
-                    {p.ios && (
-                      <a href={p.ios} target="_blank" rel="noopener noreferrer" className="pf-btn">
-                        iOS
-                      </a>
-                    )}
-                    {p.link && (
-                      <a href={p.link} target="_blank" rel="noopener noreferrer" className="pf-btn">
-                        Read More
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Skills */}
-          <section id="skills" ref={refFor("skills")} className="pf-section">
-            <h2 className="pf-title">Skills</h2>
-            <div className="pf-skills-grid">
-              {SKILLS.map((s, i) => (
-                <div key={i} className="pf-skill-tile">
-                  <span className="pf-skill-icon">{s.icon}</span>
-                  <span className="pf-skill-name">{s.name}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Blogs */}
-          <section id="blogs" ref={refFor("blogs")} className="pf-section">
-            <h2 className="pf-title">Blogs</h2>
-            <div className="pf-blogs">
-              {BLOGS.map((b, i) => (
-                <div key={i} className="pf-card">
-                  <div className="pf-blog-thumb">
-                    <img src={b.img} alt={b.title} />
-                  </div>
-                  <p className="pf-blog-title">{b.title}</p>
-                  <p className="pf-blog-desc">{b.desc}</p>
-                  <a href={b.link} target="_blank" rel="noopener noreferrer" className="pf-btn">
-                    Read
-                  </a>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Contact */}
-          <section id="contact" ref={refFor("contact")} className="pf-section">
-            <h2 className="pf-title">Get In Touch</h2>
-            <div className="pf-contact-wrapper">
-              <div className="pf-contact-info">
-                <div className="pf-contact-card-mini">
-                  <span className="pf-contact-label">Email</span>
-                  <a href="mailto:santoshpk.mdev@gmail.com" className="pf-contact-value">santoshpk.mdev@gmail.com</a>
-                </div>
-                <div className="pf-contact-card-mini">
-                  <span className="pf-contact-label">Location</span>
-                  <span className="pf-contact-value">Telangana, India</span>
-                </div>
-                <div className="pf-contact-card-mini">
-                  <span className="pf-contact-label">LinkedIn</span>
-                  <a href="https://www.linkedin.com/in/santosh-kumar-649928265" target="_blank" rel="noopener noreferrer" className="pf-contact-value">santosh-kumar</a>
-                </div>
               </div>
-              <div className="pf-card pf-contact-card">
-                <h3 className="pf-contact-form-title">Send a Message</h3>
-                <form onSubmit={(e) => e.preventDefault()}>
-                  <div className="pf-form-row">
-                    <input className="pf-input" placeholder="Your Name" type="text" />
-                    <input className="pf-input" placeholder="Your Email" type="email" />
-                  </div>
-                  <input className="pf-input" placeholder="Subject" type="text" />
-                  <textarea className="pf-input" placeholder="Your Message" rows={5} />
-                  <button type="submit" className="pf-submit">
-                    <span>Send Message</span>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
-                    </svg>
-                  </button>
-                </form>
+            ))}
+          </div>
+        </section>
+
+        {/* Skills */}
+        <section id="skills" ref={refFor("skills")} className="pf-section">
+          <h2 className="pf-title">Skills</h2>
+          <div className="pf-skills-grid">
+            {SKILLS.map((s, i) => (
+              <div key={i} className="pf-skill-tile">
+                <span className="pf-skill-icon">{s.icon}</span>
+                <span className="pf-skill-name">{s.name}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Blogs */}
+        <section id="blogs" ref={refFor("blogs")} className="pf-section">
+          <h2 className="pf-title">Blogs</h2>
+          <div className="pf-blogs">
+            {BLOGS.map((b, i) => (
+              <div key={i} className="pf-card">
+                <div className="pf-blog-thumb">
+                  <img src={b.img} alt={b.title} loading="lazy" />
+                </div>
+                <p className="pf-blog-title">{b.title}</p>
+                <p className="pf-blog-desc">{b.desc}</p>
+                <a href={b.link} target="_blank" rel="noopener noreferrer" className="pf-btn">
+                  Read
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Contact */}
+        <section id="contact" ref={refFor("contact")} className="pf-section">
+          <h2 className="pf-title">Get In Touch</h2>
+          <div className="pf-contact-wrapper">
+            <div className="pf-contact-info">
+              <div className="pf-contact-card-mini">
+                <span className="pf-contact-label">Email</span>
+                <a href="mailto:santoshpk.mdev@gmail.com" className="pf-contact-value">
+                  santoshpk.mdev@gmail.com
+                </a>
+              </div>
+              <div className="pf-contact-card-mini">
+                <span className="pf-contact-label">Location</span>
+                <span className="pf-contact-value">Telangana, India</span>
+              </div>
+              <div className="pf-contact-card-mini">
+                <span className="pf-contact-label">LinkedIn</span>
+                <a
+                  href="https://www.linkedin.com/in/santosh-kumar-649928265"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pf-contact-value"
+                >
+                  santosh-kumar
+                </a>
               </div>
             </div>
-          </section>
-
-          {/* Footer */}
-          <footer className="pf-footer">
-            <p>Pottabattini Santosh Kumar &mdash; Telangana, India</p>
-            <p>
-              <a href="mailto:santoshpk.mdev@gmail.com">santoshpk.mdev@gmail.com</a>
-              <a href="https://www.linkedin.com/in/santosh-kumar-649928265" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            </p>
-          </footer>
-
-        </main>
+            <div className="pf-card pf-contact-card">
+              <h3 className="pf-contact-form-title">Send a Message</h3>
+              <form onSubmit={(e) => e.preventDefault()}>
+                <div className="pf-form-row">
+                  <input className="pf-input" placeholder="Your Name" type="text" />
+                  <input className="pf-input" placeholder="Your Email" type="email" />
+                </div>
+                <input className="pf-input" placeholder="Subject" type="text" />
+                <textarea className="pf-input" placeholder="Your Message" rows={5} />
+                <button type="submit" className="pf-submit">
+                  <span>Send Message</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" />
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
