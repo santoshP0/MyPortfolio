@@ -5,11 +5,11 @@ import {
   SiMongodb, SiFirebase, SiAmazon, SiKotlin, SiSwift,
   SiGit, SiAndroid, SiApple,
   SiVscodium, SiPostman, SiAndroidstudio, SiXcode,
-  SiFigma, SiGithub, SiJira
+  SiFigma, SiGithub, SiJira, SiLinkedin
 } from "react-icons/si";
 import { FaReacteurope } from "react-icons/fa";
 import {
-  MdHome, MdWork, MdApps, MdBuild, MdArticle, MdMail
+  MdHome, MdWork, MdApps, MdBuild, MdArticle, MdMail, MdLocationOn
 } from "react-icons/md";
 
 import mrImg from "../Assets/Projects/MR.webp";
@@ -150,6 +150,24 @@ export default function Portfolio() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Scroll-triggered animations
+  useEffect(() => {
+    const els = document.querySelectorAll(".pf-scroll-animate");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("pf-in-view");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const scrollTo = (id) => {
     setActive(id);
     sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -231,7 +249,8 @@ export default function Portfolio() {
             {EXPERIENCE.map((e, i) => (
               <div
                 key={i}
-                className={`pf-timeline-item ${i % 2 === 0 ? "pf-timeline-item--left" : "pf-timeline-item--right"}`}
+                className={`pf-timeline-item ${i % 2 === 0 ? "pf-timeline-item--left" : "pf-timeline-item--right"} pf-scroll-animate`}
+                style={{ transitionDelay: `${i * 120}ms` }}
               >
                 <div className="pf-timeline-dot" />
                 <div className="pf-timeline-card">
@@ -249,7 +268,7 @@ export default function Portfolio() {
           <h2 className="pf-title">Projects</h2>
           <div className="pf-projects">
             {PROJECTS.map((p, i) => (
-              <div key={i} className="pf-card">
+              <div key={i} className="pf-card pf-scroll-animate" style={{ transitionDelay: `${i * 100}ms` }}>
                 <div className="pf-project-thumb">
                   <img src={p.img} alt={p.title} loading="lazy" />
                 </div>
@@ -275,20 +294,20 @@ export default function Portfolio() {
 
         {/* Skills & Tools */}
         <section id="skills" ref={refFor("skills")} className="pf-section">
-          <h2 className="pf-title">Skills</h2>
+          <h2 className="pf-title pf-scroll-animate">Skills</h2>
           <div className="pf-skills-grid">
             {SKILLS.map((s, i) => (
-              <div key={i} className="pf-skill-tile">
+              <div key={i} className="pf-skill-tile pf-scroll-animate" style={{ transitionDelay: `${i * 45}ms` }}>
                 <span className="pf-skill-icon">{s.icon}</span>
                 <span className="pf-skill-name">{s.name}</span>
               </div>
             ))}
           </div>
 
-          <h2 className="pf-title pf-tools-title">Tools</h2>
+          <h2 className="pf-title pf-tools-title pf-scroll-animate">Tools</h2>
           <div className="pf-skills-grid">
             {TOOLS.map((t, i) => (
-              <div key={i} className="pf-skill-tile">
+              <div key={i} className="pf-skill-tile pf-scroll-animate" style={{ transitionDelay: `${i * 45}ms` }}>
                 <span className="pf-skill-icon">{t.icon}</span>
                 <span className="pf-skill-name">{t.name}</span>
               </div>
@@ -301,7 +320,7 @@ export default function Portfolio() {
           <h2 className="pf-title">Blogs</h2>
           <div className="pf-blogs">
             {BLOGS.map((b, i) => (
-              <div key={i} className="pf-card">
+              <div key={i} className="pf-card pf-scroll-animate" style={{ transitionDelay: `${i * 80}ms` }}>
                 <div className="pf-blog-thumb">
                   <img src={b.img} alt={b.title} loading="lazy" />
                 </div>
@@ -320,18 +339,27 @@ export default function Portfolio() {
           <h2 className="pf-title">Get In Touch</h2>
           <div className="pf-contact-wrapper">
             <div className="pf-contact-info">
-              <div className="pf-contact-card-mini">
-                <span className="pf-contact-label">Email</span>
+              <div className="pf-contact-card-mini pf-scroll-animate">
+                <div className="pf-contact-label-row">
+                  <MdMail className="pf-contact-type-icon" />
+                  <span className="pf-contact-label">Email</span>
+                </div>
                 <a href="mailto:santoshpk.mdev@gmail.com" className="pf-contact-value">
                   santoshpk.mdev@gmail.com
                 </a>
               </div>
-              <div className="pf-contact-card-mini">
-                <span className="pf-contact-label">Location</span>
+              <div className="pf-contact-card-mini pf-scroll-animate" style={{ transitionDelay: "80ms" }}>
+                <div className="pf-contact-label-row">
+                  <MdLocationOn className="pf-contact-type-icon" />
+                  <span className="pf-contact-label">Location</span>
+                </div>
                 <span className="pf-contact-value">Telangana, India</span>
               </div>
-              <div className="pf-contact-card-mini">
-                <span className="pf-contact-label">LinkedIn</span>
+              <div className="pf-contact-card-mini pf-scroll-animate" style={{ transitionDelay: "160ms" }}>
+                <div className="pf-contact-label-row">
+                  <SiLinkedin className="pf-contact-type-icon" />
+                  <span className="pf-contact-label">LinkedIn</span>
+                </div>
                 <a
                   href="https://www.linkedin.com/in/santosh-kumar-649928265"
                   target="_blank"
@@ -342,7 +370,7 @@ export default function Portfolio() {
                 </a>
               </div>
             </div>
-            <div className="pf-card pf-contact-card">
+            <div className="pf-card pf-contact-card pf-scroll-animate" style={{ transitionDelay: "80ms" }}>
               <h3 className="pf-contact-form-title">Send a Message</h3>
               <form onSubmit={(e) => e.preventDefault()}>
                 <div className="pf-form-row">

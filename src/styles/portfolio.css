@@ -154,8 +154,8 @@ a {
 
 /* ── Main content ── */
 .pf-main {
-  margin-left: var(--sidebar-w);
-  width: calc(100% - var(--sidebar-w));
+  margin-left: calc(120px + var(--sidebar-w));
+  width: calc(100% - 120px - var(--sidebar-w));
   min-height: 100vh;
   padding: clamp(36px, 4vw, 60px) clamp(32px, 5vw, 72px) 80px;
   box-sizing: border-box;
@@ -348,6 +348,9 @@ a {
   flex-direction: column;
   gap: 28px;
   max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 /* Center vertical line */
@@ -643,14 +646,26 @@ a {
   padding: clamp(14px, 2vw, 20px);
 }
 
+/* Icon + label row inside contact mini card */
+.pf-contact-label-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+
+.pf-contact-type-icon {
+  font-size: 16px;
+  color: var(--text-s);
+  flex-shrink: 0;
+}
+
 .pf-contact-label {
-  display: block;
   font-size: 10px;
   font-weight: 700;
   color: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 5px;
 }
 
 .pf-contact-value {
@@ -976,7 +991,22 @@ a {
   }
 
   .pf-skills-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .pf-skill-tile {
+    padding: 12px 6px;
+    min-height: 72px;
+    gap: 6px;
+  }
+
+  .pf-skill-icon {
+    font-size: 22px;
+  }
+
+  .pf-skill-name {
+    font-size: 9px;
   }
 
   /* Collapse zigzag timeline to single column on mobile */
@@ -1006,6 +1036,38 @@ a {
     text-align: left;
     border-left: 3px solid rgba(200, 208, 224, 0.6);
     border-right: none;
+  }
+}
+
+/* ─────────────────────────────────────────
+   SHORT SCREENS (landscape phone / small laptop)
+   Sidebar inner becomes scrollable so nav never clips content
+───────────────────────────────────────── */
+@media (max-height: 680px) and (min-width: 768px) {
+  .pf-sidebar-inner {
+    overflow-y: auto;
+    max-height: calc(100vh - 40px);
+    padding: 12px 10px;
+    gap: 2px;
+    scrollbar-width: none;
+  }
+
+  .pf-sidebar-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pf-sidebar-brand {
+    padding: 0 8px 10px;
+    margin-bottom: 6px;
+  }
+
+  .pf-nav-pill {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .pf-nav-icon {
+    font-size: 17px;
   }
 }
 
@@ -1079,38 +1141,21 @@ a {
   }
 }
 
-/* ── Phase 1 → 2: Surfaces rise ──
-   backwards = element is in "from" state during the delay,
-   then naturally settles to its CSS rules after animation ends
-   (no forwards fill → hover transitions work fine afterwards)
-*/
-.pf-card,
-.pf-sidebar-inner,
-.pf-contact-card-mini {
+/* ── On-load: sidebar & hero surfaces (home section only) ── */
+.pf-sidebar-inner {
+  animation: pf-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) 60ms backwards;
+}
+
+.pf-hero-card {
   animation: pf-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) 60ms backwards;
 }
 
 .pf-stat-card,
-.pf-timeline-card,
 .pf-nav-pill--active {
   animation: pf-rise-sm 1.1s cubic-bezier(0.22, 1, 0.36, 1) 60ms backwards;
 }
 
-.pf-skill-tile {
-  animation: pf-rise-sm 1.1s cubic-bezier(0.22, 1, 0.36, 1) 60ms backwards;
-}
-
-.pf-project-thumb,
-.pf-blog-thumb {
-  animation: pf-rise-inset 1.1s cubic-bezier(0.22, 1, 0.36, 1) 60ms backwards;
-}
-
-/* ── Phase 2 → 3: Text appears ──
-   All start hidden (backwards fill during delay),
-   fade in with translateY after cards are fully elevated.
-*/
-
-/* Sidebar */
+/* ── On-load text: sidebar + hero only ── */
 .pf-sidebar-brand-name {
   animation: pf-appear 0.45s ease-out 940ms backwards;
 }
@@ -1123,7 +1168,6 @@ a {
   animation: pf-appear 0.45s ease-out 960ms backwards;
 }
 
-/* Hero */
 .pf-hero-badge {
   animation: pf-appear 0.45s ease-out 960ms backwards;
 }
@@ -1140,7 +1184,6 @@ a {
   animation: pf-appear 0.45s ease-out 1130ms backwards;
 }
 
-/* Stats */
 .pf-stat-value {
   animation: pf-appear 0.45s ease-out 1020ms backwards;
 }
@@ -1149,64 +1192,18 @@ a {
   animation: pf-appear 0.45s ease-out 1060ms backwards;
 }
 
-/* Section titles */
-.pf-title {
-  animation: pf-appear 0.45s ease-out 980ms backwards;
+/* ── Scroll-triggered: all non-home section elements ──
+   JS adds .pf-in-view when the element enters the viewport.
+   transitionDelay is set inline in JSX for stagger effects.
+── */
+.pf-scroll-animate {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Experience */
-.pf-timeline-role {
-  animation: pf-appear 0.4s ease-out 1010ms backwards;
-}
-
-.pf-timeline-company {
-  animation: pf-appear 0.4s ease-out 1050ms backwards;
-}
-
-.pf-timeline-time {
-  animation: pf-appear 0.4s ease-out 1090ms backwards;
-}
-
-/* Projects */
-.pf-project-title {
-  animation: pf-appear 0.4s ease-out 1010ms backwards;
-}
-
-.pf-project-desc {
-  animation: pf-appear 0.4s ease-out 1050ms backwards;
-}
-
-.pf-project-actions {
-  animation: pf-appear 0.4s ease-out 1090ms backwards;
-}
-
-/* Skills */
-.pf-skill-icon {
-  animation: pf-appear 0.4s ease-out 1000ms backwards;
-}
-
-.pf-skill-name {
-  animation: pf-appear 0.4s ease-out 1040ms backwards;
-}
-
-/* Blogs */
-.pf-blog-title {
-  animation: pf-appear 0.4s ease-out 1010ms backwards;
-}
-
-.pf-blog-desc {
-  animation: pf-appear 0.4s ease-out 1050ms backwards;
-}
-
-/* Contact */
-.pf-contact-form-title {
-  animation: pf-appear 0.4s ease-out 980ms backwards;
-}
-
-.pf-contact-label {
-  animation: pf-appear 0.4s ease-out 1010ms backwards;
-}
-
-.pf-contact-value {
-  animation: pf-appear 0.4s ease-out 1050ms backwards;
+.pf-scroll-animate.pf-in-view {
+  opacity: 1;
+  transform: translateY(0);
 }
