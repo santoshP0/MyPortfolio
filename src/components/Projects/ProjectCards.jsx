@@ -12,7 +12,10 @@ function ProjectCard({
   iosLink,
 }) {
   return (
-    <article className={`quest-card ${isBlog ? "quest-card--log" : "quest-card--ship"}`}>
+    <article
+      className={`quest-card ${isBlog ? "quest-card--log" : "quest-card--ship"}`}
+      style={{ cursor: "default" }}
+    >
       <div className="quest-card__media">
         <img src={imgPath} alt={title} loading="lazy" />
         <span className="quest-card__badge">
@@ -24,8 +27,14 @@ function ProjectCard({
         <p className="quest-card__desc">{description}</p>
         <div className="quest-card__actions">
           {isBlog ? (
-            <Button variant="primary" href={link} target="_blank" rel="noopener noreferrer">
-              <BsMedium /> &nbsp;Blog
+            <Button
+              variant="primary"
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ cursor: "pointer" }}
+            >
+              <BsMedium /> &nbsp;Read
             </Button>
           ) : (
             <>
@@ -35,6 +44,7 @@ function ProjectCard({
                   href={AndrLink}
                   target="_blank"
                   rel="noopener noreferrer"
+                  style={{ cursor: "pointer" }}
                 >
                   <BsAndroid2 /> &nbsp;Android
                 </Button>
@@ -45,6 +55,7 @@ function ProjectCard({
                   href={iosLink}
                   target="_blank"
                   rel="noopener noreferrer"
+                  style={{ cursor: "pointer" }}
                 >
                   <BsApple /> &nbsp;iOS
                 </Button>

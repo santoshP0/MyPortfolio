@@ -1,20 +1,69 @@
-@import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@600&display=swap");
 
-/* Keep these tokens in sync with src/constants/theme.js */
+/* ============================================================
+   DARK NEUMORPHISM DESIGN TOKENS
+   Keep these in sync with src/constants/theme.js
+   ============================================================
+   NOTE: Neumorphism requires a non-black base — shadows need
+   a surface they can contrast against.  #141420 is the sweet
+   spot: dark charcoal + subtle blue tint.
+   ============================================================ */
 
 :root {
-  --ink: #050505;
-  --paper: #f5f5f5;
-  --accent: #ff005d;
-  --paper-soft: rgba(245, 245, 245, 0.82);
-  --paper-faint: rgba(245, 245, 245, 0.12);
-  --accent-soft: rgba(255, 0, 93, 0.6);
-  --success: #21c486;
-  --success-soft: rgba(33, 196, 134, 0.45);
-  --success-glow: rgba(33, 196, 134, 0.4);
-  --warning: #ffb400;
-  --warning-soft: rgba(255, 180, 0, 0.45);
-  --danger: #ff5050;
-  --danger-soft: rgba(255, 80, 80, 0.55);
-  --danger-glow: rgba(255, 80, 80, 0.4);
+  /* --- Core Palette --- */
+  --ink:              #141420;
+  --nm-surface:       #191926;
+  --nm-surface-raised:#1e1e2e;
+
+  --paper:       #e2e2f0;
+  --paper-soft:  rgba(226, 226, 240, 0.75);
+  --paper-faint: rgba(226, 226, 240, 0.10);
+
+  --accent:      #ff005d;
+  --accent-soft: rgba(255, 0, 93, 0.50);
+  --accent-glow: rgba(255, 0, 93, 0.22);
+
+  /* --- Neumorphic Shadow Primitives --- */
+  --nm-dark:         #0c0c18;
+  --nm-light:        rgba(255, 255, 255, 0.045);
+  --nm-light-strong: rgba(255, 255, 255, 0.072);
+
+  /* Raised (convex) */
+  --nm-raised:       8px 8px 16px var(--nm-dark), -4px -4px 12px var(--nm-light);
+  --nm-raised-sm:    4px 4px  8px var(--nm-dark), -2px -2px  6px var(--nm-light);
+  --nm-raised-hover: 12px 12px 24px var(--nm-dark), -6px -6px 16px var(--nm-light-strong);
+  --nm-raised-lg:    16px 16px 32px var(--nm-dark), -8px -8px 20px var(--nm-light-strong);
+
+  /* Inset (concave / pressed) */
+  --nm-inset:        inset 4px 4px 10px var(--nm-dark), inset -3px -3px 8px var(--nm-light);
+  --nm-inset-sm:     inset 3px 3px  6px var(--nm-dark), inset -2px -2px 5px var(--nm-light);
+  --nm-inset-focus:  inset 4px 4px 10px var(--nm-dark), inset -3px -3px 8px var(--nm-light),
+                     0 0 0 1.5px var(--accent-soft), 0 0 16px var(--accent-glow);
+
+  /* --- Status Colors --- */
+  --success:      #10b981;
+  --success-soft: rgba(16, 185, 129, 0.45);
+  --success-glow: rgba(16, 185, 129, 0.30);
+  --warning:      #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.45);
+  --danger:       #ef4444;
+  --danger-soft:  rgba(239, 68, 68, 0.55);
+  --danger-glow:  rgba(239, 68, 68, 0.30);
+
+  /* --- Layout --- */
+  --sidebar-w:        240px;
+  --sidebar-w-mobile:  72px;
+
+  /* --- Typography --- */
+  --font-primary: 'Inter', 'Rajdhani', sans-serif;
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono:    'Orbitron', monospace;
+
+  /* --- Motion --- */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:    cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-in:     cubic-bezier(0.4, 0.0, 1, 1);
+  --dur-fast:    150ms;
+  --dur-base:    250ms;
+  --dur-slow:    400ms;
 }

@@ -1,22 +1,25 @@
 const COLOR_BASE = Object.freeze({
-  ink: "#050505",
-  paper: "#f5f5f5",
+  ink: "#141420",
+  nmSurface: "#191926",
+  nmSurfaceRaised: "#1e1e2e",
+  paper: "#e2e2f0",
   accent: "#ff005d",
-  paperSoft: "rgba(245, 245, 245, 0.82)",
-  paperFaint: "rgba(245, 245, 245, 0.12)",
-  accentSoft: "rgba(255, 0, 93, 0.6)",
+  paperSoft: "rgba(226, 226, 240, 0.75)",
+  paperFaint: "rgba(226, 226, 240, 0.10)",
+  accentSoft: "rgba(255, 0, 93, 0.50)",
+  accentGlow: "rgba(255, 0, 93, 0.22)",
 });
 
 export const COLOR_TOKENS = Object.freeze({
   ...COLOR_BASE,
-  success: "#21c486",
-  warning: "#ffb400",
-  danger: "#ff5050",
+  success: "#10b981",
+  warning: "#f59e0b",
+  danger: "#ef4444",
 });
 
 export const TYPOGRAPHY = Object.freeze({
   heading: "'Orbitron', sans-serif",
-  body: "'Rajdhani', sans-serif",
+  body: "'Inter', 'Rajdhani', sans-serif",
 });
 
 export const MOTION = Object.freeze({

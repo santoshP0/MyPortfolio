@@ -2479,3 +2479,554 @@ button:focus {
     transform: translate(-50%, 0);
   }
 }
+
+
+/* ================================================================
+   ███╗   ██╗███████╗██╗   ██╗███╗   ███╗ ██████╗ ██████╗ ██████╗  ██╗  ██╗██╗ ██████╗
+   ████╗  ██║██╔════╝██║   ██║████╗ ████║██╔═══██╗██╔══██╗██╔══██╗ ██║  ██║██║██╔════╝
+   ██╔██╗ ██║█████╗  ██║   ██║██╔████╔██║██║   ██║██████╔╝██████╔╝ ███████║██║██║
+   ██║╚██╗██║██╔══╝  ██║   ██║██║╚██╔╝██║██║   ██║██╔══██╗██╔═══╝  ██╔══██║██║██║
+   ██║ ╚████║███████╗╚██████╔╝██║ ╚═╝ ██║╚██████╔╝██║  ██║██║      ██║  ██║██║╚██████╗
+   ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝      ╚═╝  ╚═╝╚═╝ ╚═════╝
+   DARK NEUMORPHIC OVERRIDES — appended last so they take cascade priority
+   ================================================================ */
+
+/* -------- Reset to neumorphic base -------- */
+html, body {
+  background: var(--ink);
+  font-family: var(--font-primary);
+}
+
+.App {
+  background: var(--ink);
+  min-height: 100dvh;
+}
+
+/* -------- Portfolio Layout (sidebar + content) -------- */
+.portfolio-layout {
+  display: flex;
+  min-height: 100dvh;
+}
+
+.anime-layout {
+  flex: 1 1 auto;
+  margin-left: var(--sidebar-w);
+  min-width: 0;
+  gap: 6rem;
+  padding: 0 0 8rem;
+}
+
+/* -------- Sidebar / SectionNav -------- */
+.section-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100dvh;
+  width: var(--sidebar-w);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 2.5rem 1.2rem;
+  background: var(--nm-surface);
+  box-shadow: var(--nm-raised-lg);
+  /* Subtle right border accent */
+  border-right: 1px solid rgba(255, 0, 93, 0.10);
+  transition: transform var(--dur-slow) var(--ease-spring);
+  overflow: hidden;
+}
+
+/* Logo area at top of sidebar */
+.section-nav::before {
+  content: "SK";
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 2.8rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+}
+
+.section-nav__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.section-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--paper-soft);
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: transparent;
+  box-shadow: none;
+  transition:
+    color var(--dur-base) var(--ease-out),
+    background var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.section-nav__item:hover {
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--nm-raised-sm);
+  transform: translateX(3px);
+}
+
+.section-nav__item--active {
+  color: var(--accent);
+  background: var(--nm-surface-raised);
+  box-shadow: var(--nm-raised-sm);
+}
+
+.section-nav__item--active .section-nav__icon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+.section-nav__icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  transition: color var(--dur-base) var(--ease-out), filter var(--dur-base) var(--ease-out);
+  color: inherit;
+}
+
+.section-nav__label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Old dot style — hide */
+.section-nav__dot {
+  display: none;
+}
+
+/* Sidebar hidden state (used by toggle event) */
+.section-nav--hidden {
+  transform: translateX(calc(-1 * var(--sidebar-w)));
+}
+
+/* -------- Hero Frame — Neumorphic -------- */
+.hero-frame {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-raised-lg);
+  backdrop-filter: none;
+}
+
+.hero-frame::before {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.hero-frame::after {
+  border-color: rgba(255, 0, 93, 0.12);
+}
+
+/* Hero stat cards — neumorphic */
+.hero-stat-card {
+  background: var(--nm-surface-raised);
+  border: none;
+  box-shadow: var(--nm-raised-sm);
+  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+.hero-stat-card:hover {
+  box-shadow: var(--nm-raised);
+  transform: translateY(-2px);
+}
+
+/* Hero Console — neumorphic shell */
+.hero-console__shell {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-raised);
+}
+
+.hero-console__shell::after {
+  border-color: rgba(255, 0, 93, 0.18);
+}
+
+/* -------- Lore card — neumorphic -------- */
+.lore-copy {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-raised-lg);
+}
+
+.lore-copy::before {
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.lore-intel {
+  background: var(--nm-surface-raised);
+  border: none;
+  box-shadow: var(--nm-raised-sm);
+}
+
+/* -------- Skills — neumorphic tiles -------- */
+.skill-section {
+  background: transparent;
+}
+
+.tech-icons {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-raised-sm);
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.tech-icons:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: var(--nm-raised-hover);
+  border: none;
+}
+
+.tech-icons svg {
+  filter: none;
+  transition: filter var(--dur-base) var(--ease-out);
+}
+
+.tech-icons:hover svg {
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+/* -------- Project Cards — neumorphic with hover reveal -------- */
+.quest-card {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-raised);
+  transition:
+    box-shadow var(--dur-slow) var(--ease-spring),
+    transform var(--dur-slow) var(--ease-spring);
+  overflow: hidden;
+}
+
+.quest-card::before {
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.quest-card--log {
+  background: var(--nm-surface);
+}
+
+.quest-card:hover {
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: var(--nm-raised-hover);
+  border: none;
+}
+
+.quest-card:hover .quest-card__media img {
+  transform: scale(1.06);
+  filter: grayscale(0) brightness(1.05);
+}
+
+/* Reveal accent bar on hover */
+.quest-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-slow) var(--ease-spring);
+}
+
+.quest-card:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* -------- Contact Form — neumorphic inputs -------- */
+.hero-contact__form .form-control {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-inset);
+  color: var(--paper);
+  border-radius: 14px;
+  padding: 0.9rem 1.1rem;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  transition: box-shadow var(--dur-base) var(--ease-out);
+}
+
+.hero-contact__form .form-control::placeholder {
+  color: rgba(226, 226, 240, 0.3);
+}
+
+.hero-contact__form .form-control:focus {
+  box-shadow: var(--nm-inset-focus);
+  background: var(--nm-surface);
+  color: var(--paper);
+  outline: none;
+}
+
+.hero-contact__submit {
+  background: var(--accent);
+  border: none;
+  box-shadow: var(--nm-raised-sm), 0 0 20px var(--accent-glow);
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.hero-contact__submit:hover,
+.hero-contact__submit:focus-visible {
+  background: var(--accent);
+  box-shadow: var(--nm-raised-hover), 0 0 28px var(--accent-soft);
+  transform: translateY(-2px);
+}
+
+.hero-contact__back {
+  background: var(--nm-surface-raised);
+  border: none;
+  box-shadow: var(--nm-raised-sm);
+  color: var(--paper-soft);
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.hero-contact__back:hover,
+.hero-contact__back:focus-visible {
+  color: var(--paper);
+  box-shadow: var(--nm-raised);
+  transform: translateY(-2px);
+}
+
+/* -------- Resume Section — neumorphic -------- */
+.resume-section {
+  background: transparent;
+}
+
+.resume-console {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-raised-lg);
+}
+
+.resume-console__card {
+  background: var(--nm-surface-raised);
+  border: none;
+  box-shadow: var(--nm-raised-sm);
+}
+
+/* Resume CTA button — neumorphic */
+.resume-btn {
+  background: var(--nm-surface);
+  box-shadow: var(--nm-raised-sm);
+  border: none;
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.resume-btn:hover,
+.resume-btn:focus-visible {
+  box-shadow: var(--nm-raised-hover);
+  transform: translateY(-2px);
+}
+
+/* Resume modal frame */
+.resume-modal__frame {
+  background: var(--nm-surface);
+  border: none;
+  box-shadow: var(--nm-raised-lg);
+}
+
+/* -------- Footer — neumorphic -------- */
+.footer {
+  background: var(--nm-surface);
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Social icon buttons */
+.social-icons a {
+  background: var(--nm-surface-raised);
+  box-shadow: var(--nm-raised-sm);
+  border: none;
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+.social-icons a:hover {
+  box-shadow: var(--nm-raised-hover);
+  transform: translateY(-3px);
+  color: var(--accent);
+}
+
+/* -------- Quote / About cards -------- */
+.quote-card-view {
+  background: var(--nm-surface) !important;
+  border: none !important;
+  box-shadow: var(--nm-raised-sm) !important;
+}
+
+/* -------- Bootstrap primary button overrides -------- */
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  box-shadow: var(--nm-raised-sm), 0 0 16px var(--accent-glow);
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+  font-family: var(--font-primary);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--accent);
+  border-color: transparent;
+  box-shadow: var(--nm-raised-hover), 0 0 24px var(--accent-soft);
+  transform: translateY(-2px);
+}
+
+/* -------- Scrollbar — themed -------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ink);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--nm-surface-raised);
+  border-radius: 999px;
+  box-shadow: var(--nm-inset-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 0, 93, 0.4);
+}
+
+/* -------- Mobile: sidebar → bottom nav -------- */
+@media (max-width: 768px) {
+  .anime-layout {
+    margin-left: 0;
+    padding-bottom: calc(var(--sidebar-w-mobile) + 2rem);
+  }
+
+  .section-nav {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--sidebar-w-mobile);
+    width: 100%;
+    flex-direction: row;
+    padding: 0 0.5rem;
+    align-items: center;
+    justify-content: space-around;
+    border-right: none;
+    border-top: 1px solid rgba(255, 0, 93, 0.10);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Hide the SK logo on mobile */
+  .section-nav::before {
+    display: none;
+  }
+
+  .section-nav__items {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+    flex: unset;
+  }
+
+  .section-nav__item {
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 14px;
+    letter-spacing: 0;
+    font-size: 0.6rem;
+  }
+
+  .section-nav__item:hover {
+    transform: translateY(-2px);
+  }
+
+  .section-nav__icon {
+    font-size: 1.4rem;
+  }
+
+  .section-nav--hidden {
+    transform: translateY(calc(var(--sidebar-w-mobile) + 4px));
+  }
+}
+
+/* -------- Tablet adjustment -------- */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .section-nav {
+    width: var(--sidebar-w-mobile);
+    padding: 2rem 0.6rem;
+    overflow: visible;
+  }
+
+  .section-nav::before {
+    font-size: 0.72rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.4rem;
+  }
+
+  .section-nav__label {
+    display: none;
+  }
+
+  .section-nav__item {
+    justify-content: center;
+    padding: 0.9rem;
+    border-radius: 14px;
+  }
+
+  .anime-layout {
+    margin-left: var(--sidebar-w-mobile);
+  }
+}
+
+/* -------- Reduced-motion support -------- */
+@media (prefers-reduced-motion: reduce) {
+  .section-nav__item,
+  .quest-card,
+  .tech-icons,
+  .hero-stat-card,
+  .hero-contact__form .form-control,
+  .hero-contact__submit,
+  .hero-contact__back {
+    transition: none;
+  }
+}
