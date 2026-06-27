@@ -323,12 +323,15 @@ function ContactSection() {
     e.preventDefault();
     setSending(true);
     try {
-      await sendAlertzyTransmission({
-        name: formData.name,
-        email: formData.email,
-        message: `[${formData.subject}] ${formData.message}`,
+      const result = await sendAlertzyTransmission({
+        title: `Portfolio: ${formData.name}`,
+        message: `From: ${formData.name} <${formData.email}>\nSubject: ${formData.subject}\n\n${formData.message}`,
       });
-      setSent(true);
+      if (result.ok) {
+        setSent(true);
+      } else {
+        alert("Something went wrong. Please try emailing directly.");
+      }
     } catch {
       alert("Something went wrong. Please try emailing directly.");
     } finally {
