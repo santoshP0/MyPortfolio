@@ -6,6 +6,7 @@ import ModernNotificationImage from "../../Assets/Projects/modernNoti.webp";
 import TensorImage from "../../Assets/Projects/tensor flow.png";
 import ReactNativeImage from "../../Assets/Projects/ReactNative.png";
 import TwilioImage from "../../Assets/Projects/twilio.png";
+import YashToysImage from "../../Assets/Projects/yashToys.png";
 
 export const NAV = {
   name: "Santosh Kumar",
@@ -69,6 +70,18 @@ export const PROJECTS = [
     image: OnCallMobileImage,
     androidLink: "https://play.google.com/store/apps/details?id=com.hexagon.oncallmobile&hl=en",
     iosLink: "https://apps.apple.com/us/app/hxgn-oncall-mobile/id1502277906",
+  },
+  {
+    num: "03",
+    year: "2025",
+    title: "Yash Gifts & Toys",
+    desc: "End-to-end e-commerce webapp built in one month — fully functional storefront with admin panel, Cloudflare Pages backend, and minimal-cost deployment.",
+    tags: ["React", "Cloudflare", "E-commerce"],
+    role: "Full Stack Dev",
+    color: "#B9C9A6",
+    rotate: -0.6,
+    image: YashToysImage,
+    link: "https://yashgiftsandtoys.in/",
   },
 ];
 
