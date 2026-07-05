@@ -287,7 +287,7 @@ function BlogSection() {
   return (
     <section id="blog" style={{ paddingTop: 110 }}>
       <div className="neo-section-header neo-reveal">
-        <h2 className="neo-section-title">Field Notes</h2>
+        <h2 className="neo-section-title">Blogs</h2>
         <span className="neo-section-count">{String(BLOG_ARTICLES.length).padStart(2, "0")} articles</span>
       </div>
       <div className="neo-section-divider neo-reveal" />

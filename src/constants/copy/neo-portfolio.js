@@ -7,6 +7,7 @@ import TensorImage from "../../Assets/Projects/tensor flow.png";
 import ReactNativeImage from "../../Assets/Projects/ReactNative.png";
 import TwilioImage from "../../Assets/Projects/twilio.png";
 import YashToysImage from "../../Assets/Projects/yashToys.png";
+import DevToolboxImage from "../../Assets/Projects/devToolbox.png";
 
 export const NAV = {
   name: "Santosh Kumar",
@@ -82,6 +83,18 @@ export const PROJECTS = [
     rotate: -0.6,
     image: YashToysImage,
     link: "https://yashgiftsandtoys.in/",
+  },
+  {
+    num: "04",
+    year: "2025",
+    title: "Dev Toolbox",
+    desc: "Collection of 58 developer utilities — JSON formatter, regex tester, Base64, diff checker, and more. 100% private, runs locally in browser.",
+    tags: ["React", "Developer Tools", "Web App"],
+    role: "Creator",
+    color: "#E0A87E",
+    rotate: 0.9,
+    image: DevToolboxImage,
+    link: "https://devtools-9fsp.onrender.com/",
   },
 ];
 
