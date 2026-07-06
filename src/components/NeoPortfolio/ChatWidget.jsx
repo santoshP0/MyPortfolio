@@ -4,7 +4,7 @@ const CHAT_ENDPOINT = "/.netlify/functions/chat";
 
 const INITIAL_MESSAGE = {
   role: "assistant",
-  content: "Hey! I'm Santosh's AI assistant. Ask me anything about his work, skills, or projects — or leave your details if you'd like him to reach out!",
+  content: "Hey! I'm Santosh. Ask me anything about my work, skills, or projects — or drop your details and I'll get back to you!",
 };
 
 export default function ChatWidget() {
@@ -71,7 +71,7 @@ export default function ChatWidget() {
         <div className="neo-chat-window">
           <div className="neo-chat-header">
             <span className="neo-chat-header-dot" />
-            <span>Chat with Santosh's AI</span>
+            <span>Chat with Santosh</span>
           </div>
 
           <div className="neo-chat-messages">
