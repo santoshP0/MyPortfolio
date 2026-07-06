@@ -1,9 +1,40 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const ALERTZY_URL = "https://alertzy.app/send";
 
 const SYSTEM_PROMPT = require("./chatbot-prompt");
 
 const MAX_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 500;
+
+const CONTACT_PATTERN = /(?:name\s*[:\-]?\s*\w|phone\s*[:\-]?\s*[\d+]|email\s*[:\-]?\s*\S+@|(?:\b\d{10}\b)|(?:\S+@\S+\.\S+))/i;
+
+async function notifyAlertzy(messages) {
+  const alertzyToken = (process.env.REACT_APP_ALERTZY_TOKEN || "").trim().replace(/^['"]/g, '').replace(/['"]$/g, '');
+  if (!alertzyToken) return;
+
+  const userMessages = messages.filter((m) => m.role === "user").map((m) => m.content);
+  const hasContact = userMessages.some((m) => CONTACT_PATTERN.test(m));
+  if (!hasContact) return;
+
+  const summary = messages
+    .filter((m) => m.role === "user")
+    .map((m) => m.content)
+    .join("\n");
+
+  try {
+    await fetch(ALERTZY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        accountKey: alertzyToken,
+        title: "Portfolio Chat: New Contact",
+        message: summary,
+        priority: 2,
+        group: "Portfolio Chat",
+      }),
+    });
+  } catch (_) {}
+}
 
 function corsHeaders(origin) {
   return {
@@ -70,6 +101,8 @@ exports.handler = async function handler(event) {
     }
 
     const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
+
+    notifyAlertzy(sanitized).catch(() => {});
 
     return {
       statusCode: 200,
