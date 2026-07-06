@@ -9,6 +9,7 @@ import TwilioImage from "../../Assets/Projects/twilio.png";
 import YashToysImage from "../../Assets/Projects/yashToys.png";
 import DevToolboxImage from "../../Assets/Projects/devToolbox.png";
 import NfcScannerImage from "../../Assets/Projects/nfcScanner.png";
+import CarPlayImage from "../../Assets/Projects/carplay.png";
 
 export const NAV = {
   name: "Santosh Kumar",
@@ -108,6 +109,18 @@ export const PROJECTS = [
     rotate: -0.5,
     image: NfcScannerImage,
     link: "https://www.npmjs.com/package/@santoshpk/react-native-nfc-scanner",
+  },
+  {
+    num: "06",
+    year: "2025",
+    title: "RN CarPlay",
+    desc: "Production-hardened React Native bindings for Android Auto & Apple CarPlay — forked and enhanced with stable Android Auto layer.",
+    tags: ["React Native", "CarPlay", "npm Package"],
+    role: "Creator",
+    color: "#D9D7CF",
+    rotate: 0.6,
+    image: CarPlayImage,
+    link: "https://www.npmjs.com/package/@santoshpk/react-native-carplay",
   },
 ];
 
