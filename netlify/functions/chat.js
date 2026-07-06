@@ -1,12 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-const SYSTEM_PROMPT = fs.readFileSync(
-  path.join(__dirname, "chatbot-prompt.txt"),
-  "utf-8"
-);
+const SYSTEM_PROMPT = require("./chatbot-prompt");
 
 const MAX_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 500;
