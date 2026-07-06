@@ -26,3 +26,6 @@ yarn-error.log*
 
 # claude
 .claude/
+
+# Local Netlify folder
+.netlify

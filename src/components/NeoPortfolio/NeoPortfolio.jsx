@@ -7,6 +7,7 @@ import {
 } from "../../constants/copy/neo-portfolio";
 import { sendAlertzyTransmission } from "../../utils/alertzy";
 import resumePdf from "../../Assets/Santosh.pdf";
+import ChatWidget from "./ChatWidget";
 import "../../styles/neo-brutalist.css";
 
 /* ── Corner Markers ─────────────────────────────────────── */
@@ -423,6 +424,7 @@ export default function NeoPortfolio() {
       <ToolkitSection />
       <BlogSection />
       <ContactSection />
+      <ChatWidget />
     </div>
   );
 }
