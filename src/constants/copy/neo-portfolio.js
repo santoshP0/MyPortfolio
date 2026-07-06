@@ -8,6 +8,7 @@ import ReactNativeImage from "../../Assets/Projects/ReactNative.png";
 import TwilioImage from "../../Assets/Projects/twilio.png";
 import YashToysImage from "../../Assets/Projects/yashToys.png";
 import DevToolboxImage from "../../Assets/Projects/devToolbox.png";
+import NfcScannerImage from "../../Assets/Projects/nfcScanner.png";
 
 export const NAV = {
   name: "Santosh Kumar",
@@ -95,6 +96,18 @@ export const PROJECTS = [
     rotate: 0.9,
     image: DevToolboxImage,
     link: "https://devtools-9fsp.onrender.com/",
+  },
+  {
+    num: "05",
+    year: "2025",
+    title: "RN NFC Scanner",
+    desc: "Published npm package for Android NFC scanning in React Native — supports foreground & background scanning, works with both New and Old Architecture.",
+    tags: ["React Native", "NFC", "npm Package"],
+    role: "Creator",
+    color: "#F4E9CE",
+    rotate: -0.5,
+    image: NfcScannerImage,
+    link: "https://www.npmjs.com/package/@santoshpk/react-native-nfc-scanner",
   },
 ];
 
