@@ -6,20 +6,19 @@ const SYSTEM_PROMPT = require("./chatbot-prompt");
 const MAX_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 500;
 
-const CONTACT_PATTERN = /(?:name\s*[:\-]?\s*\w|phone\s*[:\-]?\s*[\d+]|email\s*[:\-]?\s*\S+@|(?:\b\d{10}\b)|(?:\S+@\S+\.\S+))/i;
+const CONTACT_PATTERN = /(?:phone\s*[:\-]?\s*\+?[\d\s\-]{7,}|email\s*[:\-]?\s*\S+@|(?:\+?\d[\d\s\-]{6,14}\d)|(?:\S+@\S+\.\S+))/i;
 
 async function notifyAlertzy(messages) {
   const alertzyToken = (process.env.REACT_APP_ALERTZY_TOKEN || "").trim().replace(/^['"]/g, '').replace(/['"]$/g, '');
   if (!alertzyToken) return;
 
   const userMessages = messages.filter((m) => m.role === "user").map((m) => m.content);
-  const hasContact = userMessages.some((m) => CONTACT_PATTERN.test(m));
-  if (!hasContact) return;
+  // Only notify when the newest message contains contact info,
+  // otherwise every follow-up message re-sends the alert
+  const latest = userMessages[userMessages.length - 1] || "";
+  if (!CONTACT_PATTERN.test(latest)) return;
 
-  const summary = messages
-    .filter((m) => m.role === "user")
-    .map((m) => m.content)
-    .join("\n");
+  const summary = userMessages.join("\n");
 
   try {
     await fetch(ALERTZY_URL, {
@@ -102,7 +101,7 @@ exports.handler = async function handler(event) {
 
     const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
 
-    notifyAlertzy(sanitized).catch(() => {});
+    await notifyAlertzy(sanitized);
 
     return {
       statusCode: 200,
