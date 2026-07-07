@@ -6,10 +6,10 @@ import ModernNotificationImage from "../../Assets/Projects/modernNoti.webp";
 import TensorImage from "../../Assets/Projects/tensor flow.png";
 import ReactNativeImage from "../../Assets/Projects/ReactNative.png";
 import TwilioImage from "../../Assets/Projects/twilio.png";
-import YashToysImage from "../../Assets/Projects/yashToys.png";
-import DevToolboxImage from "../../Assets/Projects/devToolbox.png";
-import NfcScannerImage from "../../Assets/Projects/nfcScanner.png";
-import CarPlayImage from "../../Assets/Projects/carplay.png";
+import YashToysImage from "../../Assets/Projects/yashToys.jpg";
+import DevToolboxImage from "../../Assets/Projects/devToolbox.jpg";
+import NfcScannerImage from "../../Assets/Projects/nfcScanner.jpg";
+import CarPlayImage from "../../Assets/Projects/carplay.jpg";
 
 export const NAV = {
   name: "Santosh Kumar",
