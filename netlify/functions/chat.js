@@ -127,6 +127,31 @@ exports.handler = async function handler(event) {
     let assistantMsg = data.choices?.[0]?.message || {};
     let notified = false;
 
+    // Llama sometimes writes the tool call as plain text instead of using
+    // the tool_calls channel — catch it so raw JSON never reaches the visitor
+    if (assistantMsg.content && /save_contact|<function/i.test(assistantMsg.content)) {
+      const jsonMatch = assistantMsg.content.match(/\{[\s\S]*?\}/);
+      if (jsonMatch) {
+        let args = {};
+        try { args = JSON.parse(jsonMatch[0]); } catch (_) {}
+        const lines = [
+          args.name ? `Name: ${args.name}` : null,
+          args.phone ? `Phone: ${args.phone}` : null,
+          args.email ? `Email: ${args.email}` : null,
+          args.interest ? `Interest: ${args.interest}` : null,
+        ].filter(Boolean);
+        if (lines.length) {
+          await sendAlertzy("Portfolio Chat: New Lead", lines.join("\n"));
+          notified = true;
+        }
+      }
+      assistantMsg = {
+        ...assistantMsg,
+        content: "awesome, got it! I'll reach out to you soon 👍",
+        tool_calls: undefined,
+      };
+    }
+
     // Model decided the visitor shared contact details → save + notify
     if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
       const call = assistantMsg.tool_calls[0];
