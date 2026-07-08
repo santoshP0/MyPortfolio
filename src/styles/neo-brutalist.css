@@ -772,10 +772,12 @@ body {
   flex-shrink: 0;
 }
 
-.neo-card-link-btn:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #1a1a1a;
-  background: #F6E27A;
+@media (hover: hover) {
+  .neo-card-link-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #1a1a1a;
+    background: #F6E27A;
+  }
 }
 
 .neo-card-link-btn:active {
