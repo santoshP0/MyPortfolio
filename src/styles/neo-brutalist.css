@@ -532,23 +532,35 @@ body {
 
 .neo-social-links {
   display: flex;
-  gap: 16px;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  gap: 10px;
+  align-items: center;
 }
 
-.neo-social-links a {
+.neo-social-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
   color: #1a1a1a;
+  background: #F8F5ED;
+  border: 2px solid #1a1a1a;
+  box-shadow: 3px 3px 0 #1a1a1a;
   text-decoration: none;
-  border-bottom: 1.5px solid #1a1a1a;
-  padding-bottom: 2px;
-  transition: color 180ms ease;
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 180ms ease, background 180ms ease;
 }
 
-.neo-social-links a:hover {
-  color: #6b6b63;
+.neo-social-chip:hover {
+  transform: translateY(-3px) rotate(-4deg);
+  box-shadow: 4px 6px 0 #1a1a1a;
+  background: #F6E27A;
+}
+
+.neo-social-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #1a1a1a;
 }
 
 /* ── Stat Strip ────────────────────────────────────────── */
@@ -734,6 +746,28 @@ body {
   font-weight: 700;
   font-size: 18px;
   transition: transform 200ms ease;
+}
+
+.neo-card-platforms {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.neo-platform-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  background: #F8F5ED;
+  border: 1.5px solid #1a1a1a;
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.neo-project-card:hover .neo-platform-badge {
+  transform: translateY(-2px);
 }
 
 .neo-project-card:hover .neo-card-arrow {
@@ -1098,16 +1132,22 @@ body {
   gap: 14px;
 }
 
-.neo-contact-link-dot {
-  width: 9px;
-  height: 9px;
-  background: #1a1a1a;
-  display: inline-block;
-  transition: transform 200ms ease;
+.neo-contact-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
+  background: #F8F5ED;
+  border: 1.5px solid #1a1a1a;
+  box-shadow: 2px 2px 0 #1a1a1a;
+  flex-shrink: 0;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.neo-contact-link:hover .neo-contact-link-dot {
-  transform: scale(1.4);
+.neo-contact-link:hover .neo-contact-link-icon {
+  transform: translateY(-2px) rotate(-5deg);
 }
 
 /* Form */

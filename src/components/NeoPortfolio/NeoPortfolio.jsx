@@ -1,4 +1,6 @@
 import React, { useState, useCallback } from "react";
+import { FaGithub, FaLinkedin, FaMediumM, FaNpm, FaGooglePlay, FaApple, FaGlobe } from "react-icons/fa";
+import { MdEmail, MdLocationOn } from "react-icons/md";
 import { useRevealChildren } from "./useReveal";
 import {
   NAV, HERO, STATS, PROJECTS, EXPERIENCE,
@@ -9,6 +11,13 @@ import { sendAlertzyTransmission } from "../../utils/alertzy";
 import resumePdf from "../../Assets/Santosh.pdf";
 import ChatWidget from "./ChatWidget";
 import "../../styles/neo-brutalist.css";
+
+const SOCIAL_ICONS = {
+  GitHub: FaGithub,
+  LinkedIn: FaLinkedin,
+  Medium: FaMediumM,
+  npm: FaNpm,
+};
 
 /* ── Corner Markers ─────────────────────────────────────── */
 function Corners() {
@@ -98,9 +107,14 @@ function Hero() {
             <a href="#work" className="neo-btn-primary">View my work →</a>
             <a href="#contact" className="neo-btn-secondary">Get in touch</a>
             <div className="neo-social-links">
-              {HERO.socials.map((s) => (
-                <a key={s.label} href={s.href} target="_blank" rel="noreferrer">{s.label}</a>
-              ))}
+              {HERO.socials.map((s) => {
+                const Icon = SOCIAL_ICONS[s.label];
+                return (
+                  <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="neo-social-chip" title={s.label} aria-label={s.label}>
+                    {Icon ? <Icon /> : s.label}
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -124,8 +138,18 @@ function StatStrip() {
 }
 
 /* ── Projects ─────────────────────────────────────────────── */
+function platformIcons(p) {
+  const icons = [];
+  if (p.androidLink) icons.push({ Icon: FaGooglePlay, label: "Play Store" });
+  if (p.iosLink) icons.push({ Icon: FaApple, label: "App Store" });
+  if (p.link && p.link.includes("npmjs.com")) icons.push({ Icon: FaNpm, label: "npm" });
+  else if (p.link) icons.push({ Icon: FaGlobe, label: "Live site" });
+  return icons;
+}
+
 function ProjectCard({ p }) {
   const href = p.androidLink || p.iosLink || p.link || "#";
+  const platforms = platformIcons(p);
   return (
     <a
       href={href}
@@ -147,7 +171,12 @@ function ProjectCard({ p }) {
       </div>
       <div className="neo-card-footer">
         <span className="neo-card-role">{p.role}</span>
-        <span className="neo-card-arrow">→</span>
+        <span className="neo-card-platforms">
+          {platforms.map(({ Icon, label }) => (
+            <span key={label} className="neo-platform-badge" title={label}><Icon /></span>
+          ))}
+          <span className="neo-card-arrow">→</span>
+        </span>
       </div>
     </a>
   );
@@ -350,13 +379,17 @@ function ContactSection() {
             <p className="neo-contact-desc">{CONTACT.description}</p>
             <div className="neo-contact-links">
               <a href={`mailto:${CONTACT.email}`} className="neo-contact-link">
-                <span className="neo-contact-link-dot" />
+                <span className="neo-contact-link-icon"><MdEmail /></span>
                 {CONTACT.email}
               </a>
               <a href={CONTACT.linkedin} target="_blank" rel="noreferrer" className="neo-contact-link">
-                <span className="neo-contact-link-dot" />
+                <span className="neo-contact-link-icon"><FaLinkedin /></span>
                 LinkedIn Profile
               </a>
+              <span className="neo-contact-link" style={{ cursor: "default" }}>
+                <span className="neo-contact-link-icon"><MdLocationOn /></span>
+                Telangana, India
+              </span>
             </div>
           </div>
 
@@ -398,9 +431,15 @@ function ContactSection() {
       <footer className="neo-footer neo-reveal">
         <span>{FOOTER.copy}</span>
         <div className="neo-footer-links">
-          {FOOTER.links.map((l) => (
-            <a key={l.label} href={l.href} target="_blank" rel="noreferrer">{l.label}</a>
-          ))}
+          {FOOTER.links.map((l) => {
+            const Icon = SOCIAL_ICONS[l.label];
+            return (
+              <a key={l.label} href={l.href} target="_blank" rel="noreferrer">
+                {Icon && <Icon style={{ verticalAlign: "-2px", marginRight: 5 }} />}
+                {l.label}
+              </a>
+            );
+          })}
         </div>
       </footer>
     </section>

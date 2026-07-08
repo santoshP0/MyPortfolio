@@ -37,6 +37,8 @@ export const HERO = {
   socials: [
     { label: "GitHub", href: "https://github.com/santoshP0" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/santosh-kumar-649928265" },
+    { label: "Medium", href: "https://medium.com/@santosh.pk" },
+    { label: "npm", href: "https://www.npmjs.com/~santoshpk" },
   ],
 };
 
