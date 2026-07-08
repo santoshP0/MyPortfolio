@@ -140,10 +140,10 @@ function StatStrip() {
 /* ── Projects ─────────────────────────────────────────────── */
 function platformIcons(p) {
   const icons = [];
-  if (p.androidLink) icons.push({ Icon: FaGooglePlay, label: "Play Store" });
-  if (p.iosLink) icons.push({ Icon: FaApple, label: "App Store" });
-  if (p.link && p.link.includes("npmjs.com")) icons.push({ Icon: FaNpm, label: "npm" });
-  else if (p.link) icons.push({ Icon: FaGlobe, label: "Live site" });
+  if (p.androidLink) icons.push({ Icon: FaGooglePlay, label: "Play Store", href: p.androidLink });
+  if (p.iosLink) icons.push({ Icon: FaApple, label: "App Store", href: p.iosLink });
+  if (p.link && p.link.includes("npmjs.com")) icons.push({ Icon: FaNpm, label: "npm", href: p.link });
+  else if (p.link) icons.push({ Icon: FaGlobe, label: "Live site", href: p.link });
   return icons;
 }
 
@@ -151,12 +151,13 @@ function ProjectCard({ p }) {
   const href = p.androidLink || p.iosLink || p.link || "#";
   const platforms = platformIcons(p);
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
+    <div
       className="neo-project-card neo-reveal"
-      style={{ background: p.color, transform: `rotate(${p.rotate}deg)`, textDecoration: "none", color: "inherit" }}
+      onClick={() => window.open(href, "_blank", "noopener")}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter") window.open(href, "_blank", "noopener"); }}
+      style={{ background: p.color, transform: `rotate(${p.rotate}deg)`, cursor: "pointer" }}
     >
       <Corners />
       <div className="neo-card-header">
@@ -172,13 +173,24 @@ function ProjectCard({ p }) {
       <div className="neo-card-footer">
         <span className="neo-card-role">{p.role}</span>
         <span className="neo-card-platforms">
-          {platforms.map(({ Icon, label }) => (
-            <span key={label} className="neo-platform-badge" title={label}><Icon /></span>
+          {platforms.map(({ Icon, label, href: badgeHref }) => (
+            <a
+              key={label}
+              href={badgeHref}
+              target="_blank"
+              rel="noreferrer"
+              className="neo-platform-badge"
+              title={label}
+              aria-label={`${p.title} on ${label}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Icon />
+            </a>
           ))}
           <span className="neo-card-arrow">→</span>
         </span>
       </div>
-    </a>
+    </div>
   );
 }
 
