@@ -1567,6 +1567,26 @@ body {
   flex-shrink: 0;
 }
 
+.neo-chat-close {
+  margin-left: auto;
+  border: 1.5px solid #1a1a1a;
+  background: #F8F5ED;
+  box-shadow: 2px 2px 0 #1a1a1a;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 5px 9px;
+  cursor: pointer;
+  color: #1a1a1a;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.neo-chat-close:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #1a1a1a;
+}
+
 .neo-chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -1663,14 +1683,62 @@ body {
 
 @media (max-width: 600px) {
   .neo-chat-window {
-    width: calc(100vw - 24px);
-    right: 12px;
-    bottom: 88px;
-    max-height: 70vh;
+    /* Full-width bottom sheet above the FAB */
+    width: 100vw;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-shadow: 0 -6px 0 #1a1a1a;
+    height: min(78dvh, 560px);
+    max-height: none;
+    animation: chatSheetUp 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .neo-chat-messages {
+    flex: 1;
+    max-height: none;
+    min-height: 0;
+    padding: 18px 16px;
+    gap: 12px;
+  }
+
+  .neo-chat-bubble {
+    font-size: 15px;
+    padding: 12px 15px;
+    max-width: 88%;
+  }
+
+  .neo-chat-header {
+    padding: 16px 18px;
+    font-size: 15px;
+  }
+
+  .neo-chat-input {
+    /* 16px stops iOS zooming the page on focus */
+    font-size: 16px;
+    padding: 15px 16px;
+  }
+
+  .neo-chat-send {
+    padding: 15px 22px;
+    font-size: 20px;
   }
 
   .neo-chat-fab {
     bottom: 18px;
     right: 18px;
   }
+
+  /* Sheet covers the FAB spot — header ✕ takes over as close */
+  .neo-chat-fab:has(+ .neo-chat-window) {
+    display: none;
+  }
+}
+
+@keyframes chatSheetUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }

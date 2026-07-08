@@ -22,8 +22,10 @@ export default function ChatWidget() {
   }, [messages, open]);
 
   useEffect(() => {
-    if (open && inputRef.current) inputRef.current.focus();
-  }, [open]);
+    // Refocus whenever the window opens or a reply finishes,
+    // so the visitor can keep typing without tapping the input again
+    if (open && !loading && inputRef.current) inputRef.current.focus();
+  }, [open, loading]);
 
   const send = useCallback(async () => {
     const text = input.trim();
@@ -72,6 +74,9 @@ export default function ChatWidget() {
           <div className="neo-chat-header">
             <span className="neo-chat-header-dot" />
             <span>Chat with Santosh</span>
+            <button className="neo-chat-close" onClick={() => setOpen(false)} aria-label="Close chat">
+              ✕
+            </button>
           </div>
 
           <div className="neo-chat-messages">
@@ -97,7 +102,6 @@ export default function ChatWidget() {
               onKeyDown={handleKey}
               placeholder="Ask me anything..."
               maxLength={500}
-              disabled={loading}
             />
             <button className="neo-chat-send" onClick={send} disabled={loading || !input.trim()}>
               →
