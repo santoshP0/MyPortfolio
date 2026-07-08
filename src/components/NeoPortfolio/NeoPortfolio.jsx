@@ -138,26 +138,21 @@ function StatStrip() {
 }
 
 /* ── Projects ─────────────────────────────────────────────── */
-function platformIcons(p) {
-  const icons = [];
-  if (p.androidLink) icons.push({ Icon: FaGooglePlay, label: "Play Store", href: p.androidLink });
-  if (p.iosLink) icons.push({ Icon: FaApple, label: "App Store", href: p.iosLink });
-  if (p.link && p.link.includes("npmjs.com")) icons.push({ Icon: FaNpm, label: "npm", href: p.link });
-  else if (p.link) icons.push({ Icon: FaGlobe, label: "Live site", href: p.link });
-  return icons;
+function projectLinks(p) {
+  const links = [];
+  if (p.androidLink) links.push({ Icon: FaGooglePlay, label: "Play Store", href: p.androidLink });
+  if (p.iosLink) links.push({ Icon: FaApple, label: "App Store", href: p.iosLink });
+  if (p.link && p.link.includes("npmjs.com")) links.push({ Icon: FaNpm, label: "View on npm", href: p.link });
+  else if (p.link) links.push({ Icon: FaGlobe, label: "Visit site", href: p.link });
+  return links;
 }
 
 function ProjectCard({ p }) {
-  const href = p.androidLink || p.iosLink || p.link || "#";
-  const platforms = platformIcons(p);
+  const links = projectLinks(p);
   return (
     <div
       className="neo-project-card neo-reveal"
-      onClick={() => window.open(href, "_blank", "noopener")}
-      role="link"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === "Enter") window.open(href, "_blank", "noopener"); }}
-      style={{ background: p.color, transform: `rotate(${p.rotate}deg)`, cursor: "pointer" }}
+      style={{ background: p.color, transform: `rotate(${p.rotate}deg)` }}
     >
       <Corners />
       <div className="neo-card-header">
@@ -170,25 +165,22 @@ function ProjectCard({ p }) {
       <div className="neo-card-tags">
         {p.tags.map((t) => <span key={t} className="neo-card-tag">{t}</span>)}
       </div>
-      <div className="neo-card-footer">
+      <div className="neo-card-role-row">
         <span className="neo-card-role">{p.role}</span>
-        <span className="neo-card-platforms">
-          {platforms.map(({ Icon, label, href: badgeHref }) => (
-            <a
-              key={label}
-              href={badgeHref}
-              target="_blank"
-              rel="noreferrer"
-              className="neo-platform-badge"
-              title={label}
-              aria-label={`${p.title} on ${label}`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Icon />
-            </a>
-          ))}
-          <span className="neo-card-arrow">→</span>
-        </span>
+      </div>
+      <div className="neo-card-links">
+        {links.map(({ Icon, label, href }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            className="neo-card-link-btn"
+            aria-label={`${p.title} — ${label}`}
+          >
+            <Icon /> <span>{label}</span>
+          </a>
+        ))}
       </div>
     </div>
   );
