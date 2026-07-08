@@ -7,13 +7,30 @@ const INITIAL_MESSAGE = {
   content: "Hey! I'm Santosh. Ask me anything about my work, skills, or projects — or drop your details and I'll get back to you!",
 };
 
+const CLOSE_ANIM_MS = 260;
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+
+  const close = useCallback(() => {
+    // Play the exit animation, then unmount
+    setClosing(true);
+    setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, CLOSE_ANIM_MS);
+  }, []);
+
+  const toggle = useCallback(() => {
+    if (open) close();
+    else setOpen(true);
+  }, [open, close]);
 
   useEffect(() => {
     if (open && bottomRef.current) {
@@ -63,18 +80,18 @@ export default function ChatWidget() {
     <>
       <button
         className="neo-chat-fab"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         aria-label={open ? "Close chat" : "Chat with Santosh's AI"}
       >
         {open ? "✕" : "💬"}
       </button>
 
       {open && (
-        <div className="neo-chat-window">
+        <div className={`neo-chat-window${closing ? " neo-chat-closing" : ""}`}>
           <div className="neo-chat-header">
             <span className="neo-chat-header-dot" />
             <span>Chat with Santosh</span>
-            <button className="neo-chat-close" onClick={() => setOpen(false)} aria-label="Close chat">
+            <button className="neo-chat-close" onClick={close} aria-label="Close chat">
               ✕
             </button>
           </div>
