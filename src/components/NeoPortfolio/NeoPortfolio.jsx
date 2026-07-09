@@ -10,7 +10,23 @@ import {
 import { sendAlertzyTransmission } from "../../utils/alertzy";
 import resumePdf from "../../Assets/Santosh.pdf";
 import ChatWidget from "./ChatWidget";
+import Mascot from "./Mascot";
 import "../../styles/neo-brutalist.css";
+
+/* ── Scroll progress bar ─────────────────────────────────── */
+function ScrollProgress() {
+  const barRef = React.useRef(null);
+  React.useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement;
+      const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+      if (barRef.current) barRef.current.style.width = `${pct}%`;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return <div className="neo-progress"><div ref={barRef} className="neo-progress-bar" /></div>;
+}
 
 const SOCIAL_ICONS = {
   GitHub: FaGithub,
@@ -456,6 +472,8 @@ export default function NeoPortfolio() {
 
   return (
     <div className="neo-container" ref={containerRef}>
+      <ScrollProgress />
+      <Mascot />
       <Nav />
       <Divider />
       <Hero />

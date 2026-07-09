@@ -1864,3 +1864,191 @@ body {
   from { transform: translateY(0); opacity: 1; }
   to { transform: translateY(70px); opacity: 0; }
 }
+
+/* ── Scroll progress ──────────────────────────────────────── */
+.neo-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 10000;
+  background: transparent;
+  pointer-events: none;
+}
+
+.neo-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #1a1a1a;
+  border-right: 3px solid #F6E27A;
+}
+
+/* ── Mascot (SK-bot) ──────────────────────────────────────── */
+.neo-mascot {
+  position: fixed;
+  bottom: 22px;
+  left: 22px;
+  z-index: 9990;
+  width: 62px;
+  cursor: pointer;
+  user-select: none;
+  animation: mascotBob 4s ease-in-out infinite, paperIn 500ms 1800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.neo-mascot:hover {
+  transform: rotate(-4deg) scale(1.06);
+}
+
+@keyframes mascotBob {
+  0%, 100% { margin-bottom: 0; }
+  50% { margin-bottom: 7px; }
+}
+
+.neo-mascot-antenna {
+  width: 2px;
+  height: 12px;
+  background: #1a1a1a;
+  margin: 0 auto;
+  position: relative;
+}
+
+.neo-mascot-antenna span {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F6E27A;
+  border: 1.5px solid #1a1a1a;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.neo-mascot-head {
+  background: #F8F5ED;
+  border: 2px solid #1a1a1a;
+  box-shadow: 3px 3px 0 #1a1a1a;
+  border-radius: 6px;
+  padding: 9px 8px 7px;
+}
+
+.neo-mascot-eyes {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.neo-mascot-eye {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border: 1.5px solid #1a1a1a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: mascotBlink 4.5s ease-in-out infinite;
+}
+
+@keyframes mascotBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.08); }
+}
+
+.neo-mascot-pupil {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  transform: translate(var(--look-x, 0), var(--look-y, 0));
+  transition: transform 120ms ease-out;
+}
+
+/* Touch devices: no cursor to follow — look around on its own */
+@media (hover: none) {
+  .neo-mascot-pupil {
+    animation: mascotLook 6s ease-in-out infinite;
+  }
+}
+
+@keyframes mascotLook {
+  0%, 20%, 100% { transform: translate(0, 0); }
+  30%, 45% { transform: translate(3px, -1px); }
+  55%, 70% { transform: translate(-3px, 1px); }
+  80%, 90% { transform: translate(0, 2px); }
+}
+
+.neo-mascot-mouth {
+  width: 12px;
+  height: 4px;
+  border: 1.5px solid #1a1a1a;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  margin: 5px auto 0;
+  transition: height 200ms ease;
+}
+
+.neo-mascot-waving .neo-mascot-mouth {
+  height: 7px;
+  background: #E0A87E;
+}
+
+.neo-mascot-body {
+  position: relative;
+  width: 40px;
+  margin: -2px auto 0;
+  height: 22px;
+  background: #F6E27A;
+  border: 2px solid #1a1a1a;
+  box-shadow: 3px 3px 0 #1a1a1a;
+  border-radius: 0 0 5px 5px;
+}
+
+.neo-mascot-arm {
+  position: absolute;
+  top: 3px;
+  width: 5px;
+  height: 15px;
+  background: #F8F5ED;
+  border: 1.5px solid #1a1a1a;
+  border-radius: 3px;
+}
+
+.neo-mascot-arm-l { left: -8px; transform-origin: top center; }
+.neo-mascot-arm-r { right: -8px; transform-origin: top center; }
+
+.neo-mascot-waving .neo-mascot-arm-r {
+  animation: mascotWave 300ms ease-in-out 4;
+}
+
+@keyframes mascotWave {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-120deg); }
+}
+
+/* Idle wave every so often to invite a click */
+.neo-mascot:not(.neo-mascot-waving) .neo-mascot-arm-r {
+  animation: mascotIdleWave 9s ease-in-out infinite;
+}
+
+@keyframes mascotIdleWave {
+  0%, 88%, 100% { transform: rotate(0); }
+  91% { transform: rotate(-110deg); }
+  94% { transform: rotate(-60deg); }
+  97% { transform: rotate(-110deg); }
+}
+
+@media (max-width: 600px) {
+  .neo-mascot {
+    width: 48px;
+    bottom: 14px;
+    left: 12px;
+  }
+
+  .neo-mascot-eye { width: 11px; height: 11px; }
+  .neo-mascot-body { width: 32px; height: 18px; }
+}
