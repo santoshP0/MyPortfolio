@@ -9,7 +9,6 @@ import {
 } from "../../constants/copy/neo-portfolio";
 import { sendAlertzyTransmission } from "../../utils/alertzy";
 import resumePdf from "../../Assets/Santosh.pdf";
-import ChatWidget from "./ChatWidget";
 import Mascot from "./Mascot";
 import "../../styles/neo-brutalist.css";
 
@@ -485,7 +484,6 @@ export default function NeoPortfolio() {
       <ToolkitSection />
       <BlogSection />
       <ContactSection />
-      <ChatWidget />
     </div>
   );
 }

@@ -103,7 +103,42 @@ exports.handler = async function handler(event) {
   }
 
   try {
-    const { messages = [] } = JSON.parse(event.body || "{}");
+    const { messages = [], mode } = JSON.parse(event.body || "{}");
+
+    // One-shot batch of idle one-liners for the mascot
+    if (mode === "blurbs") {
+      const resp = await fetch(GROQ_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            {
+              role: "system",
+              content: `You write idle speech-bubble one-liners for SK-bot, a tiny robot mascot on Santosh Kumar's portfolio site. Santosh: React Native dev, 5+ yrs, 2 apps on both app stores (Mobile Responder, OnCall Mobile), built an e-commerce site in a month, made Dev Toolbox (58 dev tools), published 2 npm packages (NFC scanner, CarPlay), writes on Medium, runs on coffee.
+
+Style examples: "Psst... ask me about Santosh's apps 📱" / "beep boop... jk, I speak human too." / "I follow your cursor. Not creepy at all. 👀" / "Click me, I know things."
+
+Rules: max 60 chars each, playful, mix facts about Santosh with random robot humor, occasional emoji. Reply with ONLY a JSON array of 10 strings, nothing else.`,
+            },
+            { role: "user", content: "Generate the batch." },
+          ],
+          temperature: 1.1,
+          max_tokens: 500,
+        }),
+      });
+      const data = await resp.json();
+      let blurbs = [];
+      try {
+        const raw = data.choices?.[0]?.message?.content || "[]";
+        blurbs = JSON.parse(raw.slice(raw.indexOf("["), raw.lastIndexOf("]") + 1));
+      } catch (_) {}
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders(allowedOrigin), "Content-Type": "application/json" },
+        body: JSON.stringify({ blurbs: Array.isArray(blurbs) ? blurbs.filter((b) => typeof b === "string").slice(0, 12) : [] }),
+      };
+    }
 
     const sanitized = messages
       .slice(-MAX_MESSAGES)
