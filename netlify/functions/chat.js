@@ -65,7 +65,7 @@ async function callGroq(token, messages) {
       messages,
       tools: TOOLS,
       tool_choice: "auto",
-      temperature: 0.5,
+      temperature: 0.2,
       max_tokens: 300,
     }),
   });
