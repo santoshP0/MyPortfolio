@@ -26,6 +26,36 @@ function timeGreeting() {
   return pick([...byHour, ...byDay]);
 }
 
+/* Curious questions per section — shown while you're reading that part */
+const SECTION_BLURBS = {
+  work: [
+    "Which project caught your eye? 👀",
+    "Wanna know how any of these were built? Ask me!",
+    "Psst — two of these are live on both app stores.",
+    "Curious about the tech behind one? Click me.",
+  ],
+  experience: [
+    "Ask me what I actually do at Hexagon!",
+    "5+ years condensed into two cards. Questions?",
+    "Want the story behind any of these roles?",
+  ],
+  skills: [
+    "Quiz me on anything in the toolkit 😎",
+    "Wondering if I know your stack? Ask!",
+    "React Native questions? I got you.",
+  ],
+  blog: [
+    "Want a quick summary of any post?",
+    "I can tell you which article to read first!",
+    "Push notifications, widgets, Deno... pick my brain.",
+  ],
+  contact: [
+    "Go on, say hi. I don't byte. 🤖",
+    "Have a project in mind? Tell me here!",
+    "Drop your details — Santosh actually replies.",
+  ],
+};
+
 /* Fallback one-liners — used until the Groq batch arrives (or if it fails) */
 const BLURBS = [
   "Psst... ask me about Santosh's apps 📱",
@@ -55,6 +85,27 @@ export default function Mascot() {
   const [loading, setLoading] = useState(false);
   const [blurb, setBlurb] = useState(null);
   const [sleeping, setSleeping] = useState(false);
+  const [mood, setMood] = useState(null);
+
+  /* React to whichever section the visitor is looking at */
+  useEffect(() => {
+    const hero = document.querySelector(".neo-hero");
+    const sections = ["work", "experience", "skills", "blog", "contact"]
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((en) => {
+          if (!en.isIntersecting) return;
+          setMood(en.target.id || null); // hero has no id → back to neutral
+        });
+      },
+      { threshold: 0.35 }
+    );
+    if (hero) obs.observe(hero);
+    sections.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
   const blurbsRef = useRef(BLURBS);
   const sleepTimer = useRef(null);
 
@@ -98,17 +149,30 @@ export default function Mascot() {
       .catch(() => {});
   }, []);
 
-  /* Idle chatter while chat is closed (and he's awake) */
+  const moodRef = useRef(null);
+  moodRef.current = mood;
+
+  /* Ask a section question right when you arrive in it */
+  useEffect(() => {
+    if (!mood || open || sleeping || !SECTION_BLURBS[mood]) return;
+    const pool = SECTION_BLURBS[mood];
+    const show = setTimeout(() => setBlurb(pool[Math.floor(Math.random() * pool.length)]), 800);
+    const hide = setTimeout(() => setBlurb(null), 5800);
+    return () => { clearTimeout(show); clearTimeout(hide); };
+  }, [mood, open, sleeping]);
+
+  /* Idle chatter while chat is closed (and he's awake) —
+     section questions when you're in a section, general lines otherwise */
   useEffect(() => {
     if (open || sleeping) { setBlurb(null); return; }
     let hideTimer;
     const showOne = () => {
-      const list = blurbsRef.current;
-      setBlurb(list[Math.floor(Math.random() * list.length)]);
+      const pool = SECTION_BLURBS[moodRef.current] || blurbsRef.current;
+      setBlurb(pool[Math.floor(Math.random() * pool.length)]);
       hideTimer = setTimeout(() => setBlurb(null), 5000);
     };
     const first = setTimeout(showOne, 4000);
-    const loop = setInterval(showOne, 22000);
+    const loop = setInterval(showOne, 18000);
     return () => { clearTimeout(first); clearInterval(loop); clearTimeout(hideTimer); };
   }, [open, sleeping]);
 
@@ -222,6 +286,7 @@ export default function Mascot() {
           open && "neo-mascot-chatting",
           loading && "neo-mascot-thinking",
           sleeping && !open && "neo-mascot-sleeping",
+          mood && !open && !sleeping && `neo-mascot-mood-${mood}`,
         ].filter(Boolean).join(" ")}
         onClick={toggle}
         title="Chat with SK-bot"
