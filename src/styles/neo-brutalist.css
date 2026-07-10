@@ -1723,7 +1723,28 @@ body {
 
 @keyframes mascotBob {
   0%, 100% { margin-bottom: 0; }
-  50% { margin-bottom: 7px; }
+  50% { margin-bottom: 6px; }
+}
+
+/* Ground shadow — keeps him anchored while he bobs */
+.neo-mascot::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 52px;
+  height: 7px;
+  margin-left: -26px;
+  background: #1a1a1a;
+  opacity: 0.16;
+  border-radius: 50%;
+  z-index: -1;
+  animation: mascotShadow 4s ease-in-out infinite;
+}
+
+@keyframes mascotShadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.16; }
+  50% { transform: scaleX(0.78); opacity: 0.09; }
 }
 
 .neo-mascot-antenna {
@@ -1819,27 +1840,42 @@ body {
 
 .neo-mascot-body {
   position: relative;
-  width: 40px;
+  width: 48px;
   margin: -2px auto 0;
-  height: 22px;
+  height: 24px;
   background: #F6E27A;
   border: 2px solid #1a1a1a;
   box-shadow: 3px 3px 0 #1a1a1a;
-  border-radius: 0 0 5px 5px;
+  border-radius: 3px 3px 6px 6px;
+}
+
+/* Chest panel detail */
+.neo-mascot-body::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 9px;
+  background: #F8F5ED;
+  border: 1.5px solid #1a1a1a;
+  border-radius: 2px;
 }
 
 .neo-mascot-arm {
   position: absolute;
-  top: 3px;
-  width: 5px;
-  height: 15px;
+  top: 2px;
+  width: 6px;
+  height: 17px;
   background: #F8F5ED;
   border: 1.5px solid #1a1a1a;
   border-radius: 3px;
+  box-shadow: 1.5px 1.5px 0 #1a1a1a;
 }
 
-.neo-mascot-arm-l { left: -8px; transform-origin: top center; }
-.neo-mascot-arm-r { right: -8px; transform-origin: top center; }
+.neo-mascot-arm-l { left: -9px; transform-origin: top center; }
+.neo-mascot-arm-r { right: -9px; transform-origin: top center; }
 
 .neo-mascot-waving .neo-mascot-arm-r {
   animation: mascotWave 300ms ease-in-out 4;
@@ -1922,20 +1958,22 @@ body {
   opacity: 0.8;
 }
 
-/* Feet — little shuffle with the bob */
+/* Feet — attached to the body, little shuffle with the bob */
 .neo-mascot-feet {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: -2px;
+  position: relative;
+  z-index: -1;
 }
 
 .neo-mascot-feet span {
-  width: 11px;
-  height: 6px;
+  width: 14px;
+  height: 8px;
   background: #F8F5ED;
-  border: 1.5px solid #1a1a1a;
-  border-radius: 0 0 4px 4px;
+  border: 2px solid #1a1a1a;
+  border-radius: 0 0 5px 5px;
   animation: mascotStep 4s ease-in-out infinite;
 }
 
