@@ -141,12 +141,55 @@ function Hero() {
 }
 
 /* ── Stats ────────────────────────────────────────────────── */
+// Count-up on scroll-in. Parses "prefix + digits + suffix" (05+, 6, 5+);
+// non-numeric values (∞) render untouched.
+function CountUp({ value }) {
+  const parts = String(value).match(/^(\D*)(\d+)(.*)$/);
+  const ref = React.useRef(null);
+  const [display, setDisplay] = React.useState(
+    parts ? `${parts[1]}${"0".repeat(parts[2].length)}${parts[3]}` : value
+  );
+
+  React.useEffect(() => {
+    if (!parts) return;
+    const [, pre, digits, suf] = parts;
+    const target = parseInt(digits, 10);
+    const pad = digits.length;
+    const el = ref.current;
+    if (!el) return;
+
+    let done = false;
+    const run = () => {
+      const dur = 1100;
+      const t0 = performance.now();
+      const tick = (now) => {
+        const p = Math.min(1, (now - t0) / dur);
+        const cur = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        setDisplay(`${pre}${String(cur).padStart(pad, "0")}${suf}`);
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting && !done) { done = true; run(); io.disconnect(); }
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return <span ref={ref}>{display}</span>;
+}
+
 function StatStrip() {
   return (
     <section className="neo-stats neo-reveal">
       {STATS.map((s, i) => (
         <div key={i} className="neo-stat">
-          <div className="neo-stat-value">{s.value}</div>
+          <div className="neo-stat-value"><CountUp value={s.value} /></div>
           <div className="neo-stat-label">{s.label}</div>
         </div>
       ))}
