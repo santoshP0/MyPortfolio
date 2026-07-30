@@ -11,6 +11,7 @@ import { sendAlertzyTransmission } from "../../utils/alertzy";
 import resumePdf from "../../Assets/Santosh.pdf";
 import Mascot from "./Mascot";
 import BlogDeck from "./BlogDeck";
+import CursorGrid from "./CursorGrid";
 import "../../styles/neo-brutalist.css";
 
 /* ── Scroll progress bar ─────────────────────────────────── */
@@ -480,7 +481,21 @@ export default function NeoPortfolio() {
   const containerRef = useRevealChildren();
 
   return (
-    <div className="neo-container" ref={containerRef}>
+    <>
+      <CursorGrid
+        className="neo-cursor-grid"
+        cellSize={64}
+        color="#1a1a1a"
+        radius={150}
+        falloff="smooth"
+        maxOpacity={0.32}
+        lineWidth={1.2}
+        holdTime={400}
+        fadeDuration={800}
+        clickPulse
+        pulseSpeed={600}
+      />
+      <div className="neo-container" ref={containerRef}>
       <ScrollProgress />
       <Mascot />
       <Nav />
@@ -494,6 +509,7 @@ export default function NeoPortfolio() {
       <ToolkitSection />
       <BlogSection />
       <ContactSection />
-    </div>
+      </div>
+    </>
   );
 }

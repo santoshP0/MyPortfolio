@@ -1,0 +1,21 @@
+.cursor-grid {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cursor-grid__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Site-wide ambient layer: fixed behind content, ignores pointer so
+   clicks pass through to the page. */
+.neo-cursor-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}

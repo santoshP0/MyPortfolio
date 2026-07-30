@@ -22,7 +22,7 @@ export default function BlogDeck() {
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
-    const update = () => setSpacing(mq.matches ? 134 : 46);
+    const update = () => setSpacing(mq.matches ? 134 : 26);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
@@ -43,9 +43,9 @@ export default function BlogDeck() {
         const offset = i - middle;
         const isActive = active === i;
         const style = isActive
-          ? { transform: "translate(-50%, calc(-50% - 96px))", zIndex: 50 }
+          ? { transform: "translate(-50%, calc(-50% - 84px))", zIndex: 50 }
           : open
-            ? { transform: `translate(calc(-50% + ${offset * spacing * 0.5}px), calc(-50% + 236px)) scale(0.74) rotate(${offset * 4}deg)`, zIndex: i + 2 }
+            ? { transform: `translate(calc(-50% + ${offset * spacing * 0.5}px), calc(-50% + 220px)) scale(0.68) rotate(${offset * 4}deg)`, zIndex: i + 2 }
             : { transform: `translate(calc(-50% + ${offset * spacing}px), calc(-50% + ${FAN[i].y}px)) rotate(${FAN[i].r}deg)`, transformOrigin: "center", zIndex: i + 2 };
 
         return (

@@ -41,6 +41,8 @@ body {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 32px 120px;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Animations ────────────────────────────────────────── */
@@ -1303,11 +1305,11 @@ body {
   transition: height 450ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.neo-deck-open { height: 640px; }
+.neo-deck-open { height: 680px; }
 
 @media (min-width: 1024px) {
   .neo-deck { --w: 250px; --h: 244px; height: 420px; }
-  .neo-deck-open { height: 680px; }
+  .neo-deck-open { height: 710px; }
 }
 
 .neo-deck-card {
@@ -1481,6 +1483,12 @@ body {
   .neo-container {
     padding: 0 18px 80px;
   }
+
+  /* Smaller deck cards so the fan fits a phone without side clipping */
+  .neo-deck { --w: 178px; --h: 190px; height: 340px; }
+  .neo-deck-open { height: 620px; }
+  .neo-deck-card img { height: 110px; }
+  .neo-deck-card-title { font-size: 18px; padding: 8px 12px 10px; }
 
   .neo-nav {
     flex-direction: column;
