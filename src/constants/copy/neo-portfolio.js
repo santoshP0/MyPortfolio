@@ -132,7 +132,7 @@ export const EXPERIENCE = [
     period: "2021 — Now",
     location: "Hyderabad, India",
     role: "Senior Software Developer",
-    company: "Hexagon (HCCI)",
+    company: "Octave (formerly Hexagon)",
     desc: "Building & shipping React Native apps for public safety — Mobile Responder & OnCall Mobile. Leading mobile architecture, CI/CD, and cross-platform delivery for Android & iOS.",
     color: "#F6E27A",
   },

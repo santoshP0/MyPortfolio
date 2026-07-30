@@ -217,8 +217,30 @@ function WorkSection() {
   );
 }
 
-/* ── Experience ───────────────────────────────────────────── */
+/* ── Experience (scroll-fill timeline) ────────────────────── */
 function ExperienceSection() {
+  const railRef = React.useRef(null);
+  const fillRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const onScroll = () => {
+      const el = railRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      // Fill tracks the viewport middle passing through the rail
+      const passed = window.innerHeight * 0.5 - r.top;
+      const pct = Math.max(0, Math.min(1, passed / r.height));
+      if (fillRef.current) fillRef.current.style.height = `${pct * 100}%`;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   return (
     <section id="experience" style={{ paddingTop: 110 }}>
       <div className="neo-section-header neo-reveal">
@@ -226,29 +248,29 @@ function ExperienceSection() {
         <span className="neo-section-count">A working history</span>
       </div>
       <div className="neo-section-divider neo-reveal" />
-      <div className="neo-experience-list">
+
+      <div className="neo-timeline" ref={railRef}>
+        <div className="neo-timeline-track"><div className="neo-timeline-fill" ref={fillRef} /></div>
         {EXPERIENCE.map((e) => (
-          <div key={e.num} className="neo-experience-card neo-reveal">
-            <div>
-              <span className="neo-exp-period" style={{ background: e.color }}>{e.period}</span>
-              <div className="neo-exp-location">{e.location}</div>
+          <div key={e.num} className="neo-timeline-row neo-reveal">
+            <span className="neo-timeline-dot" style={{ background: e.color }} />
+            <div className="neo-experience-card">
+              <div>
+                <span className="neo-exp-period" style={{ background: e.color }}>{e.period}</span>
+                <div className="neo-exp-location">{e.location}</div>
+              </div>
+              <div>
+                <h3 className="neo-exp-role">{e.role}</h3>
+                <div className="neo-exp-company">{e.company}</div>
+                <p className="neo-exp-desc">{e.desc}</p>
+              </div>
             </div>
-            <div>
-              <h3 className="neo-exp-role">{e.role}</h3>
-              <div className="neo-exp-company">{e.company}</div>
-              <p className="neo-exp-desc">{e.desc}</p>
-            </div>
-            <span className="neo-exp-num">{e.num}</span>
           </div>
         ))}
       </div>
+
       <div style={{ display: "flex", gap: 16, marginTop: 28, flexWrap: "wrap" }} className="neo-reveal">
-        <a
-          href={resumePdf}
-          target="_blank"
-          rel="noreferrer"
-          className="neo-btn-accent"
-        >
+        <a href={resumePdf} target="_blank" rel="noreferrer" className="neo-btn-accent">
           ↓ Download résumé (PDF)
         </a>
       </div>

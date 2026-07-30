@@ -35,7 +35,7 @@ const SECTION_BLURBS = {
     "Curious about the tech behind one? Click me.",
   ],
   experience: [
-    "Ask me what I actually do at Hexagon!",
+    "Ask me what I actually do at Octave!",
     "5+ years condensed into two cards. Questions?",
     "Want the story behind any of these roles?",
   ],
