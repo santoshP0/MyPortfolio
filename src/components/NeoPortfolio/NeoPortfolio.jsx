@@ -10,6 +10,7 @@ import {
 import { sendAlertzyTransmission } from "../../utils/alertzy";
 import resumePdf from "../../Assets/Santosh.pdf";
 import Mascot from "./Mascot";
+import BlogDeck from "./BlogDeck";
 import "../../styles/neo-brutalist.css";
 
 /* ── Scroll progress bar ─────────────────────────────────── */
@@ -340,20 +341,7 @@ function BlogSection() {
         <span className="neo-section-count">{String(BLOG_ARTICLES.length).padStart(2, "0")} articles</span>
       </div>
       <div className="neo-section-divider neo-reveal" />
-      <div className="neo-blog-grid neo-stagger">
-        {BLOG_ARTICLES.map((a) => (
-          <a key={a.title} href={a.link} target="_blank" rel="noreferrer" className="neo-blog-card neo-reveal">
-            <img src={a.image} alt={a.title} loading="lazy" />
-            <div className="neo-blog-card-body">
-              <h3 className="neo-blog-card-title">{a.title}</h3>
-              <p className="neo-blog-card-desc">{a.desc}</p>
-              <div className="neo-blog-card-tags">
-                {a.tags.map((t) => <span key={t} className="neo-blog-card-tag">{t}</span>)}
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
+      <div className="neo-reveal"><BlogDeck /></div>
     </section>
   );
 }
