@@ -5,7 +5,7 @@ const SYSTEM_PROMPT = require("./chatbot-prompt");
 
 const MAX_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 500;
-const MODEL = "llama-3.1-8b-instant";
+const MODEL = "llama-3.3-70b-versatile";
 
 // Regex fallback in case the model doesn't call the tool
 const CONTACT_PATTERN = /(?:phone\s*[:\-]?\s*\+?[\d\s\-]{7,}|email\s*[:\-]?\s*\S+@|(?:\+?\d[\d\s\-]{6,14}\d)|(?:\S+@\S+\.\S+))/i;
